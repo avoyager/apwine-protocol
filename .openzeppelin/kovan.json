@@ -1,0 +1,94 @@
+{
+  "contracts": {
+    "APWineController": {
+      "address": "0x8CA1f84db50BC75648a81375A2FD7D60fF321E2F",
+      "constructorCode": "608060405234801561001057600080fd5b5061197b806100206000396000f3fe",
+      "bodyBytecodeHash": "8bc1ba070219e7f1bfae596bdd8addf5fe6ef9b461524da3349ed9bf735806ef",
+      "localBytecodeHash": "a040c0b6af83678f8edcc3967e2dc946a54343d61a64ae9320f737faa5772198",
+      "deployedBytecodeHash": "a040c0b6af83678f8edcc3967e2dc946a54343d61a64ae9320f737faa5772198",
+      "types": {
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        },
+        "t_array:dyn<t_address>": {
+          "id": "t_array:dyn<t_address>",
+          "valueType": "t_address",
+          "length": "dyn",
+          "kind": "array",
+          "label": "address[]"
+        },
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_mapping<t_bool>": {
+          "id": "t_mapping<t_bool>",
+          "valueType": "t_bool",
+          "label": "mapping(key => bool)",
+          "kind": "mapping"
+        }
+      },
+      "storage": [
+        {
+          "contract": "APWineController",
+          "path": "contracts/APWineController.sol",
+          "label": "userProxies",
+          "astId": 4126,
+          "type": "t_array:dyn<t_address>",
+          "src": "166:25:23"
+        },
+        {
+          "contract": "APWineController",
+          "path": "contracts/APWineController.sol",
+          "label": "registeredProxies",
+          "astId": 4130,
+          "type": "t_mapping<t_bool>",
+          "src": "197:40:23"
+        },
+        {
+          "contract": "APWineController",
+          "path": "contracts/APWineController.sol",
+          "label": "futures",
+          "astId": 4133,
+          "type": "t_array:dyn<t_address>",
+          "src": "245:22:23"
+        },
+        {
+          "contract": "APWineController",
+          "path": "contracts/APWineController.sol",
+          "label": "registeredFutures",
+          "astId": 4137,
+          "type": "t_mapping<t_bool>",
+          "src": "273:40:23"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    }
+  },
+  "solidityLibs": {},
+  "proxies": {
+    "apwine-protocol/APWineController": [
+      {
+        "address": "0xcd90BDe8D9A93e30f23e2D68A22AF10E678CCC92",
+        "version": "1.0.0",
+        "implementation": "0x8CA1f84db50BC75648a81375A2FD7D60fF321E2F",
+        "admin": "0x5A8c70547bf1EB7362381B7a007698C8340BaB65",
+        "kind": "Upgradeable"
+      }
+    ]
+  },
+  "manifestVersion": "2.2",
+  "version": "1.0.0",
+  "proxyAdmin": {
+    "address": "0x5A8c70547bf1EB7362381B7a007698C8340BaB65"
+  }
+}

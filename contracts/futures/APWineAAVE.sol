@@ -1,0 +1,70 @@
+pragma solidity >=0.4.22 <0.7.3;
+
+import './aave/AToken.sol';
+import '@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol';
+import '../FutureYieldToken.sol';
+import './APWineFuture.sol';
+import '../APWineProxy.sol';
+import '../APWineController.sol';
+
+contract APWineAave is APWineFuture {
+    // Rinkeby addresses
+
+
+    AToken public IBToken;
+
+    function initialize(address _controllerAddress, address _futureYieldTokenFactoryAddress, address _IBTokenAddress, string memory _name, uint256 _period,address _adminAddress) initializer public override{
+        super.initialize(_controllerAddress, _futureYieldTokenFactoryAddress, _IBTokenAddress, _name, _period, _adminAddress);
+        IBToken = AToken(_IBTokenAddress);
+    }
+
+    //function startFuture(uint index) periodNotStarted(index) periodNotExpired(index) previousPeriodEnded(index) public{ TODO CHECK BEGIN
+    function startFuture(uint _index) periodNotStarted(_index) previousPeriodEnded(_index) public override{
+        require(hasRole(TIMING_CONTROLLER_ROLE, msg.sender), "Caller is not a timing controller");
+        //require(futures[index].beginning>=block.timestamp);
+        futures[_index].period_started = true;
+        futures[_index].initialBalance = IBToken.balanceOf(address(this));
+        uint addressLength = futures[_index].registeredProxies.length;
+        for (uint i = 0; i < addressLength; ++i) {
+            if (futures[_index].registeredBalances[address(futures[_index].registeredProxies[i])] > 0) {
+                futures[_index].registeredProxies[i].collect();
+                futureYieldTokens[_index].mint(address(futures[_index].registeredProxies[i]),futures[_index].registeredBalances[address(futures[_index].registeredProxies[i])]*10**(18-IBTokenDecimals));
+            }
+        }
+
+        futures[_index].totalFutureTokenMinted = futureYieldTokens[_index].totalSupply();
+        emit FuturePeriodStarted(_index);
+    }
+
+    function endFuture(uint _index) periodIsMature(_index) public override{
+        require(hasRole(TIMING_CONTROLLER_ROLE, msg.sender), "Caller is not a timing controller");
+
+        futures[_index].period_ended = true;
+        uint proxiesLength = futures[_index].registeredProxies.length;
+
+        for (uint i = 0; i < proxiesLength; ++i) {
+            address proxyAddress = address(futures[_index].registeredProxies[i]);
+            if (futures[_index].registeredBalances[proxyAddress] > 0){
+                uint256 LenderBalance = futures[_index].registeredBalances[proxyAddress];
+                IBToken.transfer(proxyAddress,LenderBalance);
+                if (autoRegistered.contains(proxyAddress) && _index<futures.length-1){
+                    registerBalanceToPeriod(_index+1, LenderBalance, proxyAddress);
+                }
+            }
+        }
+
+        futures[_index].finalBalance = IBToken.balanceOf(address(this));
+        emit FuturePeriodEnded(_index);
+    }
+
+    function claimYield(uint _index) periodHasEnded(_index) public override{
+        uint256 senderTokenBalance = futureYieldTokens[_index].balanceOf(msg.sender);
+        require(senderTokenBalance > 0);
+        require(futureYieldTokens[_index].transferFrom(msg.sender, address(this), senderTokenBalance));
+        uint256 senderShare = SafeMath.div(senderTokenBalance,futureYieldTokens[_index].totalSupply());
+        uint256 yieldShare = SafeMath.mul(senderShare,futures[_index].finalBalance);
+        IBToken.transfer(msg.sender, yieldShare);
+        futureYieldTokens[_index].burn(senderTokenBalance);
+    }
+
+}
