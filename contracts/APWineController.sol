@@ -1,5 +1,4 @@
 pragma solidity >=0.4.22 <0.7.3;
-pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts-ethereum-package/contracts/utils/EnumerableSet.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol";
