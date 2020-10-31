@@ -1,11 +1,15 @@
 pragma solidity >=0.4.22 <0.7.3;
 
-import './aave/AToken.sol';
+
 import '@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol';
-import '../FutureYieldToken.sol';
+
 import './APWineFuture.sol';
-import '../APWineProxy.sol';
-import '../APWineController.sol';
+
+
+import './aave/AToken.sol';
+import '../interfaces/IFutureYieldToken.sol';
+import '../interfaces/IAPWineProxy.sol';
+import '../interfaces/IAPWineController.sol';
 
 contract APWineAave is APWineFuture {
     // Rinkeby addresses

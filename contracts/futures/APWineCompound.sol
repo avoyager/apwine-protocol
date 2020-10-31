@@ -5,7 +5,7 @@ import '@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol';
 import './compound/Comptroller.sol';
 import './compound/CErc20.sol';
 
-import '../FutureYieldToken.sol';
+import '../interfaces/IFutureYieldToken.sol';
 import './APWineFuture.sol';
 
 

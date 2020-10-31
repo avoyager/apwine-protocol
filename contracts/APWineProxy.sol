@@ -1,14 +1,14 @@
 pragma solidity >=0.4.22 <0.7.3;
 
 import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-import "./FutureYieldToken.sol";
-import "./futures/APWineFuture.sol";
-import "./APWineController.sol";
+import "./interfaces/IFutureYieldToken.sol";
+import "./interfaces/IAPWineFuture.sol";
+import "./interfaces/IAPWineController.sol";
 import "./interfaces/ERC20.sol";
 
-contract APWineProxy  is OwnableUpgradeSafe{
+contract APWineProxy  is Ownable{
 
     using SafeMath for uint256;
 
@@ -16,7 +16,7 @@ contract APWineProxy  is OwnableUpgradeSafe{
 
     /* Attributes */
 
-    APWineController private controller;
+    IAPWineController private controller;
 
     mapping (address => uint256) public registeredFunds;
 
@@ -35,7 +35,7 @@ contract APWineProxy  is OwnableUpgradeSafe{
     /* Initializer */
 
     constructor(address _controller) public {
-        controller = APWineController(_controller);
+        controller = IAPWineController(_controller);
     }
 
     /* Public */
@@ -59,11 +59,11 @@ contract APWineProxy  is OwnableUpgradeSafe{
      * @param _autoRegister whether to register again automatically when the period ends
      */
     function registerToFuture(address _futureAddress, uint256 _index, uint256 _amount, bool _autoRegister) onlyOwner public {
-        address tokenAddress =  APWineFuture(_futureAddress).IBTokenAddress();
+        address tokenAddress =  IAPWineFuture(_futureAddress).IBTokenAddress();
         ERC20 token = ERC20(tokenAddress);
         token.approve(address(_futureAddress), MAX_UINT256);
         require(_amount <= token.balanceOf(address(this)).sub(registeredFunds[tokenAddress]), "Insufficient registered funds");
-        APWineFuture(_futureAddress).registerToPeriod(_index, _amount, _autoRegister);
+        IAPWineFuture(_futureAddress).registerToPeriod(_index, _amount, _autoRegister);
         registeredFunds[tokenAddress] = registeredFunds[tokenAddress].add(_amount);
     }
 
@@ -74,7 +74,7 @@ contract APWineProxy  is OwnableUpgradeSafe{
      * @param _amount the amount to unregister
      */
     function unregisterFromFuture(address _futureAddress, uint256 _index, uint256 _amount) onlyOwner public {
-        APWineFuture future = APWineFuture(_futureAddress);
+        IAPWineFuture future = IAPWineFuture(_futureAddress);
         future.unregisterAmountToPeriod(_index, _amount);
         address tokenAddress = future.IBTokenAddress();
         registeredFunds[tokenAddress] = registeredFunds[tokenAddress].sub(_amount);
@@ -85,7 +85,7 @@ contract APWineProxy  is OwnableUpgradeSafe{
      * @dev The future calls this function to transfer all registered funds when the period starts
      */
     function collect() onlyFuture public {
-        APWineFuture future = APWineFuture(msg.sender);
+        IAPWineFuture future = IAPWineFuture(msg.sender);
         ERC20 interestToken = ERC20(future.IBTokenAddress());
         interestToken.transfer(msg.sender, registeredFunds[address(interestToken)]);
     }

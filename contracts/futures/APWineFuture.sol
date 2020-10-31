@@ -8,9 +8,9 @@ import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol";
 
 
-import '../FutureYieldToken.sol';
-import '../APWineProxy.sol';
-import '../APWineController.sol';
+import '../interfaces/IFutureYieldToken.sol';
+import '../interfaces/IAPWineProxy.sol';
+import '../interfaces/IAPWineController.sol';
 
 abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
     using EnumerableSet for EnumerableSet.AddressSet;
@@ -29,12 +29,12 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
     bytes32 public constant TIMING_CONTROLLER_ROLE = keccak256("TIMING_CONTROLLER_ROLE");
 
 
-    FutureYieldToken[] public futureYieldTokens;
+    IFutureYieldToken[] public futureYieldTokens;
     IFutureYieldTokenFactory futureYieldTokenFactory;
 
     /* Governance */
     mapping (address => bool) public owners;
-    APWineController public controller;
+    IAPWineController public controller;
 
     /* Future params */
     EnumerableSet.AddressSet autoRegistered;
@@ -47,7 +47,7 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
 
         mapping (address => uint256) registeredBalances;
         mapping (address => bool) registrations;
-        APWineProxy[] registeredProxies;
+        IAPWineProxy[] registeredProxies;
 
         uint256 totalRegisteredBalance;
         uint256 totalFutureTokenMinted;
@@ -114,7 +114,7 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
         _setupRole(DEFAULT_ADMIN_ROLE, _adminAddress);
         _setupRole(ADMIN_ROLE, _adminAddress);
 
-        controller =  APWineController(_controllerAddress);
+        controller =  IAPWineController(_controllerAddress);
         futureYieldTokenFactory = IFutureYieldTokenFactory(_futureYieldTokenFactoryAddress);
 
         IBTokenAddress = _IBTokenAddress;
@@ -142,7 +142,7 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
 
         address futureTokenAddress = futureYieldTokenFactory.generateToken(_tokenName,_tokenSymbol);
 
-        FutureYieldToken futureYieldToken = FutureYieldToken(futureTokenAddress);
+        IFutureYieldToken futureYieldToken = IFutureYieldToken(futureTokenAddress);
 
         futures.push(Future({
             beginning: _beginning,
@@ -150,7 +150,7 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
             period_ended: false,
             totalRegisteredBalance: 0,
             totalFutureTokenMinted: 0,
-            registeredProxies: new APWineProxy[](0),
+            registeredProxies: new IAPWineProxy[](0),
             initialBalance: 0,
             finalBalance:0
         }));
@@ -172,7 +172,7 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
         futures[_index].registeredBalances[msg.sender] = SafeMath.add(futures[_index].registeredBalances[msg.sender], _amount);
         futures[_index].registrations[msg.sender] = true;
         futures[_index].totalRegisteredBalance = SafeMath.add(futures[_index].totalRegisteredBalance ,_amount);
-        futures[_index].registeredProxies.push(APWineProxy(address(msg.sender)));
+        futures[_index].registeredProxies.push(IAPWineProxy(address(msg.sender)));
     }
 
     /**
@@ -185,7 +185,7 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
         futures[_index].registeredBalances[_proxy] = SafeMath.add(futures[_index].registeredBalances[_proxy],_amount);
         futures[_index].registrations[_proxy] = true;
         futures[_index].totalRegisteredBalance = SafeMath.add(futures[_index].totalRegisteredBalance,_amount);
-        futures[_index].registeredProxies.push(APWineProxy(_proxy));
+        futures[_index].registeredProxies.push(IAPWineProxy(_proxy));
     }
 
     /**
