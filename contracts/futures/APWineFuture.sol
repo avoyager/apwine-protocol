@@ -1,16 +1,16 @@
 
 pragma solidity >=0.4.22 <0.7.3;
 
-import "../interfaces/ERC20.sol";
-import "../interfaces/IFutureYieldTokenFactory.sol";
+
 import '@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol';
 import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol";
 
-
-import '../interfaces/IFutureYieldToken.sol';
-import '../interfaces/IAPWineProxy.sol';
-import '../interfaces/IAPWineController.sol';
+import "../interfaces/ERC20.sol";
+import "../interfaces/apwine/IFutureYieldTokenFactory.sol";
+import '../interfaces/apwine/IFutureYieldToken.sol';
+import '../interfaces/apwine/IAPWineProxy.sol';
+import '../interfaces/apwine/IAPWineController.sol';
 
 abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
     using EnumerableSet for EnumerableSet.AddressSet;

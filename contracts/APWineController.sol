@@ -4,8 +4,8 @@ import "@openzeppelin/contracts-ethereum-package/contracts/utils/EnumerableSet.s
 import "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol";
 
 
-import "./interfaces/IFutureYieldToken.sol";
-import "./interfaces/IAPWineFuture.sol";
+import "./interfaces/apwine/IFutureYieldToken.sol";
+import "./interfaces/apwine/IAPWineFuture.sol";
 
 import "./APWineProxy.sol";
 

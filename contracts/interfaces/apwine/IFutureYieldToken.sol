@@ -1,6 +1,6 @@
 pragma solidity >=0.4.22 <0.7.3;
 
-import './ERC20.sol';
+import '../ERC20.sol';
 
 interface IFutureYieldToken is ERC20{
 

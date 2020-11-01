@@ -4,12 +4,10 @@ pragma solidity >=0.4.22 <0.7.3;
 import '@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol';
 
 import './APWineFuture.sol';
-
-
-import './aave/AToken.sol';
-import '../interfaces/IFutureYieldToken.sol';
-import '../interfaces/IAPWineProxy.sol';
-import '../interfaces/IAPWineController.sol';
+import '../interfaces/aave/IAToken.sol';
+import '../interfaces/apwine/IFutureYieldToken.sol';
+import '../interfaces/apwine/IAPWineProxy.sol';
+import '../interfaces/apwine/IAPWineController.sol';
 
 contract APWineAave is APWineFuture {
     

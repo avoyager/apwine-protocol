@@ -2,15 +2,14 @@ pragma solidity >=0.4.22 <0.7.3;
 
 import '@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol';
 
-import '../interfaces/IFutureYieldToken.sol';
-import './yearn/Ytoken.sol';
-
+import '../interfaces/apwine/IFutureYieldToken.sol';
+import '../interfaces/yearn/IyToken.sol';
 import './APWineFuture.sol';
 
 
 contract APWineCompound is APWineFuture{
 
-    YToken public IBToken;
+    yToken public IBToken;
 
     struct YearnEarnFuturesParams{
         uint256 initialRate;
@@ -22,7 +21,7 @@ contract APWineCompound is APWineFuture{
     function initialize(address _controllerAddress, address _futureYieldTokenFactoryAddress, address _IBTokenAddress, string memory _name, uint256 _period,address _adminAddress)initializer public override {
         super.initialize(_controllerAddress, _futureYieldTokenFactoryAddress, _IBTokenAddress, _name, _period,_adminAddress);
 
-        IBToken = YToken(_IBTokenAddress);
+        IBToken = yToken(_IBTokenAddress);
     }
 
     //function startFuture(uint index) periodNotStarted(index) periodNotExpired(index) previousPeriodEnded(index) public{ TODO CHECK BEGIN

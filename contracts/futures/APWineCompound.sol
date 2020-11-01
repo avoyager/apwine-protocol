@@ -2,10 +2,9 @@ pragma solidity >=0.4.22 <0.7.3;
 
 import '@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol';
 
-import './compound/Comptroller.sol';
-import './compound/CErc20.sol';
-
-import '../interfaces/IFutureYieldToken.sol';
+import '../interfaces/compound/IComptroller.sol';
+import '../interfaces/compound/ICErc20.sol';
+import '../interfaces/apwine/IFutureYieldToken.sol';
 import './APWineFuture.sol';
 
 
