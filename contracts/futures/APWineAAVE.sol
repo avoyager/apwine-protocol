@@ -12,9 +12,7 @@ import '../interfaces/IAPWineProxy.sol';
 import '../interfaces/IAPWineController.sol';
 
 contract APWineAave is APWineFuture {
-    // Rinkeby addresses
-
-
+    
     AToken public IBToken;
 
     function initialize(address _controllerAddress, address _futureYieldTokenFactoryAddress, address _IBTokenAddress, string memory _name, uint256 _period,address _adminAddress) initializer public override{
