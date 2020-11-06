@@ -225,13 +225,47 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
     * @notice Start the corresponding future 
     * @param _index Index of the future to be started
     */  
-    function startFuture(uint _index) public virtual;
+    function startFuture(uint _index) public virtual{
+        uint addressLength = futures[_index].registeredProxies.length;
+        for (uint i = 0; i < addressLength; ++i) {
+            if (futures[_index].registeredBalances[address(futures[_index].registeredProxies[i])] > 0) {
+                futures[_index].registeredProxies[i].collect();
+                futureYieldTokens[_index].mint(address(futures[_index].registeredProxies[i]),futures[_index].registeredBalances[address(futures[_index].registeredProxies[i])]*10**(18-IBTokenDecimals));
+            }
+        }
+        futures[_index].totalFutureTokenMinted = futureYieldTokens[_index].totalSupply();
+        emit FuturePeriodStarted(_index);
+    }
+
+    /**
+    * @notice Compute the new unlocked balance for a proxy
+    * @param _futureIndex Index of the corresponding future
+    * @param _proxy proxy to compute the balance of
+    */ 
+    function getNewLenderBalance(uint _futureIndex, address _proxy) internal virtual returns(uint256);
 
     /**
     * @notice Stop the corresponding future 
     * @param _index Index of the future to be stopped
     */  
-    function endFuture(uint _index) public virtual;
+    function endFuture(uint _index) public virtual{
+        futures[_index].period_ended = true;
+        uint proxiesLength = futures[_index].registeredProxies.length;
+
+        for (uint i = 0; i < proxiesLength; ++i) {
+            address proxyAddress = address(futures[_index].registeredProxies[i]);
+            if (futures[_index].registeredBalances[proxyAddress] > 0){
+                uint256 LenderBalance = getNewLenderBalance(_index, proxyAddress);
+                ERC20(IBTokenAddress).transfer(proxyAddress,LenderBalance);
+                if (autoRegistered.contains(proxyAddress) && _index<futures.length-1){
+                    registerBalanceToPeriod(_index+1, LenderBalance, proxyAddress);
+                }
+            }
+        }
+
+        futures[_index].finalBalance = ERC20(IBTokenAddress).balanceOf(address(this));
+        emit FuturePeriodEnded(_index);
+    }
 
     /**
     * @notice Claim the yield of the sender

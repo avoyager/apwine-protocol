@@ -25,36 +25,16 @@ contract APWineAave is APWineFuture {
         futures[_index].period_started = true;
         futures[_index].initialBalance = IBToken.balanceOf(address(this));
         uint addressLength = futures[_index].registeredProxies.length;
-        for (uint i = 0; i < addressLength; ++i) {
-            if (futures[_index].registeredBalances[address(futures[_index].registeredProxies[i])] > 0) {
-                futures[_index].registeredProxies[i].collect();
-                futureYieldTokens[_index].mint(address(futures[_index].registeredProxies[i]),futures[_index].registeredBalances[address(futures[_index].registeredProxies[i])]*10**(18-IBTokenDecimals));
-            }
-        }
-
-        futures[_index].totalFutureTokenMinted = futureYieldTokens[_index].totalSupply();
-        emit FuturePeriodStarted(_index);
+        super.startFuture(_index);
     }
 
     function endFuture(uint _index) periodIsMature(_index) public override{
         require(hasRole(TIMING_CONTROLLER_ROLE, msg.sender), "Caller is not a timing controller");
+        super.endFuture(_index);
+    }
 
-        futures[_index].period_ended = true;
-        uint proxiesLength = futures[_index].registeredProxies.length;
-
-        for (uint i = 0; i < proxiesLength; ++i) {
-            address proxyAddress = address(futures[_index].registeredProxies[i]);
-            if (futures[_index].registeredBalances[proxyAddress] > 0){
-                uint256 LenderBalance = futures[_index].registeredBalances[proxyAddress];
-                IBToken.transfer(proxyAddress,LenderBalance);
-                if (autoRegistered.contains(proxyAddress) && _index<futures.length-1){
-                    registerBalanceToPeriod(_index+1, LenderBalance, proxyAddress);
-                }
-            }
-        }
-
-        futures[_index].finalBalance = IBToken.balanceOf(address(this));
-        emit FuturePeriodEnded(_index);
+    function getNewLenderBalance(uint _futureIndex, address _proxy) internal override returns(uint256) {
+        return futures[_futureIndex].registeredBalances[_proxy];
     }
 
     function claimYield(uint _index) periodHasEnded(_index) public override{

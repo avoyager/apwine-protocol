@@ -40,42 +40,17 @@ contract APWineCompound is APWineFuture{
 
         YEFP[_index].initialRate = uint256(IBToken.getPricePerFullShare());
 
-        uint addressLength = futures[_index].registeredProxies.length;
+        super.startFuture(_index);
 
-        for (uint i = 0; i < addressLength; ++i) {
-            if (futures[_index].registeredBalances[address(futures[_index].registeredProxies[i])] > 0) {
-                futures[_index].registeredProxies[i].collect();
-                futureYieldTokens[_index].mint(address(futures[_index].registeredProxies[i]),futures[_index].registeredBalances[address(futures[_index].registeredProxies[i])]*10**(18-IBTokenDecimals));
-            }
-        }
-
-        futures[_index].totalFutureTokenMinted = futureYieldTokens[_index].totalSupply();
-        emit FuturePeriodStarted(_index);
     }
 
     function endFuture(uint _index) periodIsMature(_index) public override{
         require(hasRole(TIMING_CONTROLLER_ROLE, msg.sender), "Caller is not a timing controller");
-
-
         YEFP[_index].finalRate = IBToken.getPricePerFullShare();
-        futures[_index].period_ended = true;
-        uint proxiesLength = futures[_index].registeredProxies.length;
-
-        for (uint i = 0; i < proxiesLength; ++i) {
-            address proxyAddress = address(futures[_index].registeredProxies[i]);
-            if (futures[_index].registeredBalances[proxyAddress] > 0){
-                uint256 newLenderBalance = getNewLenderBalance(_index, proxyAddress);
-                IBToken.transfer(proxyAddress,newLenderBalance);
-                if (autoRegistered.contains(proxyAddress) && _index<futures.length-1){
-                    registerBalanceToPeriod(_index+1, newLenderBalance, proxyAddress);
-                }
-            }
-        }
-        futures[_index].finalBalance = IBToken.balanceOf(address(this));
-        emit FuturePeriodEnded(_index);
+        super.endFuture(_index);
     }
 
-    function getNewLenderBalance(uint _futureIndex, address _proxy) private returns(uint256) {
+    function getNewLenderBalance(uint _futureIndex, address _proxy) internal override returns(uint256) {
         uint256 registeredBalance = futures[_futureIndex].registeredBalances[_proxy];
         uint256 inflationRate = SafeMath.div(YEFP[_futureIndex].initialRate,YEFP[_futureIndex].finalRate);
         return SafeMath.mul(registeredBalance,inflationRate);
