@@ -81,6 +81,18 @@ contract APWineProxy  is Ownable{
     }
 
     /**
+     * @notice Quit an ongoing future
+     * @param _futureAddress the future address to quit from
+     * @param _index the period index to quit from
+     * @param _amount the amount to withdraw
+     */
+    function quitFuture(address _futureAddress, uint _index, uint _amount) onlyOwner public{
+        IAPWineFuture future = IAPWineFuture(_futureAddress);
+        future.quitFuture(_index, _amount);
+    }
+
+
+    /**
      * @notice Sends registered funds from the proxy to a future
      * @dev The future calls this function to transfer all registered funds when the period starts
      */

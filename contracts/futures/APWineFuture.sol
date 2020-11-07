@@ -241,6 +241,7 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
     * @notice Compute the new unlocked balance for a proxy
     * @param _futureIndex Index of the corresponding future
     * @param _proxy proxy to compute the balance of
+    * @dev does not update the state of the ongoing assets rate before computing the new balance
     */ 
     function getNewLenderBalance(uint _futureIndex, address _proxy) internal virtual returns(uint256);
 
@@ -266,6 +267,27 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
         futures[_index].finalBalance = ERC20(IBTokenAddress).balanceOf(address(this));
         emit FuturePeriodEnded(_index);
     }
+
+    /**
+    * @notice Claim the yield of the sender
+    * @param _index Index of the future from where to claim the yield
+    */  
+    function quitFuture(uint _index, uint _amount) public virtual{
+        uint256 currBalance = getNewLenderBalance(_index, msg.sender);
+        require(currBalance>=_amount,"The sender does not have enough funds locked");
+        uint256 LockedShare = futures[_index].registeredBalances[msg.sender].div(futures[_index].totalRegisteredBalance);
+        uint256 FYTSenderTokenBalance = futureYieldTokens[_index].balanceOf(msg.sender);
+        uint256 FYTSenderShare = SafeMath.div(FYTSenderTokenBalance,futureYieldTokens[_index].totalSupply());
+        require(FYTSenderShare>=LockedShare, "The user should its FYT proportional to the amount of funds it wishes to unlock");
+
+        futures[_index].registeredBalances[msg.sender] = futures[_index].registeredBalances[msg.sender].sub(_amount);
+        futures[_index].totalRegisteredBalance = futures[_index].totalRegisteredBalance.sub(_amount);
+        futures[_index].totalFutureTokenMinted = futures[_index].totalFutureTokenMinted.sub(_amount);
+
+        futureYieldTokens[_index].burn(LockedShare.mul(futureYieldTokens[_index].totalSupply()));
+        ERC20(IBTokenAddress).transfer(msg.sender,currBalance);
+    }
+
 
     /**
     * @notice Claim the yield of the sender

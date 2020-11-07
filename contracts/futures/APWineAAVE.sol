@@ -24,7 +24,6 @@ contract APWineAave is APWineFuture {
         //require(futures[index].beginning>=block.timestamp);
         futures[_index].period_started = true;
         futures[_index].initialBalance = IBToken.balanceOf(address(this));
-        uint addressLength = futures[_index].registeredProxies.length;
         super.startFuture(_index);
     }
 

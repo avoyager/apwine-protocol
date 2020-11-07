@@ -64,6 +64,13 @@ contract APWineCompound is APWineFuture{
         super.endFuture(_index);
     }
 
+    function quitFuture(uint _index, uint _amount) public override{
+        CFP[_index].finalRate = IBToken.exchangeRateStored();
+        super.quitFuture(_index, _amount);
+    }
+
+
+
     function getNewLenderBalance(uint _futureIndex, address _proxy) internal override returns(uint256) {
         uint256 registeredBalance = futures[_futureIndex].registeredBalances[_proxy];
         uint256 inflationRate = SafeMath.div(CFP[_futureIndex].initialRate,CFP[_futureIndex].finalRate);

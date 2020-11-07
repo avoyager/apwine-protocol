@@ -73,6 +73,12 @@ interface IAPWineFuture {
     */  
     function endFuture(uint _index) external;
 
+     /**
+    * @notice Claim the yield of the sender
+    * @param _index Index of the future from where to claim the yield
+    */  
+    function quitFuture(uint _index, uint _amount) external;
+
     /**
     * @notice Claim the yield of the sender
     * @param _index Index of the future from where to claim the yield
