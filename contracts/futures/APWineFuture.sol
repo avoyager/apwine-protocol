@@ -269,9 +269,10 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
     }
 
     /**
-    * @notice Claim the yield of the sender
-    * @param _index Index of the future from where to claim the yield
-    */  
+     * @notice Quit an ongoing future
+     * @param _index the period index to quit from
+     * @param _amount the amount to withdraw
+     */
     function quitFuture(uint _index, uint _amount) public virtual{
         uint256 currBalance = getNewLenderBalance(_index, msg.sender);
         require(currBalance>=_amount,"The sender does not have enough funds locked");
@@ -321,5 +322,7 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         PERIOD = _newPeriod;
     }
+
+
 
 }
