@@ -112,5 +112,11 @@ interface IAPWineFuture {
     */  
     function IBTokenAddress() external returns(address);
 
+    /**
+    * @notice Return the index of the next period for this future 
+    * @return The inde of the next period
+    */  
+    function getNextPeriodIndex() external view returns(uint256);
+
 
 }

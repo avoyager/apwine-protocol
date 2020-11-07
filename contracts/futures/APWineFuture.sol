@@ -323,6 +323,18 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
         PERIOD = _newPeriod;
     }
 
+    /**
+    * @notice Return the index of the next period for this future 
+    * @return The inde of the next period
+    */  
+    function getNextPeriodIndex() public view returns(uint256) {
+        for (uint i = 0; i < futures.length; ++i) {
+            if(futures[i].period_started!=false){
+                return i;
+            }
 
+        }
+        return 0;
+    }
 
 }
