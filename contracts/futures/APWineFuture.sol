@@ -281,10 +281,8 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
         require(FYTSenderShare>=LockedShare, "The user should its FYT proportional to the amount of funds it wishes to unlock");
 
         futures[_index].registeredBalances[msg.sender] = futures[_index].registeredBalances[msg.sender].sub(_amount);
-        futures[_index].totalRegisteredBalance = futures[_index].totalRegisteredBalance.sub(_amount);
-        futures[_index].totalFutureTokenMinted = futures[_index].totalFutureTokenMinted.sub(_amount);
 
-        futureYieldTokens[_index].burn(LockedShare.mul(futureYieldTokens[_index].totalSupply()));
+        futureYieldTokens[_index].transferFrom(msg.sender, controller.APWineTreasuryAddress(), LockedShare.mul(futureYieldTokens[_index].totalSupply()));
         ERC20(IBTokenAddress).transfer(msg.sender,currBalance);
     }
 

@@ -6,7 +6,9 @@ import "./IAPWineProxy.sol";
 import "./IAPWineFuture.sol";
 
 interface IAPWineController {
-    /* Initializer */
+    /* Getters */
+
+    function APWineTreasuryAddress() external view returns(address);
 
     /**
      * @notice Initializer of the APWineController contract

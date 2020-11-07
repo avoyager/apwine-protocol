@@ -17,6 +17,8 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
 
     /* Attributes */
 
+    address public APWineTreasuryAddress;
+
     using EnumerableSet for EnumerableSet.AddressSet;
 
     mapping (address => address) public proxiesByUser;
@@ -66,6 +68,18 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
         futures.add(_futureAddress);
         emit FutureRegistered(_futureAddress);
     }
+
+
+
+    /**
+     * @notice Change the APWine treasury contract address
+     * @param _APWineTreasuryAddress the address of the new treasury contract
+     */
+    function setTreasuryAddress(address _APWineTreasuryAddress) public {
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
+        APWineTreasuryAddress = _APWineTreasuryAddress;
+    }
+
 
     /* Views */
 
