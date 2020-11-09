@@ -1,6 +1,6 @@
 pragma solidity >=0.4.22 <0.7.3;
 
-import "@openzeppelin/contracts/presets/ERC20PresetMinterPauser.sol";
+import "./FutureYieldToken.sol";
 
 contract FutureYieldTokenFactory {
     
@@ -11,7 +11,7 @@ contract FutureYieldTokenFactory {
     * @return address of the newly created token
     */
     function generateToken(string memory _tokenName, string memory _tokenSymbol) external returns(address){
-        ERC20PresetMinterPauser newToken = new ERC20PresetMinterPauser(_tokenName,_tokenSymbol);
+        ERC20PresetMinterPauser newToken = new FutureYieldToken(_tokenName,_tokenSymbol);
         newToken.grantRole(newToken.MINTER_ROLE(), msg.sender);
         return address(newToken);
     }
