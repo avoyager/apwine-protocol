@@ -10,6 +10,8 @@ interface IAPWineController {
 
     function APWineTreasuryAddress() external view returns(address);
 
+    function  FutureYieldTokenLogic() external view returns(address);
+
     /**
      * @notice Initializer of the APWineController contract
      * @param _adminAddress the address of the admin

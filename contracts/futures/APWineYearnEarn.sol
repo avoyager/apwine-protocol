@@ -7,7 +7,7 @@ import '../interfaces/yearn/IyToken.sol';
 import './APWineFuture.sol';
 
 
-contract APWineCompound is APWineFuture{
+contract APWineYearnEarn is APWineFuture{
 
     yToken public IBToken;
 
@@ -18,8 +18,8 @@ contract APWineCompound is APWineFuture{
     
     YearnEarnFuturesParams[] public YEFP;
 
-    function initialize(address _controllerAddress, address _futureYieldTokenFactoryAddress, address _IBTokenAddress, string memory _name, uint256 _period,address _adminAddress)initializer public override {
-        super.initialize(_controllerAddress, _futureYieldTokenFactoryAddress, _IBTokenAddress, _name, _period,_adminAddress);
+    function initialize(address _controllerAddress, address _APWineProxyFactoryAddress, address _IBTokenAddress, string memory _name, uint256 _period,address _adminAddress)initializer public override {
+        super.initialize(_controllerAddress, _APWineProxyFactoryAddress, _IBTokenAddress, _name, _period,_adminAddress);
 
         IBToken = yToken(_IBTokenAddress);
     }

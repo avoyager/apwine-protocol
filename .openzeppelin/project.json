@@ -1,7 +1,10 @@
 {
   "manifestVersion": "2.2",
   "contracts": {
-    "APWineController": "APWineController"
+    "APWineController": "APWineController",
+    "ProxyFactory": "ProxyFactory",
+    "APWineAave": "APWineAave",
+    "APWineProxy": "APWineProxy"
   },
   "dependencies": {},
   "name": "apwine-protocol",

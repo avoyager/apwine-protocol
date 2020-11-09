@@ -2,6 +2,8 @@ pragma solidity >=0.4.22 <0.7.3;
 
 import "@openzeppelin/contracts-ethereum-package/contracts/utils/EnumerableSet.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
+import "./oz-upgradability-solc6/upgradeability/ProxyFactory.sol";
 
 
 import "./interfaces/apwine/IFutureYieldToken.sol";
@@ -17,7 +19,11 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
 
     /* Attributes */
 
-    address public APWineTreasuryAddress;
+    address public APWineTreasury;
+    address public APWineProxyFactory;
+    address public APWineProxyLogic;    
+    address public FutureYieldTokenLogic;
+
 
     using EnumerableSet for EnumerableSet.AddressSet;
 
@@ -51,11 +57,15 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
      */
     function createProxy() public {
         require(proxiesByUser[msg.sender] == address(0), "User already has proxy");
-        APWineProxy proxy = new APWineProxy(address(this));
-        proxy.transferOwnership(msg.sender);
-        proxiesByUser[address(msg.sender)] = address(proxy);
-        usersByProxy[address(proxy)] = address(msg.sender);
-        emit ProxyCreated(address(proxy));
+
+
+        bytes memory payload = abi.encodeWithSignature("initialize(address)", address(this));
+        address NewProxy = ProxyFactory(APWineProxyFactory).deployMinimal(APWineProxyLogic, payload);
+
+        APWineProxy(NewProxy).transferOwnership(msg.sender);
+        proxiesByUser[address(msg.sender)] = NewProxy;
+        usersByProxy[NewProxy] = address(msg.sender);
+        emit ProxyCreated(NewProxy);
     }
 
     /**
@@ -70,15 +80,33 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
     }
 
 
-
     /**
      * @notice Change the APWine treasury contract address
-     * @param _APWineTreasuryAddress the address of the new treasury contract
+     * @param _APWineTreasury the address of the new treasury contract
      */
-    function setTreasuryAddress(address _APWineTreasuryAddress) public {
+    function setTreasuryAddress(address _APWineTreasury) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        APWineTreasuryAddress = _APWineTreasuryAddress;
+        APWineTreasury = _APWineTreasury;
     }
+
+    /**
+     * @notice Change the APWineProxyFactory contract address
+     * @param _APWineProxyFactory the address of the new APWineProxyFactory contract
+     */
+    function setAPWineProxyFactoryAddress(address _APWineProxyFactory) public {
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
+        APWineProxyFactory = _APWineProxyFactory;
+    }
+
+    /**
+     * @notice Change the APWineProxy contract logic address
+     * @param _APWineProxyLogic the address of the new proxy logic
+     */
+    function setAPWineProxyLogic(address _APWineProxyLogic) public {
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
+        APWineProxyLogic = _APWineProxyLogic;
+    }
+
 
 
     /* Views */
@@ -87,7 +115,7 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
      * @notice Checks whether the address is a valid proxy
      * @return bool true if the given proxy is valid
      */
-    function isRegisteredProxy(address _proxyAddress) public returns (bool) {
+    function isRegisteredProxy(address _proxyAddress) public view returns (bool) {
        return usersByProxy[_proxyAddress] != address(0);
     }
 
@@ -95,7 +123,7 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
      * @notice Checks whether the address is a valid future
      * @return bool true if the given future is valid
      */
-    function isRegisteredFuture(address _futureAddress) public returns (bool) {
+    function isRegisteredFuture(address _futureAddress) public view returns (bool) {
        return futures.contains(_futureAddress);
     }
 

@@ -24,8 +24,8 @@ contract APWineCompound is APWineFuture{
     
     CompoundFuturesParams[] public CFP;
 
-    function initialize(address _controllerAddress, address _futureYieldTokenFactoryAddress, address _IBTokenAddress, string memory _name, uint256 _period, address _COMPAddress, address _comptrollerAddress,address _adminAddress)initializer public {
-        super.initialize(_controllerAddress, _futureYieldTokenFactoryAddress, _IBTokenAddress, _name, _period,_adminAddress);
+    function initialize(address _controllerAddress, address _APWineProxyFactoryAddress, address _IBTokenAddress, string memory _name, uint256 _period, address _COMPAddress, address _comptrollerAddress,address _adminAddress)initializer public {
+        super.initialize(_controllerAddress, _APWineProxyFactoryAddress, _IBTokenAddress, _name, _period,_adminAddress);
 
         COMP = CErc20(_COMPAddress);
         IBToken = CErc20(_IBTokenAddress);

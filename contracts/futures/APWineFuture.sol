@@ -5,9 +5,13 @@ pragma solidity >=0.4.22 <0.7.3;
 import '@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol';
 import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol";
+import '@openzeppelin/contracts-ethereum-package/contracts/presets/ERC20PresetMinterPauser.sol';
+
+
+import "../oz-upgradability-solc6/upgradeability/ProxyFactory.sol";
+
 
 import "../interfaces/ERC20.sol";
-import "../interfaces/apwine/IFutureYieldTokenFactory.sol";
 import '../interfaces/apwine/IFutureYieldToken.sol';
 import '../interfaces/apwine/IAPWineProxy.sol';
 import '../interfaces/apwine/IAPWineController.sol';
@@ -30,11 +34,14 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
 
 
     IFutureYieldToken[] public futureYieldTokens;
-    IFutureYieldTokenFactory futureYieldTokenFactory;
 
     /* Governance */
     mapping (address => bool) public owners;
     IAPWineController public controller;
+
+
+    ProxyFactory private APWineProxyFactory;
+
 
     /* Future params */
     EnumerableSet.AddressSet autoRegistered;
@@ -65,7 +72,7 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
 
 
     /* Events */
-    event FutureCreated(uint256 _beginning, address futureYieldTokenAddress, uint index); // Event
+    event FutureCreated(uint256 beginning, address futureYieldTokenAddress, uint index); // Event
     event FuturePeriodStarted(uint index);
     event FuturePeriodEnded(uint index);
 
@@ -103,19 +110,19 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
     /**
     * @notice Initializer or APWIneFuture contract
     * @param _controllerAddress Address of APWineController
-    * @param _futureYieldTokenFactoryAddress Address of the future yield tokens factory
+    * @param _APWineProxyFactoryAddress Address of the APWineProxyFactory contract
     * @param _IBTokenAddress Address or the interest bearing token of the platform
     * @param _name Name of this future
     * @param _period Period of this future
     * @param _adminAddress Address of the admin for roles
     */
-    function initialize(address _controllerAddress, address _futureYieldTokenFactoryAddress, address _IBTokenAddress, string memory _name, uint256 _period,address _adminAddress) initializer public virtual{
+    function initialize(address _controllerAddress, address _APWineProxyFactoryAddress, address _IBTokenAddress, string memory _name, uint256 _period,address _adminAddress) initializer public virtual{
 
         _setupRole(DEFAULT_ADMIN_ROLE, _adminAddress);
         _setupRole(ADMIN_ROLE, _adminAddress);
 
         controller =  IAPWineController(_controllerAddress);
-        futureYieldTokenFactory = IFutureYieldTokenFactory(_futureYieldTokenFactoryAddress);
+        APWineProxyFactory = ProxyFactory(_APWineProxyFactoryAddress);
 
         IBTokenAddress = _IBTokenAddress;
         IBTokenDecimals = ERC20(IBTokenAddress).decimals();
@@ -139,8 +146,7 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
         //require(_beginning > (block.timestamp + REGISTRATION_DELAY));
         //require(_beginning>futures[futures.length-1].beginning+PERIOD);
         require(hasRole(CREATION_ROLE, msg.sender), "Caller is not allowed to create futures");
-
-        address futureTokenAddress = futureYieldTokenFactory.generateToken(_tokenName,_tokenSymbol);
+        address futureTokenAddress = DeployFutureYieldToken(_tokenName,_tokenSymbol);
 
         IFutureYieldToken futureYieldToken = IFutureYieldToken(futureTokenAddress);
 
@@ -156,6 +162,13 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
         }));
         futureYieldTokens.push(futureYieldToken);
         emit FutureCreated(_beginning, address(futureYieldToken), futures.length - 1);
+    }
+
+    function DeployFutureYieldToken(string memory _tokenName, string memory _tokenSymbol) internal returns(address){
+        bytes memory payload = abi.encodeWithSignature("initialize(string,string)", _tokenName, _tokenSymbol);
+        ERC20PresetMinterPauserUpgradeSafe Newtoken = ERC20PresetMinterPauserUpgradeSafe(APWineProxyFactory.deployMinimal(controller.FutureYieldTokenLogic(), payload));
+        Newtoken.grantRole(Newtoken.MINTER_ROLE(), msg.sender);
+        return address(Newtoken);
     }
 
     /**

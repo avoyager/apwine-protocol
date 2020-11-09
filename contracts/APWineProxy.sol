@@ -1,14 +1,14 @@
 pragma solidity >=0.4.22 <0.7.3;
 
 import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/access/Ownable.sol";
 
 import "./interfaces/apwine/IFutureYieldToken.sol";
 import "./interfaces/apwine/IAPWineFuture.sol";
 import "./interfaces/apwine/IAPWineController.sol";
 import "./interfaces/ERC20.sol";
 
-contract APWineProxy  is Ownable{
+contract APWineProxy is OwnableUpgradeSafe{
 
     using SafeMath for uint256;
 
@@ -34,7 +34,7 @@ contract APWineProxy  is Ownable{
 
     /* Initializer */
 
-    constructor(address _controller) public {
+    function initialize(address _controller) initializer public {
         controller = IAPWineController(_controller);
     }
 
