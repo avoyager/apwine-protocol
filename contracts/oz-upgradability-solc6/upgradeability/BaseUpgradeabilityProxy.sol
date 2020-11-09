@@ -1,7 +1,7 @@
 pragma solidity ^0.6.0;
 
 import './Proxy.sol';
-import '../utils/Address.sol';
+import '@openzeppelin/contracts-ethereum-package/contracts/utils/Address.sol';
 
 /**
  * @title BaseUpgradeabilityProxy
@@ -48,7 +48,7 @@ contract BaseUpgradeabilityProxy is Proxy {
    * @param newImplementation Address of the new implementation.
    */
   function _setImplementation(address newImplementation) internal {
-    require(OpenZeppelinUpgradesAddress.isContract(newImplementation), "Cannot set a proxy implementation to a non-contract address");
+    require(Address.isContract(newImplementation), "Cannot set a proxy implementation to a non-contract address");
 
     bytes32 slot = IMPLEMENTATION_SLOT;
 

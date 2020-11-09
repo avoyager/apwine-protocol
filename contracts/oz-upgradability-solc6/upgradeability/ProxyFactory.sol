@@ -1,7 +1,7 @@
 pragma solidity ^0.6.0;
 
 import "./InitializableAdminUpgradeabilityProxy.sol";
-import "../cryptography/ECDSA.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/cryptography/ECDSA.sol";
 
 contract ProxyFactory {
   
@@ -60,7 +60,7 @@ contract ProxyFactory {
   }
 
   function getSigner(uint256 _salt, address _logic, address _admin, bytes memory _data, bytes memory _signature) public view returns (address) {
-    bytes32 msgHash = OpenZeppelinUpgradesECDSA.toEthSignedMessageHash(
+    bytes32 msgHash = ECDSA.toEthSignedMessageHash(
       keccak256(
         abi.encodePacked(
           _salt, _logic, _admin, _data, address(this)
@@ -68,7 +68,7 @@ contract ProxyFactory {
       )
     );
 
-    return OpenZeppelinUpgradesECDSA.recover(msgHash, _signature);
+    return ECDSA.recover(msgHash, _signature);
   }
 
   function _deployProxy(uint256 _salt, address _logic, address _admin, bytes memory _data, address _sender) internal returns (address) {

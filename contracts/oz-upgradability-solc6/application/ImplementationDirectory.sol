@@ -2,7 +2,7 @@ pragma solidity ^0.6.0;
 
 import "./ImplementationProvider.sol";
 import "../ownership/Ownable.sol";
-import '../utils/Address.sol';
+import '@openzeppelin/contracts-ethereum-package/contracts/utils/Address.sol';
 
 /**
  * @title ImplementationDirectory
@@ -59,7 +59,7 @@ contract ImplementationDirectory is ImplementationProvider, OpenZeppelinUpgrades
    * @param implementation Address of the implementation.
    */
   function setImplementation(string memory contractName, address implementation) public onlyOwner whenNotFrozen {
-    require(OpenZeppelinUpgradesAddress.isContract(implementation), "Cannot set implementation in directory with a non-contract address");
+    require(Address.isContract(implementation), "Cannot set implementation in directory with a non-contract address");
     implementations[contractName] = implementation;
     emit ImplementationChanged(contractName, implementation);
   }
