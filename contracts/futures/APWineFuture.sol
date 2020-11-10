@@ -12,7 +12,7 @@ import "../oz-upgradability-solc6/upgradeability/ProxyFactory.sol";
 
 
 import "../interfaces/ERC20.sol";
-import '../interfaces/apwine/IFutureYieldToken.sol';
+import '../FutureYieldToken.sol';
 import '../interfaces/apwine/IAPWineProxy.sol';
 import '../interfaces/apwine/IAPWineController.sol';
 
@@ -33,7 +33,7 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
     bytes32 public constant TIMING_CONTROLLER_ROLE = keccak256("TIMING_CONTROLLER_ROLE");
 
 
-    IFutureYieldToken[] public futureYieldTokens;
+    FutureYieldToken[] public futureYieldTokens;
 
     /* Governance */
     mapping (address => bool) public owners;
@@ -148,7 +148,7 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
         require(hasRole(CREATION_ROLE, msg.sender), "Caller is not allowed to create futures");
         address futureTokenAddress = DeployFutureYieldToken(_tokenName,_tokenSymbol);
 
-        IFutureYieldToken futureYieldToken = IFutureYieldToken(futureTokenAddress);
+        FutureYieldToken futureYieldToken = FutureYieldToken(futureTokenAddress);
 
         futures.push(Future({
             beginning: _beginning,
@@ -165,11 +165,11 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
     }
 
     function DeployFutureYieldToken(string memory _tokenName, string memory _tokenSymbol) internal returns(address){
-        bytes memory payload = abi.encodeWithSignature("initialize(string,string)", _tokenName, _tokenSymbol);
-        ERC20PresetMinterPauserUpgradeSafe Newtoken = ERC20PresetMinterPauserUpgradeSafe(APWineProxyFactory.deployMinimal(controller.FutureYieldTokenLogic(), payload));
-        Newtoken.grantRole(Newtoken.MINTER_ROLE(), msg.sender);
+        bytes memory payload = abi.encodeWithSignature("initialize(string,string,address)", _tokenName, _tokenSymbol,address(this));
+        FutureYieldToken Newtoken = FutureYieldToken(APWineProxyFactory.deployMinimal(controller.FutureYieldTokenLogic(), payload));
         return address(Newtoken);
     }
+
 
     /**
     * @notice Register proxies to a future
