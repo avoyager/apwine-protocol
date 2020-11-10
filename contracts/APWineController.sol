@@ -103,6 +103,15 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
         APWineProxyLogic = _APWineProxyLogic;
     }
 
+    /**
+     * @notice Change the APWineProxy contract logic address
+     * @param _FutureYieldTokenLogic the address of the new proxy logic
+     */
+    function setFutureYieldTokenLogic(address _FutureYieldTokenLogic) public {
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
+        FutureYieldTokenLogic = _FutureYieldTokenLogic;
+    }
+
 
 
     /* Views */
