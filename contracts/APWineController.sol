@@ -57,12 +57,8 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
      */
     function createProxy() public {
         require(proxiesByUser[msg.sender] == address(0), "User already has proxy");
-
-
         bytes memory payload = abi.encodeWithSignature("initialize(address)", address(this));
         address NewProxy = ProxyFactory(APWineProxyFactory).deployMinimal(APWineProxyLogic, payload);
-
-        APWineProxy(NewProxy).transferOwnership(msg.sender);
         proxiesByUser[address(msg.sender)] = NewProxy;
         usersByProxy[NewProxy] = address(msg.sender);
         emit ProxyCreated(NewProxy);
