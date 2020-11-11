@@ -35,6 +35,7 @@ contract APWineProxy is OwnableUpgradeSafe{
     /* Initializer */
 
     function initialize(address _controller, address _owner) initializer public {
+        __Ownable_init();
         transferOwnership(_owner);
         controller = IAPWineController(_controller);
     }

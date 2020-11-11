@@ -1,11 +1,11 @@
 {
   "contracts": {
     "APWineController": {
-      "address": "0x1F36b70057F699Bd5FD314bb9A4aB33B762890C7",
+      "address": "0x3626D65a65208BEf2bf2Cc027fb716A1fC51B87d",
       "constructorCode": "608060405234801561001057600080fd5b50611cc0806100206000396000f3fe",
-      "bodyBytecodeHash": "2d5551d94ebd169af9d376f227b996059afe3543a65c56baf06ff27e7d060586",
-      "localBytecodeHash": "b595961408397e1789b57b667fbbcad6dd5a1e2a0801a597d9b5b348bfc24658",
-      "deployedBytecodeHash": "b595961408397e1789b57b667fbbcad6dd5a1e2a0801a597d9b5b348bfc24658",
+      "bodyBytecodeHash": "4d3d24af0c7906338ec9e4d307b396d76d88954f61bfbd85fd281a4254d5265f",
+      "localBytecodeHash": "6dfdee68c3ef15c32594970d018a0dc586e38566916d55c701a807656f63555f",
+      "deployedBytecodeHash": "6dfdee68c3ef15c32594970d018a0dc586e38566916d55c701a807656f63555f",
       "types": {
         "t_bool": {
           "id": "t_bool",
@@ -233,7 +233,7 @@
       }
     },
     "APWineAave": {
-      "address": "0x0874e17b42C6b79e5260b5e26e2CA70A0DFc0717",
+      "address": "0x257de06E58942fd21cb3A3fB0014402C6e276824",
       "constructorCode": "608060405234801561001057600080fd5b506152c1806100206000396000f3fe",
       "bodyBytecodeHash": "b0af97609f3c5c58170b0a284513aeb8c87fe04b7a416c9519b39f9e477e012e",
       "localBytecodeHash": "784b4705ed672de971e9dae659474a20b4db04e335a06e90c18dbc8c771a302d",
@@ -368,61 +368,61 @@
           "members": [
             {
               "label": "beginning",
-              "astId": 3876,
+              "astId": 3879,
               "type": "t_uint256",
               "src": "1500:17:20"
             },
             {
               "label": "period_started",
-              "astId": 3878,
+              "astId": 3881,
               "type": "t_bool",
               "src": "1527:19:20"
             },
             {
               "label": "period_ended",
-              "astId": 3880,
+              "astId": 3883,
               "type": "t_bool",
               "src": "1556:17:20"
             },
             {
               "label": "registeredBalances",
-              "astId": 3884,
+              "astId": 3887,
               "type": "t_mapping<t_uint256>",
               "src": "1584:47:20"
             },
             {
               "label": "registrations",
-              "astId": 3888,
+              "astId": 3891,
               "type": "t_mapping<t_bool>",
               "src": "1641:39:20"
             },
             {
               "label": "registeredProxies",
-              "astId": 3891,
+              "astId": 3894,
               "type": "t_array:dyn<t_address>",
               "src": "1690:32:20"
             },
             {
               "label": "totalRegisteredBalance",
-              "astId": 3893,
+              "astId": 3896,
               "type": "t_uint256",
               "src": "1733:30:20"
             },
             {
               "label": "totalFutureTokenMinted",
-              "astId": 3895,
+              "astId": 3898,
               "type": "t_uint256",
               "src": "1773:30:20"
             },
             {
               "label": "initialBalance",
-              "astId": 3897,
+              "astId": 3900,
               "type": "t_uint256",
               "src": "1813:22:20"
             },
             {
               "label": "finalBalance",
-              "astId": 3899,
+              "astId": 3902,
               "type": "t_uint256",
               "src": "1845:20:20"
             }
@@ -489,7 +489,7 @@
           "contract": "APWineFuture",
           "path": "contracts/futures/APWineFuture.sol",
           "label": "REGISTRATION_DELAY",
-          "astId": 3840,
+          "astId": 3843,
           "type": "t_uint256",
           "src": "805:33:20"
         },
@@ -497,7 +497,7 @@
           "contract": "APWineFuture",
           "path": "contracts/futures/APWineFuture.sol",
           "label": "START_DELAY",
-          "astId": 3842,
+          "astId": 3845,
           "type": "t_uint256",
           "src": "844:26:20"
         },
@@ -505,7 +505,7 @@
           "contract": "APWineFuture",
           "path": "contracts/futures/APWineFuture.sol",
           "label": "PERIOD",
-          "astId": 3844,
+          "astId": 3847,
           "type": "t_uint256",
           "src": "876:21:20"
         },
@@ -513,7 +513,7 @@
           "contract": "APWineFuture",
           "path": "contracts/futures/APWineFuture.sol",
           "label": "NAME",
-          "astId": 3846,
+          "astId": 3849,
           "type": "t_string",
           "src": "903:18:20"
         },
@@ -521,7 +521,7 @@
           "contract": "APWineFuture",
           "path": "contracts/futures/APWineFuture.sol",
           "label": "futureYieldTokens",
-          "astId": 3864,
+          "astId": 3867,
           "type": "t_array:dyn<t_address>",
           "src": "1177:43:20"
         },
@@ -529,7 +529,7 @@
           "contract": "APWineFuture",
           "path": "contracts/futures/APWineFuture.sol",
           "label": "owners",
-          "astId": 3868,
+          "astId": 3871,
           "type": "t_mapping<t_bool>",
           "src": "1248:39:20"
         },
@@ -537,7 +537,7 @@
           "contract": "APWineFuture",
           "path": "contracts/futures/APWineFuture.sol",
           "label": "controller",
-          "astId": 3870,
+          "astId": 3873,
           "type": "t_address",
           "src": "1293:35:20"
         },
@@ -545,7 +545,7 @@
           "contract": "APWineFuture",
           "path": "contracts/futures/APWineFuture.sol",
           "label": "APWineProxyFactory",
-          "astId": 3872,
+          "astId": 3875,
           "type": "t_address",
           "src": "1336:39:20"
         },
@@ -553,7 +553,7 @@
           "contract": "APWineFuture",
           "path": "contracts/futures/APWineFuture.sol",
           "label": "autoRegistered",
-          "astId": 3874,
+          "astId": 3877,
           "type": "t_struct<EnumerableSet.AddressSet>",
           "src": "1407:39:20"
         },
@@ -561,7 +561,7 @@
           "contract": "APWineFuture",
           "path": "contracts/futures/APWineFuture.sol",
           "label": "futures",
-          "astId": 3903,
+          "astId": 3906,
           "type": "t_array:dyn<t_struct<APWineFuture.Future>>",
           "src": "1882:23:20"
         },
@@ -569,7 +569,7 @@
           "contract": "APWineFuture",
           "path": "contracts/futures/APWineFuture.sol",
           "label": "IBTokenAddress",
-          "astId": 3905,
+          "astId": 3908,
           "type": "t_address",
           "src": "1945:29:20"
         },
@@ -577,7 +577,7 @@
           "contract": "APWineFuture",
           "path": "contracts/futures/APWineFuture.sol",
           "label": "IBTokenDecimals",
-          "astId": 3907,
+          "astId": 3910,
           "type": "t_uint256",
           "src": "1980:23:20"
         },
@@ -585,7 +585,7 @@
           "contract": "APWineFuture",
           "path": "contracts/futures/APWineFuture.sol",
           "label": "IBTokenSymbol",
-          "astId": 3909,
+          "astId": 3912,
           "type": "t_string",
           "src": "2009:20:20"
         },
@@ -593,7 +593,7 @@
           "contract": "APWineFuture",
           "path": "contracts/futures/APWineFuture.sol",
           "label": "IBTokenName",
-          "astId": 3911,
+          "astId": 3914,
           "type": "t_string",
           "src": "2035:18:20"
         },
@@ -601,7 +601,7 @@
           "contract": "APWineAave",
           "path": "contracts/futures/APWineAAVE.sol",
           "label": "IBToken",
-          "astId": 3008,
+          "astId": 3011,
           "type": "t_address",
           "src": "387:21:17"
         }
@@ -619,40 +619,40 @@
   "proxies": {
     "apwine-protocol/APWineController": [
       {
-        "address": "0x49E2870cFf325146B6C2E7dD1952e53AAE6237F5",
+        "address": "0x4Bf8D7aA1446D52587af8703907c2315DCD5d223",
         "version": "1.0.0",
-        "implementation": "0x1F36b70057F699Bd5FD314bb9A4aB33B762890C7",
-        "admin": "0xA0Af6c9B0186D85E6D09d2eDF40053cb6B8B97C3",
+        "implementation": "0x3626D65a65208BEf2bf2Cc027fb716A1fC51B87d",
+        "admin": "0xBDBC3aC4807030Bce089b5E4588bd3029547Dcf0",
         "kind": "Upgradeable"
       }
     ],
     "apwine-protocol/ProxyFactory": [
       {
-        "address": "0xc517bCa1318c95241F1530Eae59DC962386E0661",
+        "address": "0xF845A82244EC90B6E43A9d386bBa6492ae9BdD7C",
         "kind": "NonProxy",
         "bytecodeHash": "7959b64b27869011da29ea4c577da4306b67968cccf211f79d6ff6e2fce69098"
       }
     ],
     "apwine-protocol/APWineProxy": [
       {
-        "address": "0xD549Beebb04f62E72bC6405186CE9CB9179E7598",
+        "address": "0xE387e49BB773E691134b9dBf9b702F8078564C1e",
         "kind": "NonProxy",
-        "bytecodeHash": "45805bfa6937328cb37105f6126cd0b2e1a93e5124d83f359d1bbc9d7437ea56"
+        "bytecodeHash": "acdaa875b3d1cccd53e016c50e5af21985bb01e9b9d37916e8ba570917c441a9"
       }
     ],
     "apwine-protocol/FutureYieldToken": [
       {
-        "address": "0x9b06670546d19474624a819e534aF216aE8CaB66",
+        "address": "0x095453dc5b36F72460Caf629Fdb9B5B1fa5bf005",
         "kind": "NonProxy",
         "bytecodeHash": "3678e68bf20ef5264d1704dfb81dcd161527ae9ddc3420e2948b470cdf2c2e42"
       }
     ],
     "apwine-protocol/APWineAave": [
       {
-        "address": "0x861484Bb5a2bBbbA1aC5387666cA0377acEC2e9D",
+        "address": "0x8890F3fd8c32115b305Dca5dfAaCc9E9f48d4BFC",
         "version": "1.0.0",
-        "implementation": "0x0874e17b42C6b79e5260b5e26e2CA70A0DFc0717",
-        "admin": "0xA0Af6c9B0186D85E6D09d2eDF40053cb6B8B97C3",
+        "implementation": "0x257de06E58942fd21cb3A3fB0014402C6e276824",
+        "admin": "0xBDBC3aC4807030Bce089b5E4588bd3029547Dcf0",
         "kind": "Upgradeable"
       }
     ]
@@ -660,6 +660,6 @@
   "manifestVersion": "2.2",
   "version": "1.0.0",
   "proxyAdmin": {
-    "address": "0xA0Af6c9B0186D85E6D09d2eDF40053cb6B8B97C3"
+    "address": "0xBDBC3aC4807030Bce089b5E4588bd3029547Dcf0"
   }
 }
