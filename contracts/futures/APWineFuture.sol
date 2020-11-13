@@ -344,7 +344,7 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
     */  
     function getNextPeriodIndex() public view returns(uint256) {
         for (uint i = 0; i < futures.length; ++i) {
-            if(futures[i].period_started!=false){
+            if(futures[i].period_started){
                 return i;
             }
 
@@ -352,4 +352,17 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
         return 0;
     }
 
+    /**
+    * @notice Return the locked balance of a proxy
+    * @param _proxy the address of the proxy
+    * @return The inde of the next period
+    */  
+    function getProxyLockedBalance(address _proxy) public view returns(uint256) {
+        for (uint i = 0; i < futures.length; ++i) {
+            if(futures[i].period_started && !futures[i].period_ended){
+                return futures[i].registeredBalances(_proxy);
+            }
+        }
+        return 0;
+    }
 }
