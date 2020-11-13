@@ -119,4 +119,12 @@ interface IAPWineFuture {
     function getNextPeriodIndex() external view returns(uint256);
 
 
+    /**
+    * @notice Return the locked balance of a proxy
+    * @param _proxy the address of the proxy
+    * @return The locked balance of the proxy
+    */  
+    function getProxyLockedBalance(address _proxy) external view returns(uint256);
+
+
 }
