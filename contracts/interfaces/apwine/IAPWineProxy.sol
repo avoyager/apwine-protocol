@@ -41,4 +41,12 @@ interface IAPWineProxy{
      */
     function collect(uint256 _amount) external;
 
+
+    /**
+     * @notice Change the address of the controller
+     * @param _newcController address of the new controller
+     * @dev Exists for security needs
+     */
+    function migrateController(uint256 _newcController) external;
+
 }
