@@ -241,9 +241,10 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
     function startFuture(uint _index) public virtual{
         uint addressLength = futures[_index].registeredProxies.length;
         for (uint i = 0; i < addressLength; ++i) {
-            if (futures[_index].registeredBalances[address(futures[_index].registeredProxies[i])] > 0) {
-                futures[_index].registeredProxies[i].collect();
-                futureYieldTokens[_index].mint(address(futures[_index].registeredProxies[i]),futures[_index].registeredBalances[address(futures[_index].registeredProxies[i])]*10**(18-IBTokenDecimals));
+            uint256 registeredProxyBalance = futures[_index].registeredBalances[address(futures[_index].registeredProxies[i])];
+            if ( registeredProxyBalance > 0) {
+                futures[_index].registeredProxies[i].collect(registeredProxyBalance);
+                futureYieldTokens[_index].mint(address(futures[_index].registeredProxies[i]),registeredProxyBalance*10**(18-IBTokenDecimals));
             }
         }
         futures[_index].totalFutureTokenMinted = futureYieldTokens[_index].totalSupply();
@@ -273,6 +274,7 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
                 ERC20(IBTokenAddress).transfer(proxyAddress,LenderBalance);
                 if (autoRegistered.contains(proxyAddress) && _index<futures.length-1){
                     registerBalanceToPeriod(_index+1, LenderBalance, proxyAddress);
+                    IAPWineProxy(proxyAddress).registerFunds(LenderBalance);
                 }
             }
         }

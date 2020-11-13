@@ -61,11 +61,21 @@ contract APWineProxy is OwnableUpgradeSafe{
      * @param _autoRegister whether to register again automatically when the period ends
      */
     function registerToFuture(address _futureAddress, uint256 _index, uint256 _amount, bool _autoRegister) onlyOwner public {
+        require(controller.isRegisteredFuture(_futureAddress),"Invalid future address");
         address tokenAddress =  IAPWineFuture(_futureAddress).IBTokenAddress();
         ERC20 token = ERC20(tokenAddress);
         token.approve(address(_futureAddress), MAX_UINT256);
         require(_amount <= token.balanceOf(address(this)).sub(registeredFunds[tokenAddress]), "Insufficient registered funds");
         IAPWineFuture(_futureAddress).registerToPeriod(_index, _amount, _autoRegister);
+        registeredFunds[tokenAddress] = registeredFunds[tokenAddress].add(_amount);
+    }
+
+    /**
+     * @notice Register funds of the proxy from the future
+     * @param _amount the amount of funds to register
+     */
+    function registerFunds(uint256 _amount) onlyFuture public {
+        address tokenAddress =  IAPWineFuture(msg.sender).IBTokenAddress();
         registeredFunds[tokenAddress] = registeredFunds[tokenAddress].add(_amount);
     }
 
@@ -96,12 +106,14 @@ contract APWineProxy is OwnableUpgradeSafe{
 
     /**
      * @notice Sends registered funds from the proxy to a future
+     * @param _amount amount to be collected by the future
      * @dev The future calls this function to transfer all registered funds when the period starts
      */
-    function collect() onlyFuture public {
+    function collect(uint256 _amount) onlyFuture public {
         IAPWineFuture future = IAPWineFuture(msg.sender);
-        ERC20 interestToken = ERC20(future.IBTokenAddress());
-        interestToken.transfer(msg.sender, registeredFunds[address(interestToken)]);
+        address tokenAddress = future.IBTokenAddress();
+        ERC20(tokenAddress).transfer(msg.sender, _amount);
+        registeredFunds[tokenAddress] = registeredFunds[tokenAddress].sub(_amount);
     }
 
 }
