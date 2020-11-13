@@ -36,6 +36,8 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
 
     event ProxyCreated(address proxy);
     event FutureRegistered(address future);
+    event FutureUnregistered(address future);
+
 
     /* Modifiers */
 
@@ -71,9 +73,18 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
      */
     function addFuture(address _futureAddress) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        require(!futures.contains(_futureAddress), "Future already registered");
-        futures.add(_futureAddress);
+        require(futures.add(_futureAddress), "Future already registered");
         emit FutureRegistered(_futureAddress);
+    }
+
+    /**
+     * @notice Removes a future from the registered future list
+     * @param _futureAddress the address of the future
+     */
+    function delFuture(address _futureAddress) public {
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
+        require(futures.remove(_futureAddress), "Future not registered");
+        emit FutureUnregistered(_futureAddress);
     }
 
 
