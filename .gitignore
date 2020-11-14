@@ -82,5 +82,5 @@ $RECYCLE.BIN/
 
 node_modules/
 build/
-.openzeppelin/.session
+.openzeppelin/
 *.env
