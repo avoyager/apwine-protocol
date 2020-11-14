@@ -15,10 +15,12 @@
     "@openzeppelin/cli": "^2.8.2",
     "@openzeppelin/contracts-ethereum-package": "^3.0.0",
     "@openzeppelin/test-helpers": "^0.5.7",
+    "@openzeppelin/truffle-upgrades": "^1.2.3",
     "chai": "^4.2.0",
     "dotenv": "^8.2.0",
     "ganache-cli": "^6.12.0",
     "mocha": "^8.2.0",
+    "truffle": "^5.1.53",
     "truffle-hdwallet-provider": "^1.0.17"
   },
   "devDependencies": {
