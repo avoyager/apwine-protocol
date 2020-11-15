@@ -127,4 +127,12 @@ interface IAPWineFuture {
     function getProxyLockedBalance(address _proxy) external view returns(uint256);
 
 
+    /**
+    * @notice Return the registered amount for each next period
+    * @param _proxy the address of the proxy
+    * @return an array of amount registered for each new period
+    */  
+    function getProxyRegistrations(address _proxy) external view returns(uint256 [] memory);
+
+
 }

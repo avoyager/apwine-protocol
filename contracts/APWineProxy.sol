@@ -65,7 +65,11 @@ contract APWineProxy is OwnableUpgradeSafe{
         address tokenAddress =  IAPWineFuture(_futureAddress).IBTokenAddress();
         ERC20 token = ERC20(tokenAddress);
         token.approve(address(_futureAddress), MAX_UINT256);
-        require(_amount <= token.balanceOf(address(this)).sub(registeredFunds[tokenAddress]), "Insufficient registered funds");
+
+        uint256 currentProxyBalance = token.balanceOf(address(this)).sub(registeredFunds[tokenAddress]);
+        if(_amount > currentProxyBalance){
+            require(token.transferFrom(msg.sender, address(this), _amount.sub(currentProxyBalance)), "Insufficient funds");
+        }
         IAPWineFuture(_futureAddress).registerToPeriod(_index, _amount, _autoRegister);
         registeredFunds[tokenAddress] = registeredFunds[tokenAddress].add(_amount);
     }
