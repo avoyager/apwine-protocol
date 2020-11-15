@@ -365,4 +365,19 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
         }
         return 0;
     }
+
+    /**
+    * @notice Return the registered amount for each next period
+    * @param _proxy the address of the proxy
+    * @return an array of amount registered for each new period
+    */  
+    function getProxyRegistrations(address _proxy) public view returns(uint256 [] memory) {
+        uint256 nextIndex = getNextPeriodIndex();
+        uint[] memory registrations= new uint[](futures.length);
+
+        for (uint i = nextIndex; i < futures.length; ++i) {
+                  registrations[i-nextIndex]=futures[i].registeredBalances[_proxy];    
+        }
+        return registrations;
+    }
 }
