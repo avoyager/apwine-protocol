@@ -43,6 +43,17 @@ module.exports = async function (deployer) {
   await aavefuture.grantRole("0x4873ef423ebf9f9a54f12880e8328ce2fa6922f8fd56c195a45c5a0ae9a42a14",admin_address);
   await aavefuture.grantRole("0xa740542f7a58151bbede3b475841aea632d450804b6b85d24d49aa8a519ef4bc",admin_address);
 
+
+  // Requires the sender to be the admin_address set
+  const tomorrow = Math.floor(Date.now() / 1000) + 24*60*60;
+  await aavefuture.createFuture(tomorrow,"Week 0 Aave Dai","W0ADAI");
+  console.log("Created weekly future 0 for Aave Dai");
+
+  const oneWeekLater = tomorrow+ 24*60*60*7;
+  await aavefuture.createFuture(oneWeekLater,"Week 1 Aave Dai","W1ADAI");
+  console.log("Created weekly future 1 for Aave Dai");
+
+
   console.log('APWineController: ', controller.address);
   console.log('ProxyFactory: ', proxyFactory.address);
   console.log('APWineProxyLogic: ', apwineProxy.address);
