@@ -381,4 +381,15 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
         }
         return registrations;
     }
+
+
+    /**
+    * @notice Return the FYT address of the corresponding period
+    * @param _periodIndex the index of the period
+    * @return the FYT address
+    */  
+    function getFYTofPeriod(uint256 _periodIndex) public view returns(address) {
+       require(_periodIndex<futureYieldTokens.length, "The corresponding period does not exist");
+       return futureYieldTokens[_periodIndex];
+    }
 }

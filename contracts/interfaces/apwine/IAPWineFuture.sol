@@ -134,4 +134,12 @@ interface IAPWineFuture {
     function getProxyRegistrations(address _proxy) external view returns(uint256 [] memory);
 
 
+    /**
+    * @notice Return the FYT address of the corresponding period
+    * @param _periodIndex the index of the period
+    * @return the FYT address
+    */  
+    function getFYTofPeriod(uint256 _periodIndex) external view returns(address);
+
+
 }
