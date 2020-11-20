@@ -10,6 +10,8 @@ import "../../interfaces/ERC20.sol";
 import "../../interfaces/apwine/IFutureYieldToken.sol";
 import "../../interfaces/apwine/IAPWineFuture.sol";
 
+import "../../libraries/APWineMaths.sol";
+
 
 abstract contract APWineCellar is Initializable, AccessControlUpgradeSafe{
 

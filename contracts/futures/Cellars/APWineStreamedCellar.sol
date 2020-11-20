@@ -13,8 +13,7 @@ abstract contract APWineStreamedCellar is APWineCellar{
         uint256 currentTotal = ERC20(future.IBTokenAddress()).totalSupply();
 
         if(scalledCellars.length != 0){
-            uint256 scalledInput = _amount.mul(scalledTotal).div((uint256(1e18).sub(_amount.div(_amount.add(currentTotal)))).mul(_amount.add(currentTotal)));
-            scalledCellars.push(scalledInput);
+            uint256 scalledInput = APWineMaths.getScalledInput(_amount,scalledTotal,currentTotal);
             scalledTotal = scalledTotal.add(scalledInput);
         }else{
             scalledCellars.push(_amount);
@@ -29,22 +28,25 @@ abstract contract APWineStreamedCellar is APWineCellar{
         require(senderTokenBalance > 0,"FYT sender balance should not be null");
         require(fyt.transferFrom(msg.sender, address(this), senderTokenBalance),"Failed transfer");
 
-        uint256 senderShare = senderTokenBalance.div(fyt.totalSupply()).mul(scalledCellars[_periodIndex]);
         ERC20 ibt = ERC20(future.IBTokenAddress());
-        uint256 claimableShare = senderShare.mul(ibt.totalSupply()).div(scalledTotal);
-        
-        scalledTotal = scalledTotal.sub(senderShare);
 
-        ibt.transfer(msg.sender, claimableShare);
+        uint256 scalledOutput = senderTokenBalance.div(fyt.totalSupply()).mul(scalledCellars[_periodIndex]);
+
+        uint256 claimableYield =  getActualOutput(scalledOutput,scalledTotal,ibt.balanceOf(this));
+        
+        scalledCellars[_periodIndex].sub(scalledOutput);
+        scalledTotal = scalledTotal.sub(scalledOutput);
+
+        ibt.transfer(msg.sender, claimableYield);
         fyt.burn(senderTokenBalance);
     }   
 
     function getClaimableYield(uint256 _periodIndex, address _tokenHolder) public view override returns(uint256){
         IFutureYieldToken fyt = IFutureYieldToken(future.getFYTofPeriod(_periodIndex));
         uint256 senderTokenBalance = fyt.balanceOf(_tokenHolder);
-        uint256 senderShare = senderTokenBalance.div(fyt.totalSupply()).mul(scalledCellars[_periodIndex]);
         ERC20 ibt = ERC20(future.IBTokenAddress());
-        return senderShare.mul(ibt.totalSupply()).div(scalledTotal);
+        uint256 scalledOutput = senderTokenBalance.div(fyt.totalSupply()).mul(scalledCellars[_periodIndex]);
+        return  getActualOutput(scalledOutput,scalledTotal,ibt.balanceOf(this));
     }
 
 }
