@@ -390,6 +390,6 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
     */  
     function getFYTofPeriod(uint256 _periodIndex) public view returns(address) {
        require(_periodIndex<futureYieldTokens.length, "The corresponding period does not exist");
-       return futureYieldTokens[_periodIndex];
+       return address(futureYieldTokens[_periodIndex]);
     }
 }

@@ -109,7 +109,7 @@ interface IAPWineFuture {
     * @notice Getter for the interest bearing token of a future
     * @return address of the interest bearing token
     */  
-    function IBTokenAddress() external returns(address);
+    function IBTokenAddress() external view returns(address);
 
     /**
     * @notice Return the index of the next period for this future 
