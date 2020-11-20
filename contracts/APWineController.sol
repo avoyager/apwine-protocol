@@ -64,7 +64,6 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
         address NewProxy = ProxyFactory(APWineProxyFactory).deployMinimal(APWineProxyLogic, payload);
         proxiesByUser[address(msg.sender)] = NewProxy;
         usersByProxy[NewProxy] = address(msg.sender);
-        emit ProxyCreated(NewProxy);
     }
 
     /**

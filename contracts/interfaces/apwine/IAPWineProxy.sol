@@ -49,4 +49,9 @@ interface IAPWineProxy{
      */
     function migrateController(uint256 _newcController) external;
 
+    /**
+     * @dev Returns the address of the current owner.
+     */
+    function owner() external view returns (address);
+
 }

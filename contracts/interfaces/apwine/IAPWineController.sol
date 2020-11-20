@@ -10,7 +10,11 @@ interface IAPWineController {
 
     function APWineTreasuryAddress() external view returns(address);
 
-    function  FutureYieldTokenLogic() external view returns(address);
+    function FutureYieldTokenLogic() external view returns(address);
+
+    function APWineProxyFactory() external view returns(address);
+
+    
 
     /**
      * @notice Initializer of the APWineController contract

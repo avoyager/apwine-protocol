@@ -75,6 +75,7 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
     event FutureCreated(uint256 beginning, address futureYieldTokenAddress, uint index); // Event
     event FuturePeriodStarted(uint index);
     event FuturePeriodEnded(uint index);
+    event ProxyRegisteredToFuture(uint _index, uint256 _amount, bool _autoRegister);
 
     /* Modifiers*/
     modifier onlyProxy() {
@@ -88,7 +89,7 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
     }
 
     modifier periodNotExpired(uint index) {
-        require(!((SafeMath.add(futures[index].beginning, START_DELAY)) < block.timestamp && futures[index].period_started == false), "Future period expired");
+        // require(!((SafeMath.add(futures[index].beginning, START_DELAY)) < block.timestamp && futures[index].period_started == false), "Future period expired");
         _;
     }
 
@@ -98,7 +99,7 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
     }
 
     modifier periodIsMature(uint index) {
-        require((SafeMath.add(futures[index].beginning, PERIOD)) >= block.timestamp, "Future period is not completed");
+        // require((SafeMath.add(futures[index].beginning, PERIOD)) >= block.timestamp, "Future period is not completed");
         _;
     }
 
@@ -110,19 +111,18 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
     /**
     * @notice Initializer or APWIneFuture contract
     * @param _controllerAddress Address of APWineController
-    * @param _APWineProxyFactoryAddress Address of the APWineProxyFactory contract
     * @param _IBTokenAddress Address or the interest bearing token of the platform
     * @param _name Name of this future
     * @param _period Period of this future
     * @param _adminAddress Address of the admin for roles
     */
-    function initialize(address _controllerAddress, address _APWineProxyFactoryAddress, address _IBTokenAddress, string memory _name, uint256 _period,address _adminAddress) initializer public virtual{
+    function initialize(address _controllerAddress, address _IBTokenAddress, string memory _name, uint256 _period,address _adminAddress) initializer public virtual{
 
         _setupRole(DEFAULT_ADMIN_ROLE, _adminAddress);
         _setupRole(ADMIN_ROLE, _adminAddress);
 
         controller =  IAPWineController(_controllerAddress);
-        APWineProxyFactory = ProxyFactory(_APWineProxyFactoryAddress);
+        APWineProxyFactory = ProxyFactory(controller.APWineProxyFactory());
 
         IBTokenAddress = _IBTokenAddress;
         IBTokenDecimals = ERC20(IBTokenAddress).decimals();
@@ -182,10 +182,11 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
         if (_autoRegister){
             autoRegistered.add(msg.sender);
         }
-        futures[_index].registeredBalances[msg.sender] = SafeMath.add(futures[_index].registeredBalances[msg.sender], _amount);
+        futures[_index].registeredBalances[msg.sender] = futures[_index].registeredBalances[msg.sender].add(_amount);
         futures[_index].registrations[msg.sender] = true;
-        futures[_index].totalRegisteredBalance = SafeMath.add(futures[_index].totalRegisteredBalance ,_amount);
+        futures[_index].totalRegisteredBalance = futures[_index].totalRegisteredBalance.add(_amount);
         futures[_index].registeredProxies.push(IAPWineProxy(address(msg.sender)));
+        emit ProxyRegisteredToFuture(_index, _amount,_autoRegister);
     }
 
     /**
@@ -195,9 +196,9 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
     * @param _proxy Address of the proxy to register automatically
     */    
     function registerBalanceToPeriod(uint _index, uint256 _amount, address _proxy) periodNotStarted(_index) periodNotExpired(_index) internal {
-        futures[_index].registeredBalances[_proxy] = SafeMath.add(futures[_index].registeredBalances[_proxy],_amount);
+        futures[_index].registeredBalances[_proxy] = futures[_index].registeredBalances[_proxy].add(_amount);
         futures[_index].registrations[_proxy] = true;
-        futures[_index].totalRegisteredBalance = SafeMath.add(futures[_index].totalRegisteredBalance,_amount);
+        futures[_index].totalRegisteredBalance = futures[_index].totalRegisteredBalance.add(_amount);
         futures[_index].registeredProxies.push(IAPWineProxy(_proxy));
     }
 
@@ -244,7 +245,7 @@ abstract contract APWineFuture is Initializable, AccessControlUpgradeSafe{
             uint256 registeredProxyBalance = futures[_index].registeredBalances[address(futures[_index].registeredProxies[i])];
             if ( registeredProxyBalance > 0) {
                 futures[_index].registeredProxies[i].collect(registeredProxyBalance);
-                futureYieldTokens[_index].mint(address(futures[_index].registeredProxies[i]),registeredProxyBalance*10**(18-IBTokenDecimals));
+                futureYieldTokens[_index].mint(futures[_index].registeredProxies[i].owner(),registeredProxyBalance*10**(18-IBTokenDecimals));
             }
         }
         futures[_index].totalFutureTokenMinted = futureYieldTokens[_index].totalSupply();

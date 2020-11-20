@@ -13,8 +13,8 @@ contract APWineAave is APWineFuture {
     
     AToken public IBToken;
 
-    function initialize(address _controllerAddress, address _APWineProxyFactoryAddress, address _IBTokenAddress, string memory _name, uint256 _period,address _adminAddress) initializer public override{
-        super.initialize(_controllerAddress, _APWineProxyFactoryAddress, _IBTokenAddress, _name, _period, _adminAddress);
+    function initialize(address _controllerAddress, address _IBTokenAddress, string memory _name, uint256 _period,address _adminAddress) initializer public override{
+        super.initialize(_controllerAddress, _IBTokenAddress, _name, _period, _adminAddress);
         IBToken = AToken(_IBTokenAddress);
     }
 

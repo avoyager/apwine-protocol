@@ -24,13 +24,12 @@ interface IAPWineFuture {
     /**
     * @notice Initializer or APWIneFuture contract
     * @param _controllerAddress Address of APWineController
-    * @param _futureYieldTokenFactoryAddress Address of the future yield tokens factory
     * @param _IBTokenAddress Address or the interest bearing token of the platform
     * @param _name Name of this future
     * @param _period Period of this future
     * @param _adminAddress Address of the admin for roles
     */
-    function initialize(address _controllerAddress, address _futureYieldTokenFactoryAddress, address _IBTokenAddress, string memory _name, uint256 _period,address _adminAddress) external;
+    function initialize(address _controllerAddress, address _IBTokenAddress, string memory _name, uint256 _period,address _adminAddress) external;
 
     /**
     * @notice Initializer or APWIneFuture contract
