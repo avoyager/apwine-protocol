@@ -70,6 +70,8 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
     }
 
 
+    /* Admin methods */
+
     /**
      * @notice Change the APWine treasury contract address
      * @param _APWineTreasury the address of the new treasury contract
@@ -104,6 +106,21 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
     function setAPWineIBTLogic(address _APWineIBTLogic) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         APWineIBTLogic = _APWineIBTLogic;
+    }
+
+
+    /* User Methods */
+
+    /**
+     * @notice Register the sender to the corresponding vineyard
+     * @param _vineyardAddress the address of the vineyard to be registered to
+     * @param _amount the amount to register
+     */
+    function register(address _vineyardAddress, uint256 _amount) public {
+        require(vineyards.contains(_vineyardAddress), "Invalid vineyard address");
+        IAPWineVineyard vineyard = IAPWineVineyard(_vineyardAddress);
+        require(ERC20(vineyard.getIBTAddress()).transferFrom(msg.sender, address(this),_amount), "Insufficient funds");
+        IAPWineVineyard(_vineyardAddress).register(msg.sender,_amount);
     }
 
     /* Views */

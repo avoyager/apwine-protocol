@@ -59,6 +59,15 @@ interface IAPWineController {
      */
     function setAPWineIBTLogic(address _APWineIBTLogic) external;
 
+    /* User Methods */
+
+    /**
+     * @notice Register the sender to the corresponding vineyard
+     * @param _vineyardAddress the address of the vineyard to be registered to
+     * @param _amount the amount to register
+     */
+    function register(address _vineyardAddress, uint256 _amount) external;
+
     /* Views */
 
     /**

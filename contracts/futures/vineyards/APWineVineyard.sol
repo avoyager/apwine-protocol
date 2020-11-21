@@ -22,6 +22,8 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant CAVIST_ROLE = keccak256("CAVIST_ROLE");
+    bytes32 public constant CONTROLLER_ROLE = keccak256("CONTROLLER_ROLE");
+
 
     IAPWineFutureWallet private futureWallet;
     IAPWineCellar private cellar;
@@ -70,6 +72,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
         _setupRole(DEFAULT_ADMIN_ROLE, _adminAddress);
         _setupRole(ADMIN_ROLE, _adminAddress);
         _setupRole(CAVIST_ROLE, _adminAddress);
+        _setupRole(CONTROLLER_ROLE, _controllerAddress);
 
         registrationsTotal.push(); // TODO verify
         fyts.push();
@@ -93,23 +96,23 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
         cellar = IAPWineCellar(_cellarAddress);
     }
 
-    function register(uint256 _amount) public virtual{   
-        require(ibt.transferFrom(msg.sender, address(this),_amount), "Insufficient funds");
+    function register(address _winegrower ,uint256 _amount) public virtual{   
+        require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to register a wallet");
         uint256 nextIndex = getNextPeriodIndex();
         uint256 scaledInput = APWineMaths.getScaledInput(_amount,registrationsTotal[nextIndex].scaled, ibt.balanceOf(address(this)));
 
-        if(registrations[msg.sender].scaledBalance==0){ // User has no record
-            _register(msg.sender,scaledInput);
+        if(registrations[_winegrower].scaledBalance==0){ // User has no record
+            _register(_winegrower,scaledInput);
         }else{
-            if(registrations[msg.sender].startIndex == nextIndex){ // User has already an existing registration for the next period
-                 registrations[msg.sender].scaledBalance = registrations[msg.sender].scaledBalance.add(scaledInput);
+            if(registrations[_winegrower].startIndex == nextIndex){ // User has already an existing registration for the next period
+                 registrations[_winegrower].scaledBalance = registrations[_winegrower].scaledBalance.add(scaledInput);
             }else{ // User had an unclaimed registation from a previous period
-                claimAPWIBT(msg.sender);
-                _register(msg.sender,scaledInput);
+                claimAPWIBT(_winegrower);
+                _register(_winegrower,scaledInput);
             }
         }
         registrationsTotal[nextIndex].scaled = registrationsTotal[nextIndex].scaled.add(scaledInput);
-        emit UserRegistered(msg.sender,_amount, nextIndex);
+        emit UserRegistered(_winegrower,_amount, nextIndex);
     }
 
     function _register(address _winegrower, uint256 _initialScaledBalance) internal{

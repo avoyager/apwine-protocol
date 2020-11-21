@@ -38,9 +38,11 @@ interface IAPWineVineyard{
 
     /**
     * @notice Sender registers an amount of ibt for the next period
+    * @param _winegrower address to register to the future
     * @param _amount amount of ibt to be registered
+    * @dev called by the controller only
     */
-    function register(uint256 _amount) external;
+    function register(address _winegrower ,uint256 _amount) external;
 
     /**
     * @notice Sender unregisters an amount of ibt for the next period
