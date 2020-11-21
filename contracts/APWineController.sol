@@ -123,6 +123,17 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
         IAPWineVineyard(_vineyardAddress).register(msg.sender,_amount);
     }
 
+    /**
+     * @notice Register the sender to the corresponding vineyard
+     * @param _winemaker the address of the winemaker
+     * @param _vineyardAddress the addresses of the vineyards to claim the fyts from
+     */
+    function claimSelectedYield(address _winemaker, address[] memory _vineyardAddress) public {
+        for(uint256 i = 0;  i<_vineyardAddress.length;i++){
+            IAPWineVineyard(_vineyardAddress[i]).claimFYT(_winemaker);
+        }
+    }
+
     /* Views */
 
     /**

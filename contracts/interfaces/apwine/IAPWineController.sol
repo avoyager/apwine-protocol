@@ -68,6 +68,13 @@ interface IAPWineController {
      */
     function register(address _vineyardAddress, uint256 _amount) external;
 
+    /**
+     * @notice Register the sender to the corresponding vineyard
+     * @param _winemaker the address of the winemaker
+     * @param _vineyardAddress the addresses of the vineyards to claim the fyts from
+     */
+    function claimSelectedYield(address _winemaker, address[] memory _vineyardAddress) external; 
+
     /* Views */
 
     /**
