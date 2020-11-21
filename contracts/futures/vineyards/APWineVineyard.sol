@@ -49,7 +49,6 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
     struct Registration{
         uint256 startIndex;
         uint256 scaledBalance;
-        bool ibtClaimed;
     }
 
     /* Events */
@@ -118,8 +117,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
     function _register(address _winegrower, uint256 _initialScaledBalance) internal{
         registrations[_winegrower] = Registration({
                 startIndex:getNextPeriodIndex(),
-                scaledBalance:_initialScaledBalance,  
-                ibtClaimed: false
+                scaledBalance:_initialScaledBalance
         });
     }
 
@@ -142,7 +140,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
     function claimAPWIBT(address _winemaker) public virtual{
         uint256 nextIndex = getNextPeriodIndex();
         uint256 claimStartIndex = registrations[_winemaker].startIndex;
-        require(claimStartIndex< nextIndex &&  !registrations[_winemaker].ibtClaimed, "There aren't any ibt claimable for this address"); // TODO verify
+        require(hasClaimableAPWIBT(_winemaker), "There aren't any ibt claimable for this address"); // TODO verify
         uint256 claimableIBT = APWineMaths.getActualOutput(registrations[_winemaker].scaledBalance, registrationsTotal[claimStartIndex].scaled, registrationsTotal[claimStartIndex].actual);
         require(claimableIBT>0, "There are no ibt claimable at the moment for this address");
         if(hasClaimableFYT(_winemaker)){
@@ -220,6 +218,10 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
         return lastPeriodClaimed[_winemaker]!=0  && lastPeriodClaimed[_winemaker]<getNextPeriodIndex();
     }
 
+    function hasClaimableAPWIBT(address _winemaker) public view returns(bool){
+        return (registrations[_winemaker].startIndex < getNextPeriodIndex()) && (registrations[_winemaker].scaledBalance>0);
+    }
+
     function getNextPeriodIndex() public view returns(uint256){
         return registrationsTotal.length;
     }
@@ -244,5 +246,9 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
         require(_periodIndex<getNextPeriodIndex(), "The isnt any fyt for this period yet");
         return address(fyts[_periodIndex]);
     }
+
+
+
+
 
 }

@@ -100,6 +100,14 @@ interface IAPWineVineyard{
     function hasClaimableFYT(address _winemaker) external view returns(bool);
 
     /**
+    * @notice Check if a winemaker has ibt not claimed
+    * @param _winemaker the winemaker to check
+    * @return true if the winemaker can claim some ibt, false otherwise
+    */
+    function hasClaimableAPWIBT(address _winemaker) external view returns(bool);
+
+
+    /**
     * @notice Getter for next period index
     * @return next period index
     * @dev index starts at 1
