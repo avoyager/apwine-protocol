@@ -120,7 +120,7 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
      * @notice Number of vineyard
      * @return uint256 the number of vineyard
      */
-    function VineyardCount() external view returns (uint256) {
+    function vineyardCount() external view returns (uint256) {
         return vineyards.length();
     }
 
