@@ -7,9 +7,8 @@ import "./oz-upgradability-solc6/upgradeability/ProxyFactory.sol";
 
 
 import "./interfaces/apwine/IFutureYieldToken.sol";
-import "./interfaces/apwine/IAPWineFuture.sol";
+import "./interfaces/apwine/IAPWineVineyard.sol";
 
-import "./APWineProxy.sol";
 
 
 contract APWineController is Initializable, AccessControlUpgradeSafe{
@@ -21,22 +20,18 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
 
     address public APWineTreasury;
     address public APWineProxyFactory;
-    address public APWineProxyLogic;    
+    address public APWineIBTLogic;
     address public FutureYieldTokenLogic;
 
 
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    mapping (address => address) public proxiesByUser;
-    mapping (address => address) public usersByProxy;
-
-    EnumerableSet.AddressSet private futures;
+    EnumerableSet.AddressSet private vineyards;
 
     /* Events */
 
-    event ProxyCreated(address proxy);
-    event FutureRegistered(address future);
-    event FutureUnregistered(address future);
+    event VineyardRegistered(address _vineyardAddress);
+    event VineyardUnregistered(address _vineyardAddress);
 
 
     /* Modifiers */
@@ -55,35 +50,23 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
     /* Public methods */
 
     /**
-     * @notice Deploys a proxy for the caller
-     */
-    function createProxy() public {
-        // address sender = msg.sender;
-        require(proxiesByUser[msg.sender] == address(0), "User already has proxy");
-        bytes memory payload = abi.encodeWithSignature("initialize(address,address)",address(this),address(msg.sender));
-        address NewProxy = ProxyFactory(APWineProxyFactory).deployMinimal(APWineProxyLogic, payload);
-        proxiesByUser[address(msg.sender)] = NewProxy;
-        usersByProxy[NewProxy] = address(msg.sender);
-    }
-
-    /**
      * @notice Adds a future for everyone to use
-     * @param _futureAddress the address of the future
+     * @param _vineyardAddress the address of the future
      */
-    function addFuture(address _futureAddress) public {
+    function addVineyard(address _vineyardAddress) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        require(futures.add(_futureAddress), "Future already registered");
-        emit FutureRegistered(_futureAddress);
+        require(vineyards.add(_vineyardAddress), "Future already registered");
+        emit VineyardRegistered(_vineyardAddress);
     }
 
     /**
      * @notice Removes a future from the registered future list
-     * @param _futureAddress the address of the future
+     * @param _vineyardAddress the address of the future
      */
-    function delFuture(address _futureAddress) public {
+    function delFuture(address _vineyardAddress) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        require(futures.remove(_futureAddress), "Future not registered");
-        emit FutureUnregistered(_futureAddress);
+        require(vineyards.remove(_vineyardAddress), "Future not registered");
+        emit VineyardUnregistered(_vineyardAddress);
     }
 
 
@@ -107,15 +90,6 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
 
     /**
      * @notice Change the APWineProxy contract logic address
-     * @param _APWineProxyLogic the address of the new proxy logic
-     */
-    function setAPWineProxyLogic(address _APWineProxyLogic) public {
-        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        APWineProxyLogic = _APWineProxyLogic;
-    }
-
-    /**
-     * @notice Change the APWineProxy contract logic address
      * @param _FutureYieldTokenLogic the address of the new proxy logic
      */
     function setFutureYieldTokenLogic(address _FutureYieldTokenLogic) public {
@@ -123,41 +97,40 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
         FutureYieldTokenLogic = _FutureYieldTokenLogic;
     }
 
-
+    /**
+     * @notice Change the APWineIBT contract logic address
+     * @param _APWineIBTLogic the address of the new APWineIBTlogic
+     */
+    function setAPWineIBTLogic(address _APWineIBTLogic) public {
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
+        APWineIBTLogic = _APWineIBTLogic;
+    }
 
     /* Views */
-
-    /**
-     * @notice Checks whether the address is a valid proxy
-     * @return bool true if the given proxy is valid
-     */
-    function isRegisteredProxy(address _proxyAddress) public view returns (bool) {
-       return usersByProxy[_proxyAddress] != address(0);
-    }
 
     /**
      * @notice Checks whether the address is a valid future
      * @return bool true if the given future is valid
      */
-    function isRegisteredFuture(address _futureAddress) public view returns (bool) {
-       return futures.contains(_futureAddress);
+    function isRegisteredFuture(address _vineyardAddress) public view returns (bool) {
+       return vineyards.contains(_vineyardAddress);
     }
 
     /**
-     * @notice Number of futures
-     * @return uint256 the number of futures
+     * @notice Number of vineyard
+     * @return uint256 the number of vineyard
      */
-    function futuresCount() external view returns (uint256) {
-        return futures.length();
+    function VineyardCount() external view returns (uint256) {
+        return vineyards.length();
     }
 
     /**
-     * @notice View available futures
+     * @notice View available vineyard
      * @param _index index of the future to retrieve
-     * @return address the future address at index
+     * @return address the vineyard address at index
      */
-    function future(uint256 _index) external view returns (address) {
-        return futures.at(_index);
+    function vineyard(uint256 _index) external view returns (address) {
+        return vineyards.at(_index);
     }
 
 }

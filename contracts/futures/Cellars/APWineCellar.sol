@@ -8,7 +8,7 @@ import "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.
 
 import "../../interfaces/ERC20.sol";
 import "../../interfaces/apwine/IFutureYieldToken.sol";
-import "../../interfaces/apwine/IAPWineFuture.sol";
+import "../../interfaces/apwine/IAPWineVineyard.sol";
 
 import "../../libraries/APWineMaths.sol";
 
@@ -21,18 +21,18 @@ abstract contract APWineCellar is Initializable, AccessControlUpgradeSafe{
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant CAVIST_ROLE = keccak256("CAVIST_ROLE");
 
-    IAPWineFuture public future;
+    IAPWineVineyard public vineyard;
 
     /**
     * @notice Intializer
-    * @param _futureAddress the address of the corresponding future
+    * @param _vineyardAddress the address of the corresponding future
     * @param _adminAddress the address of the ACR admin
     */  
-    function initialize(address _futureAddress, address _adminAddress) public initializer virtual{
-        future = IAPWineFuture(_futureAddress);        
+    function initialize(address _vineyardAddress, address _adminAddress) public initializer virtual{
+        vineyard = IAPWineVineyard(_vineyardAddress);        
         _setupRole(DEFAULT_ADMIN_ROLE, _adminAddress);
         _setupRole(ADMIN_ROLE, _adminAddress);
-        _setupRole(CAVIST_ROLE, _futureAddress);
+        _setupRole(CAVIST_ROLE, _vineyardAddress);
     }
 
     /**
