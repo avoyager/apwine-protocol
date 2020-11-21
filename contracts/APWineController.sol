@@ -130,6 +130,7 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
      */
     function claimSelectedYield(address _winemaker, address[] memory _vineyardAddress) public {
         for(uint256 i = 0;  i<_vineyardAddress.length;i++){
+            require(vineyards.contains(_vineyardAddress[i]),"Incorrect vineyard address");
             IAPWineVineyard(_vineyardAddress[i]).claimFYT(_winemaker);
         }
     }
