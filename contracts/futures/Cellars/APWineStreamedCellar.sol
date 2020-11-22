@@ -27,7 +27,7 @@ abstract contract APWineStreamedCellar is APWineCellar{
         }
     }
 
-    function claimYield(uint256 _periodIndex) public override{
+    function redeemYield(uint256 _periodIndex) public override{
         IFutureYieldToken fyt = IFutureYieldToken(vineyard.getFYTofPeriod(_periodIndex));
         uint256 senderTokenBalance = fyt.balanceOf(msg.sender);
 
@@ -44,10 +44,10 @@ abstract contract APWineStreamedCellar is APWineCellar{
         scaledTotal = scaledTotal.sub(scaledOutput);
 
         ibt.transfer(msg.sender, claimableYield);
-        fyt.burn(senderTokenBalance); // TODO grsant role
+        fyt.burn(senderTokenBalance);
     }   
 
-    function getClaimableYield(uint256 _periodIndex, address _tokenHolder) public view override returns(uint256){
+    function getRedeemableYield(uint256 _periodIndex, address _tokenHolder) public view override returns(uint256){
         IFutureYieldToken fyt = IFutureYieldToken(vineyard.getFYTofPeriod(_periodIndex));
         uint256 senderTokenBalance = fyt.balanceOf(_tokenHolder);
         ERC20 ibt = ERC20(vineyard.getIBTAddress());

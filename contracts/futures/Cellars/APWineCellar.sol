@@ -42,16 +42,16 @@ abstract contract APWineCellar is Initializable, AccessControlUpgradeSafe{
     function registerExpiredFuture(uint256 _amount) public virtual;
 
     /**
-    * @notice claim the yield of the underlying yield of the FYT held by the sender
-    * @param _periodIndex the index of the period to claim the yield from
+    * @notice redeem the yield of the underlying yield of the FYT held by the sender
+    * @param _periodIndex the index of the period to redeem the yield from
     */  
-    function claimYield(uint256 _periodIndex) public virtual;
+    function redeemYield(uint256 _periodIndex) public virtual;
 
     /**
-    * @notice return the yield that could be claimed by an address for a particular period
+    * @notice return the yield that could be redeemed by an address for a particular period
     * @param _periodIndex the index of the corresponding period
     * @param _tokenHolder the fyt holder
-    * @return the yield that could be claimed by the token holder for this period
+    * @return the yield that could be redeemed by the token holder for this period
     */  
-    function getClaimableYield(uint256 _periodIndex, address _tokenHolder) public view virtual returns(uint256);
+    function getRedeemableYield(uint256 _periodIndex, address _tokenHolder) public view virtual returns(uint256);
 }
