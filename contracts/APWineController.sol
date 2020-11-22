@@ -181,8 +181,6 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
         return selectedVineyards;
     }
 
-
-
     /**
      * @notice Number of vineyard
      * @return uint256 the number of vineyard

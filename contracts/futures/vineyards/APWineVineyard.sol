@@ -135,7 +135,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
 
     }
 
-    function withdrawLockFunds(uint _amount) public virtual; // TODO
+    // function withdrawLockFunds(uint _amount) public virtual; // TODO
 
     function claimAPWIBT(address _winemaker) public virtual{
         uint256 nextIndex = getNextPeriodIndex();
