@@ -158,14 +158,16 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
     function claimFYT(address _winemaker) public virtual{
         require(hasClaimableFYT(_winemaker),"The is not fyt claimable for this address");
         uint256 nextIndex = getNextPeriodIndex();
-        for(uint256 i = lastPeriodClaimed[_winemaker]; i<nextIndex;i++){
+        for(uint256 i = lastPeriodClaimed[_winemaker]+1; i<nextIndex;i++){
             claimFYTforPeriod(_winemaker, i);
         }
     }
 
-    function claimFYTforPeriod(address _winemaker, uint256 _periodIndex) public virtual{ // public to avoid lock
-        require(_periodIndex> getNextPeriodIndex(), "FYT for this period are not claimable yet");
-        require(lastPeriodClaimed[_winemaker]<_periodIndex && lastPeriodClaimed[_winemaker]!=0);
+    function claimFYTforPeriod(address _winemaker, uint256 _periodIndex) internal virtual{
+        assert((lastPeriodClaimed[_winemaker]+1)==_periodIndex);
+        assert(_periodIndex<getNextPeriodIndex());
+        assert(_periodIndex!=0);
+        lastPeriodClaimed[_winemaker] = _periodIndex;
         fyts[_periodIndex].transfer(_winemaker,apwibt.balanceOf(_winemaker));
     }
 

@@ -70,13 +70,6 @@ interface IAPWineVineyard{
     function claimFYT(address _winemaker) external;
 
     /**
-    * @notice Send the winemaker its owed fyt for a particular period
-    * @param _winemaker address of the winemaker to send the fyt to
-    * @param _periodIndex index of the period
-    */
-    function claimFYTforPeriod(address _winemaker, uint256 _periodIndex) external;
-
-    /**
     * @notice Start a new period
     * @param _tokenName name for the new fyt
     * @param _tokenSymbol name for the new fyt
