@@ -32,6 +32,8 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
 
     event VineyardRegistered(address _vineyardAddress);
     event VineyardUnregistered(address _vineyardAddress);
+    event TreasuryAddressChanged(address _treasuryAddress);
+
 
 
     /* Modifiers */
@@ -79,6 +81,7 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
     function setTreasuryAddress(address _APWineTreasury) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         APWineTreasury = _APWineTreasury;
+        emit TreasuryAddressChanged(_APWineTreasury);
     }
 
     /**

@@ -53,6 +53,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
 
     /* Events */
     event UserRegistered(address _userAddress,uint256 _amount, uint256 _periodIndex);
+    event NewPeriodStarted(uint256 _newPeriodIndex);
 
     /**
     * @notice Intializer
@@ -192,6 +193,8 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
             scaled: 0,
             actual:0
         }));
+
+        emit NewPeriodStarted(nextPeriodID);
     }
 
     function deployFutureYieldToken(string memory _tokenName, string memory _tokenSymbol) internal returns(address){
