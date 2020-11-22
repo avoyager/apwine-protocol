@@ -146,6 +146,46 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
     }
 
     /**
+     * @notice Checks whether the address is a valid future
+     * @param _winemaker the address of the winemaker
+     * @return array of vineyards addresses where the winemaker can claim fyt
+     * @dev shouldn't be called in a contract
+     */
+    function getVineyardWithClaimableFYT(address _winemaker) external view returns (address[] memory) {
+        address[] memory selectedVineyards = new address[](vineyards.length());
+        uint8 index = 0;
+        for (uint256 i = 0; i < vineyards.length(); i++) { 
+             if(IAPWineVineyard(vineyards.at(i)).hasClaimableFYT(_winemaker)){
+                 selectedVineyards[i]= vineyards.at(i);
+                 index +=1;
+             }
+        }
+        return selectedVineyards;
+    }
+
+    /**
+     * @notice Checks whether the address is a valid future
+     * @param _winemaker the address of the winemaker
+     * @return array of vineyards addresses where the winemaker can claim ibt
+     * @dev shouldn't be called in a contract
+     */
+    function getVineyardWithClaimableAPWIBT(address _winemaker) external view returns (address[] memory) {
+        address[] memory selectedVineyards = new address[](vineyards.length());
+        uint8 index = 0;
+        for (uint256 i = 0; i < vineyards.length(); i++) { 
+             if(IAPWineVineyard(vineyards.at(i)).hasClaimableAPWIBT(_winemaker)){
+                 selectedVineyards[i]= vineyards.at(i);
+                index +=1;
+             }
+        }
+        return selectedVineyards;
+    }
+
+
+
+
+
+    /**
      * @notice Number of vineyard
      * @return uint256 the number of vineyard
      */

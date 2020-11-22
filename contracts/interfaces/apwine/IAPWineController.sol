@@ -83,6 +83,24 @@ interface IAPWineController {
      */
     function isRegisteredFuture(address _vineyardAddress) external view returns (bool);
 
+
+    /**
+     * @notice Checks whether the address is a valid future
+     * @param _winemaker the address of the winemaker
+     * @return array of vineyards addresses where the winemaker can claim fyt
+     * @dev shouldn't be called in a contract
+     */
+    function getVineyardWithClaimableFYT(address _winemaker) external view returns (address[] memory);
+
+
+    /**
+     * @notice Checks whether the address is a valid future
+     * @param _winemaker the address of the winemaker
+     * @return array of vineyards addresses where the winemaker can claim ibt
+     * @dev shouldn't be called in a contract
+     */
+    function getVineyardWithClaimableAPWIBT(address _winemaker) external view returns (address[] memory);
+
     /**
      * @notice Number of vineyard
      * @return uint256 the number of vineyard
