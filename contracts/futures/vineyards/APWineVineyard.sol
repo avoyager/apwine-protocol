@@ -222,7 +222,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
     }
 
     function getNextPeriodIndex() public view returns(uint256){
-        return registrationsTotal.length;
+        return registrationsTotal.length-1;
     }
 
     function getFutureWalletAddress() public view returns(address){
