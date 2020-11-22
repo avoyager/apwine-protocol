@@ -157,7 +157,6 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
     function claimFYT(address _winemaker) public virtual{
         require(hasClaimableFYT(_winemaker),"The is not fyt claimable for this address");
         uint256 nextIndex = getNextPeriodIndex();
-        uint256 _winemakerIBTBalance = apwibt.balanceOf(_winemaker);
         for(uint256 i = lastPeriodClaimed[_winemaker]; i<nextIndex;i++){
             claimFYTforPeriod(_winemaker, i);
         }
@@ -173,7 +172,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
         require(hasRole(CAVIST_ROLE, msg.sender), "Caller is not allowed to register a harvest");
 
         uint256 nextPeriodID = getNextPeriodIndex();
-        registrationsTotal[getNextPeriodIndex()].actual = ibt.balanceOf(address(this));
+        registrationsTotal[nextPeriodID].actual = ibt.balanceOf(address(this));
 
         /* Yield */
         uint256 yield = ibt.balanceOf(address(futureWallet)).sub(apwibt.totalSupply());
@@ -184,10 +183,10 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
         address futureTokenAddress = deployFutureYieldToken(_tokenName,_tokenSymbol);
         FutureYieldToken futureYieldToken = FutureYieldToken(futureTokenAddress);
         fyts.push(futureYieldToken);
-        futureYieldToken.mint(address(this),registrationsTotal[getNextPeriodIndex()].actual.mul(10**(18-ibt.decimals()))); 
+        futureYieldToken.mint(address(this),registrationsTotal[nextPeriodID].actual.mul(10**( uint256(18-ibt.decimals()) ))); 
 
         /* Period Switch */
-        ibt.transfer(address(futureWallet), registrationsTotal[getNextPeriodIndex()].actual); // Send ibt to future for the new period
+        ibt.transfer(address(futureWallet), registrationsTotal[nextPeriodID].actual); // Send ibt to future for the new period
 
         registrationsTotal.push(RegistrationsTotal({
             scaled: 0,

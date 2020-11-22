@@ -14,9 +14,8 @@ contract APWineFutureWallet is Initializable{
     /**
     * @notice Intializer
     * @param _vineyardAddress the address of the corresponding vineyard
-    * @param _adminAddress the address of the ACR admin
     */  
-    function initialize(address _vineyardAddress, address _adminAddress) public initializer virtual{
+    function initialize(address _vineyardAddress) public initializer virtual{
         vineyard = IAPWineVineyard(_vineyardAddress);
         ERC20(vineyard.getIBTAddress()).approve(_vineyardAddress, uint256(-1));
     }
