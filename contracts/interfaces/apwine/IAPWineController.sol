@@ -24,16 +24,16 @@ interface IAPWineController {
     /* Public methods */
 
     /**
-     * @notice Adds a future for everyone to use
-     * @param _vineyardAddress the address of the future
+     * @notice Adds a vineyard for everyone to use
+     * @param _vineyardAddress the address of the vineyard
      */
     function addVineyard(address _vineyardAddress) external;
 
     /**
-     * @notice Removes a future from the registered future list
-     * @param _vineyardAddress the address of the future
+     * @notice Removes a vineyard from the registered vineyards list
+     * @param _vineyardAddress the address of the vineyard
      */
-    function delFuture(address _vineyardAddress) external;
+    function delVineyard(address _vineyardAddress) external;
 
     /**
      * @notice Change the APWine treasury contract address

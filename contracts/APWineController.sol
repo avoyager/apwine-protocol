@@ -50,22 +50,22 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
     /* Public methods */
 
     /**
-     * @notice Adds a future for everyone to use
-     * @param _vineyardAddress the address of the future
+     * @notice Adds a vineyard for everyone to use
+     * @param _vineyardAddress the address of the vineyard
      */
     function addVineyard(address _vineyardAddress) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        require(vineyards.add(_vineyardAddress), "Future already registered");
+        require(vineyards.add(_vineyardAddress), "Vineyard already registered");
         emit VineyardRegistered(_vineyardAddress);
     }
 
     /**
-     * @notice Removes a future from the registered future list
-     * @param _vineyardAddress the address of the future
+     * @notice Removes a vineyard from the registered vineyards list
+     * @param _vineyardAddress the address of the vineyard
      */
-    function delFuture(address _vineyardAddress) public {
+    function delVineyard(address _vineyardAddress) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        require(vineyards.remove(_vineyardAddress), "Future not registered");
+        require(vineyards.remove(_vineyardAddress), "Vineyard not registered");
         emit VineyardUnregistered(_vineyardAddress);
     }
 
