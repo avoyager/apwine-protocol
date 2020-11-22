@@ -107,6 +107,12 @@ interface IAPWineVineyard{
     */
     function getNextPeriodIndex() external view returns(uint256);
 
+    /**
+    * @notice Getter for next harvest timestamp
+    * @return next harvest begining timestamp
+    */
+    function getNextHarvestTimestamp() external view returns(uint256);
+
 
     /**
     * @notice Getter for future wallet address

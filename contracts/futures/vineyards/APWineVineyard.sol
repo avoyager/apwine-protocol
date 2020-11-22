@@ -34,7 +34,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
     /* Settings */
     uint256 PERIOD;
 
-    RegistrationsTotal[] registrationsTotal;
+    RegistrationsTotal[] private registrationsTotal;
     FutureYieldToken[] public fyts;
 
 
@@ -43,8 +43,10 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
         uint256 actual;
     }
 
-    mapping(address=>Registration) registrations;
-    mapping(address=>uint256) lastPeriodClaimed;
+    mapping(address=>Registration) private registrations;
+    mapping(address=>uint256) private lastPeriodClaimed;
+
+    uint256[] private nextHarvestTimestamp;
 
     struct Registration{
         uint256 startIndex;
@@ -76,6 +78,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
 
         registrationsTotal.push(); // TODO verify
         fyts.push();
+        nextHarvestTimestamp.push();
 
         registrationsTotal.push(RegistrationsTotal({
             scaled: 0,
@@ -191,6 +194,8 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
         /* Period Switch */
         ibt.transfer(address(futureWallet), registrationsTotal[nextPeriodID].actual); // Send ibt to future for the new period
 
+        nextHarvestTimestamp.push(block.timestamp+PERIOD); // Program next switch
+
         registrationsTotal.push(RegistrationsTotal({
             scaled: 0,
             actual:0
@@ -228,6 +233,10 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
 
     function getNextPeriodIndex() public view returns(uint256){
         return registrationsTotal.length-1;
+    }
+
+    function getNextHarvestTimestamp() public view returns(uint256){
+        return nextHarvestTimestamp[nextHarvestTimestamp.length-1];
     }
 
     function getFutureWalletAddress() public view returns(address){
