@@ -1,84 +1,44 @@
-// const { accounts, contract } = require("@openzeppelin/test-environment")
-// const { expect } = require("chai")
+const { accounts, contract } = require("@openzeppelin/test-environment")
+const { expect } = require("chai")
 
-// const { BN, ether: amount, expectRevert, time, balance } = require("@openzeppelin/test-helpers")
+const { BN, ether: amount, expectRevert, time, balance } = require("@openzeppelin/test-helpers")
 
-// const APWineController = contract.fromArtifact("APWineController")
-// const APWineProxy = contract.fromArtifact("APWineProxy")
-// const FutureYieldTokenFactory = contract.fromArtifact("FutureYieldTokenFactory")
-// const APWineCompound = contract.fromArtifact("APWineCompound")
-// const APWineAave = contract.fromArtifact("APWineAave")
+const APWineController = contract.fromArtifact("APWineController")
+const APWineAaveVineyard = contract.fromArtifact("APWineAaveVineyard")
+const APWineMaths = contract.fromArtifact("APWineMaths")
 
-// const ERC20 = contract.fromArtifact("@openzeppelin/contracts/ERC20PresetMinterPauser")
+const ADDRESS_0 = "0x0000000000000000000000000000000000000000"
 
-// const ADDRESS_0 = "0x0000000000000000000000000000000000000000"
+describe("APWine", function () {
 
-// describe("APWine", function () {
-//     const [owner, user1, user2] = accounts
+    this.timeout(100 * 1000)
 
-//     beforeEach(async function () {
-//         this.controller = await APWineController.new()
-//         this.token = await ERC20.new("", "")
-//     })
+    const [owner, user1, user2] = accounts
 
-//     it("has no registered futures by default", async function () {
-//         expect(await this.controller.futuresCount()).to.be.bignumber.equal(new BN(0))
-//     })
+    beforeEach(async function () {
+        this.controller = await APWineController.new()
+        this.controller.initialize(owner)
 
-//     it("has no proxy set up by default", async function () {
-//         const proxy = await this.controller.proxiesByUser(user1)
-//         expect(proxy).to.be.equal(ADDRESS_0)
-//     })
+        this.maths = await APWineMaths.new()
+    })
 
-//     it("creates a proxy successfully", async function () {
-//         await this.controller.createProxy({ from: user1 })
-//         expect(await this.controller.proxiesByUser(user1)).to.not.be.equal(ADDRESS_0)
-//     })
+    it("has no vineyards available by default", async function () {
+        expect(await this.controller.vineyardCount()).to.be.bignumber.equal(new BN(0))
+    })
 
-//     it("can't create proxy twice", async function () {
-//         await this.controller.createProxy({ from: user1 })
-//         expectRevert(this.controller.createProxy({ from: user1 }), "User already has proxy")
-//     })
+    describe("with APWineAave deployed", function () {
 
-//     describe("with proxies set up, and initial user token balance", function () {
+        beforeEach(async function () {
+            await APWineAaveVineyard.detectNetwork()
+            await APWineAaveVineyard.link("APWineMaths", this.maths.address)
+            this.aaveWeeklyVineyard = await APWineAaveVineyard.new()
+            this.aaveWeeklyVineyard.initialize(this.controller.address, "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d", 7, "aDAI", "aDAI", owner)
+        })
 
-//         beforeEach(async function () {
-//             await this.controller.createProxy({ from: user1 })
-//             await this.controller.createProxy({ from: user2 })
-//             this.proxy1 = await APWineProxy.at(await this.controller.proxiesByUser(user1))
-//             this.proxy2 = await APWineProxy.at(await this.controller.proxiesByUser(user2))
-//             await this.token.mint(user1, amount("1000"))
-//             await this.token.mint(user2, amount("1000"))
-//         })
+        it("has no registered balance by default", async function () {
+            expect(await this.aaveWeeklyVineyard.getRegisteredAmount(user1)).to.be.bignumber.equal(new BN(0))
+        })
 
-//         it("can send tokens to a proxy", async function () {
-//             await this.token.transfer(this.proxy1.address, amount("10"), { from: user1 })
-//             expect(await this.token.balanceOf(this.proxy1.address)).to.be.bignumber.equal(amount("10"))
-//         })
+    })
 
-//         describe("with initial proxy token balance", function () {
-            
-//             beforeEach(async function () {
-//                 await this.token.transfer(await this.controller.proxiesByUser(user1), amount("10"), { from: user1 })
-//                 await this.token.transfer(await this.controller.proxiesByUser(user2), amount("20"), { from: user2 })
-//             })
-
-//             it("doesn't let other users interact with the proxy", async function () {
-//                 expectRevert(this.proxy1.withdraw(this.token.address, amount("10"), { from: user2 }), "Caller is not owner")
-//             })
-
-//             it("can't withdraw more tokens than proxy balance", async function () {
-//                 expectRevert(this.proxy1.withdraw(this.token.address, amount("11"), { from: user1 }), "Insufficient funds")
-//             })
-
-//             it("can withdraw tokens from proxy", async function () {
-//                 const cdaiBalance = await this.token.balanceOf(user1)
-//                 await this.proxy1.withdraw(this.token.address, amount("10"), { from: user1 })
-//                 expect(await this.token.balanceOf(user1)).to.be.bignumber.equal(cdaiBalance.add(amount("10")))
-//             })
-
-//         })
-
-//     })
-
-// })
+})
