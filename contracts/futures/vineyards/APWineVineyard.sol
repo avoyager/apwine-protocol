@@ -33,6 +33,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
 
     /* Settings */
     uint256 PERIOD;
+    bool PAUSED;
 
     RegistrationsTotal[] private registrationsTotal;
     FutureYieldToken[] public fyts;
@@ -61,6 +62,11 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
     modifier nextPeriodAvailable(){
         uint256 controllerDelay = controller.STARTING_DELAY();
         require(getNextPeriodTimestamp()>block.timestamp.sub(controllerDelay) && getNextPeriodTimestamp()<block.timestamp.add(controllerDelay), "The next period start range has expired");
+        _;
+    }
+
+    modifier periodsActive(){
+        require(!PAUSED, "New periods are currently paused");
         _;
     }
 
@@ -107,7 +113,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
         cellar = IAPWineCellar(_cellarAddress);
     }
 
-    function register(address _winegrower ,uint256 _amount) public virtual{   
+    function register(address _winegrower ,uint256 _amount) public virtual periodsActive{   
         require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to register a wallet");
         uint256 nextIndex = getNextPeriodIndex();
         uint256 scaledInput = APWineMaths.getScaledInput(_amount,registrationsTotal[nextIndex].scaled, ibt.balanceOf(address(this)));
@@ -182,7 +188,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
         fyts[_periodIndex].transfer(_winemaker,apwibt.balanceOf(_winemaker));
     }
 
-    function startNewPeriod(string memory _tokenName, string memory _tokenSymbol) public virtual nextPeriodAvailable{
+    function startNewPeriod(string memory _tokenName, string memory _tokenSymbol) public virtual nextPeriodAvailable periodsActive{
         require(hasRole(CAVIST_ROLE, msg.sender), "Caller is not allowed to register a harvest");
 
         uint256 nextPeriodID = getNextPeriodIndex();
@@ -274,6 +280,16 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
     }
 
 
+    /* Admin function */
+    function pausePeriods() public{
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to set the future wallet address");
+        PAUSED = true;
+    }
+
+    function resumePeriods() public{
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to set the future wallet address");
+        PAUSED = false;
+    }
 
 
 

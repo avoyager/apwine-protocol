@@ -11,6 +11,12 @@ interface IAPWineVineyard{
     }
 
     /**
+    * @notice Getter for the PAUSE vineyard parameter
+    * @return ture if new periods are not paused, false otherwise
+    */  
+    function PAUSED() external view returns(bool);
+
+    /**
     * @notice Intializer
     * @param _controllerAddress the address of the controller
     * @param _ibt the address of the corresponding ibt
@@ -152,6 +158,19 @@ interface IAPWineVineyard{
     * @return fyt address
     */
     function getFYTofPeriod(uint256 _periodIndex) external view returns(address);
+
+
+    /* Admin functions*/
+
+    /**
+    * @notice Pause registrations and the creation of new periods
+    */
+    function pausePeriods() external;
+
+    /**
+    * @notice Resume registrations and the creation of new periods
+    */
+    function resumePeriods() external;
 
 
 }
