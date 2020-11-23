@@ -78,6 +78,13 @@ interface IAPWineVineyard{
     function startNewPeriod(string memory _tokenName, string memory _tokenSymbol) external;
 
     /**
+    * @notice set the timestamp to start the next period
+    * @param _nextPeriodTimestamp the timestamp to start the next period
+    * @dev needs corresponding permissions for sender
+    */
+    function setNextPeriodTimestamp(uint256 _nextPeriodTimestamp) external;
+
+    /**
     * @notice Getter for winemaker registered amount 
     * @param _winemaker winemaker to return the registered funds of
     * @return the registered amount, 0 if no registrations

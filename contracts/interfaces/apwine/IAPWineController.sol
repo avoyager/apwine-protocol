@@ -12,6 +12,8 @@ interface IAPWineController {
 
     function APWineIBTLogic() external view returns(address);
 
+    function STARTING_DELAY() external view returns(uint256);
+
 
     /* Initializer */
 
@@ -58,6 +60,14 @@ interface IAPWineController {
      * @param _APWineIBTLogic the address of the new APWineIBTlogic
      */
     function setAPWineIBTLogic(address _APWineIBTLogic) external;
+
+    /* Vineyard Settings Setters */
+
+    /**
+     * @notice Change the delay for starting a new period
+     * @param _startingDelay the new delay (+-) to start the next period
+     */
+    function setPeriodStartingDelay(uint256 _startingDelay) external;
 
     /* User Methods */
 

@@ -35,6 +35,8 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
     event TreasuryAddressChanged(address _treasuryAddress);
 
 
+    /* Vineyard Settings */
+    uint256 public STARTING_DELAY;
 
     /* Modifiers */
 
@@ -109,6 +111,17 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
     function setAPWineIBTLogic(address _APWineIBTLogic) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         APWineIBTLogic = _APWineIBTLogic;
+    }
+
+    /* Vineyard Settings Setters */
+
+    /**
+     * @notice Change the delay for starting a new period
+     * @param _startingDelay the new delay (+-) to start the next period
+     */
+    function setPeriodStartingDelay(uint256 _startingDelay) public {
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
+        STARTING_DELAY = _startingDelay;
     }
 
 

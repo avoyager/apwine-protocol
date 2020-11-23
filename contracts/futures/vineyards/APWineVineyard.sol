@@ -46,7 +46,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
     mapping(address=>Registration) private registrations;
     mapping(address=>uint256) private lastPeriodClaimed;
 
-    uint256[] private nextHarvestTimestamp;
+    uint256[] private nextPeriodTimestamp;
 
     struct Registration{
         uint256 startIndex;
@@ -56,6 +56,14 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
     /* Events */
     event UserRegistered(address _userAddress,uint256 _amount, uint256 _periodIndex);
     event NewPeriodStarted(uint256 _newPeriodIndex);
+
+    /* Modifiers */
+    modifier nextPeriodAvailable(){
+        uint256 controllerDelay = controller.STARTING_DELAY();
+        require(getNextPeriodTimestamp()>block.timestamp.sub(controllerDelay) && getNextPeriodTimestamp()<block.timestamp.add(controllerDelay), "The next period start range has expired");
+        _;
+    }
+
 
     /**
     * @notice Intializer
@@ -78,7 +86,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
 
         registrationsTotal.push(); // TODO verify
         fyts.push();
-        nextHarvestTimestamp.push();
+        nextPeriodTimestamp.push();
 
         registrationsTotal.push(RegistrationsTotal({
             scaled: 0,
@@ -174,7 +182,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
         fyts[_periodIndex].transfer(_winemaker,apwibt.balanceOf(_winemaker));
     }
 
-    function startNewPeriod(string memory _tokenName, string memory _tokenSymbol) public virtual{
+    function startNewPeriod(string memory _tokenName, string memory _tokenSymbol) public virtual nextPeriodAvailable{
         require(hasRole(CAVIST_ROLE, msg.sender), "Caller is not allowed to register a harvest");
 
         uint256 nextPeriodID = getNextPeriodIndex();
@@ -194,7 +202,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
         /* Period Switch */
         ibt.transfer(address(futureWallet), registrationsTotal[nextPeriodID].actual); // Send ibt to future for the new period
 
-        nextHarvestTimestamp.push(block.timestamp+PERIOD); // Program next switch
+        nextPeriodTimestamp.push(block.timestamp+PERIOD); // Program next switch
 
         registrationsTotal.push(RegistrationsTotal({
             scaled: 0,
@@ -208,6 +216,11 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
         bytes memory payload = abi.encodeWithSignature("initialize(string,string,address)", _tokenName, _tokenSymbol, address(this));
         FutureYieldToken Newtoken = FutureYieldToken(ProxyFactory(controller.APWineProxyFactory()).deployMinimal(controller.FutureYieldTokenLogic(), payload));
         return address(Newtoken);
+    }
+
+    function setNextPeriodTimestamp(uint256 _nextPeriodTimestamp) public {
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to set the future wallet address");
+        nextPeriodTimestamp[nextPeriodTimestamp.length-1]=_nextPeriodTimestamp;
     }
 
 
@@ -235,8 +248,8 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
         return registrationsTotal.length-1;
     }
 
-    function getNextHarvestTimestamp() public view returns(uint256){
-        return nextHarvestTimestamp[nextHarvestTimestamp.length-1];
+    function getNextPeriodTimestamp() public view returns(uint256){
+        return nextPeriodTimestamp[nextPeriodTimestamp.length-1];
     }
 
     function getFutureWalletAddress() public view returns(address){
