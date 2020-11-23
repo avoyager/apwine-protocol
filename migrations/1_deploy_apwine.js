@@ -1,65 +1,63 @@
-// const { deployProxy } = require('@openzeppelin/truffle-upgrades');
-// require('dotenv').config();
+const { deployProxy } = require('@openzeppelin/truffle-upgrades');
+require('dotenv').config();
 
-// const admin_address = process.env.PUBLIC_ADRESS;
+const admin_address = process.env.PUBLIC_ADRESS;
 
-// const APWineController = artifacts.require('APWineController');
-// const ProxyFactory = artifacts.require('ProxyFactory');
-// const APWineProxy = artifacts.require('APWineProxy');
-// const FutureYieldToken = artifacts.require('FutureYieldToken');
-// const APWineAave = artifacts.require('APWineAave');
-
-
-
-
-// module.exports = async function (deployer) {
-
-//   const controller = await deployProxy(APWineController, [admin_address], { deployer,unsafeAllowCustomTypes:true });
-
-//   const proxyFactory = await deployer.deploy(ProxyFactory);
-
-//   console.log("Set APWineProxyFactoryAddress");
-//   await controller.setAPWineProxyFactoryAddress(proxyFactory.address);
-
-//   const apwineProxy = await deployer.deploy(APWineProxy);
-
-//   console.log("Set APWineProxyLogic");
-//   await controller.setAPWineProxyLogic(apwineProxy.address);
-
-//   const fyt = await deployer.deploy(FutureYieldToken);
-
-//   console.log("Set FutureYieldTokenLogic");
-//   await controller.setFutureYieldTokenLogic(fyt.address);
-
-//   console.log("Set Treasury address");
-//   await controller.setTreasuryAddress(controller.address);
-
-//   const aavefuture = await deployProxy(APWineAave, [controller.address,proxyFactory.address,"0x58AD4cB396411B691A9AAb6F74545b2C5217FE6a","Weekly Aave Dai Future",7,admin_address], { deployer,unsafeAllowCustomTypes:true });
-  
-//   console.log("Register future in controller");
-//   await controller.addFuture(aavefuture.address);
-
-//   console.log("Grant future role for admin address");
-//   await aavefuture.grantRole("0x4873ef423ebf9f9a54f12880e8328ce2fa6922f8fd56c195a45c5a0ae9a42a14",admin_address);
-//   await aavefuture.grantRole("0xa740542f7a58151bbede3b475841aea632d450804b6b85d24d49aa8a519ef4bc",admin_address);
+const APWineController = artifacts.require('APWineController');
+const APWineMaths = artifacts.require('APWineMaths');
+const ProxyFactory = artifacts.require('ProxyFactory');
+const FutureYieldToken = artifacts.require('FutureYieldToken');
+const APWineIBT = artifacts.require('APWineIBT');
+const APWineAaveVineyard = artifacts.require('APWineAaveVineyard');
+const APWineAaveCellar = artifacts.require('APWineAaveCellar');
+const APWineFutureWallet = artifacts.require('APWineFutureWallet');
 
 
-//   // Requires the sender to be the admin_address set
-//   const tomorrow = Math.floor(Date.now() / 1000) + 24*60*60;
-//   await aavefuture.createFuture(tomorrow,"Week 0 Aave Dai","W0ADAI");
-//   console.log("Created weekly future 0 for Aave Dai");
+module.exports = async function (deployer) {
 
-//   const oneWeekLater = tomorrow+ 24*60*60*7;
-//   await aavefuture.createFuture(oneWeekLater,"Week 1 Aave Dai","W1ADAI");
-//   console.log("Created weekly future 1 for Aave Dai");
+  const controller = await deployProxy(APWineController, [admin_address], { deployer,unsafeAllowCustomTypes:true });
+  const proxyFactory = await deployer.deploy(ProxyFactory);
+  const apwineMaths = await deployer.deploy(APWineMaths);
+  await APWineAaveVineyard.link('APWineMaths',apwineMaths.address);
+  await APWineAaveCellar.link('APWineMaths',apwineMaths.address);
 
 
-//   console.log('APWineController: ', controller.address);
-//   console.log('ProxyFactory: ', proxyFactory.address);
-//   console.log('APWineProxyLogic: ', apwineProxy.address);
-//   console.log('APWinePrFutureYieldTokenLogic: ', fyt.address);
-//   console.log('APWineAave: ', aavefuture.address);
 
-//   console.log('The admin adress used is:',admin_address);
+  console.log("Set APWineProxyFactoryAddress");
+  await controller.setAPWineProxyFactoryAddress(proxyFactory.address);
 
-// };
+  const apwineIBT = await deployer.deploy(APWineIBT);
+
+  console.log("Set APWineIBTLogic");
+  await controller.setAPWineIBTLogic(apwineIBT.address);
+
+  const fyt = await deployer.deploy(FutureYieldToken);
+
+  console.log("Set FutureYieldTokenLogic");
+  await controller.setFutureYieldTokenLogic(fyt.address);
+
+  console.log("Set Treasury address");
+  await controller.setTreasuryAddress(controller.address);
+
+  const aaveVineyard = await deployProxy(APWineAaveVineyard, [controller.address,"0x58AD4cB396411B691A9AAb6F74545b2C5217FE6a",7,"Weekly Aave Dai Future","WADAI",admin_address], { deployer,unsafeAllowCustomTypes:true,unsafeAllowLinkedLibraries:true});
+  const aaveCellar = await deployProxy(APWineAaveCellar, [aaveVineyard.address,admin_address], { deployer,unsafeAllowCustomTypes:true,unsafeAllowLinkedLibraries:true});
+  const aaveFutureWallet = await deployProxy(APWineFutureWallet, [aaveVineyard.address], { deployer,unsafeAllowCustomTypes:true,unsafeAllowLinkedLibraries:true});
+
+  console.log("Register vineyard in controller");
+  await controller.addVineyard(aaveVineyard.address);
+
+  // Requires the sender to be the admin_address set
+  const in3Days = Math.floor(Date.now() / 1000) + 3*24*60*60;
+  await aaveVineyard.setNextPeriodTimestamp(in3Days);
+  console.log("Next period set in 3 days");
+
+  console.log('APWineController: ', controller.address);
+  console.log('ProxyFactory: ', proxyFactory.address);
+  console.log('FutureYieldToken: ', fyt.address);
+  console.log('APWineIBT: ', apwineIBT.address);
+  console.log('APWineAaveVineyard: ', aaveVineyard.address);
+  console.log('APWineAaveCellar: ', aaveCellar.address);
+  console.log('APWineFutureWallet: ', aaveFutureWallet.address);
+  console.log('The admin adress used is:',admin_address);
+
+};
