@@ -61,7 +61,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
     /* Modifiers */
     modifier nextPeriodAvailable(){
         uint256 controllerDelay = controller.STARTING_DELAY();
-        require(getNextPeriodTimestamp()>block.timestamp.sub(controllerDelay) && getNextPeriodTimestamp()<block.timestamp.add(controllerDelay), "The next period start range has expired");
+        require(getNextPeriodTimestamp()>block.timestamp.sub(controllerDelay), "The next period start range has not been reached yet");
         _;
     }
 
@@ -192,28 +192,30 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
         require(hasRole(CAVIST_ROLE, msg.sender), "Caller is not allowed to register a harvest");
 
         uint256 nextPeriodID = getNextPeriodIndex();
-        registrationsTotal[nextPeriodID].actual = ibt.balanceOf(address(this));
+
 
         /* Yield */
         uint256 yield = ibt.balanceOf(address(futureWallet)).sub(apwibt.totalSupply());
         assert(ibt.transferFrom(address(futureWallet), address(cellar), yield));
         cellar.registerExpiredFuture(yield); // Yield deposit in the cellar contract
 
-        /* Future Yield Token*/
-        address futureTokenAddress = deployFutureYieldToken(_tokenName,_tokenSymbol);
-        FutureYieldToken futureYieldToken = FutureYieldToken(futureTokenAddress);
-        fyts.push(futureYieldToken);
-        futureYieldToken.mint(address(this),registrationsTotal[nextPeriodID].actual.mul(10**( uint256(18-ibt.decimals()) ))); 
+        /* Period Switch*/
+        registrationsTotal[nextPeriodID].actual = ibt.balanceOf(address(this));
+        apwibt.mint(address(this), registrationsTotal[nextPeriodID].actual); // Mint new APWIBTs
 
-        /* Period Switch */
         ibt.transfer(address(futureWallet), registrationsTotal[nextPeriodID].actual); // Send ibt to future for the new period
-
         nextPeriodTimestamp.push(block.timestamp+PERIOD); // Program next switch
 
         registrationsTotal.push(RegistrationsTotal({
             scaled: 0,
             actual:0
         }));
+
+        /* Future Yield Token*/
+        address futureTokenAddress = deployFutureYieldToken(_tokenName,_tokenSymbol);
+        FutureYieldToken futureYieldToken = FutureYieldToken(futureTokenAddress);
+        fyts.push(futureYieldToken);
+        futureYieldToken.mint(address(this),apwibt.totalSupply().mul(10**( uint256(18-ibt.decimals()) ))); 
 
         emit NewPeriodStarted(nextPeriodID);
     }
@@ -290,6 +292,9 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to set the future wallet address");
         PAUSED = false;
     }
+
+    /* Security functions */
+
 
 
 
