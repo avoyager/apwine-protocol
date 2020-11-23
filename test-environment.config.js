@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 module.exports = {
     accounts: {
         amount: 10, // Number of unlocked accounts
@@ -14,6 +16,7 @@ module.exports = {
     },
   
     node: { // Options passed directly to Ganache client
+        fork: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}@${process.env.TEST_BLOCK_NUMBER}`,
         gasLimit: 20e6, // Maximum gas per block
         gasPrice: 0 // Sets the default gas price for transactions if not otherwise specified.
     },
