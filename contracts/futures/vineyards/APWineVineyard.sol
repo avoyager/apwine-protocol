@@ -176,7 +176,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
         require(hasClaimableFYT(_winemaker),"The is not fyt claimable for this address");
         uint256 nextIndex = getNextPeriodIndex();
         for(uint256 i = lastPeriodClaimed[_winemaker]+1; i<nextIndex;i++){
-            claimFYTforPeriod(_winemaker, i);
+            claimFYTforPeriod(_winemaker, i); // TODO gas cost can be optimized
         }
     }
 
