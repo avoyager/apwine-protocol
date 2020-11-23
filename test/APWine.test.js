@@ -5,6 +5,11 @@ const { BN, ether: amount, expectRevert, time, balance } = require("@openzeppeli
 
 const APWineController = contract.fromArtifact("APWineController")
 const APWineAaveVineyard = contract.fromArtifact("APWineAaveVineyard")
+const APWineAaveCellar = contract.fromArtifact("APWineAaveCellar")
+const ProxyFactory = contract.fromArtifact("ProxyFactory")
+const APWineIBT = contract.fromArtifact("APWineIBT")
+const FutureYieldToken = contract.fromArtifact("FutureYieldToken")
+const APWineFutureWallet = contract.fromArtifact("APWineFutureWallet")
 const APWineMaths = contract.fromArtifact("APWineMaths")
 
 const ADDRESS_0 = "0x0000000000000000000000000000000000000000"
@@ -17,8 +22,13 @@ describe("APWine", function () {
 
     beforeEach(async function () {
         this.controller = await APWineController.new()
-        this.controller.initialize(owner)
-
+        await this.controller.initialize(owner)
+        this.proxyFactory = await ProxyFactory.new()
+        await this.controller.setAPWineProxyFactoryAddress(this.proxyFactory.address, {from:owner})
+        this.apwineIBT = await APWineIBT.new()
+        await this.controller.setAPWineIBTLogic(this.apwineIBT.address, {from:owner})
+        this.fyt = await FutureYieldToken.new()
+        await this.controller.setFutureYieldTokenLogic(this.fyt.address, {from:owner})
         this.maths = await APWineMaths.new()
     })
 
@@ -32,8 +42,21 @@ describe("APWine", function () {
             await APWineAaveVineyard.detectNetwork()
             await APWineAaveVineyard.link("APWineMaths", this.maths.address)
             this.aaveWeeklyVineyard = await APWineAaveVineyard.new()
-            this.aaveWeeklyVineyard.initialize(this.controller.address, "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d", 7, "aDAI", "aDAI", owner)
+            await this.aaveWeeklyVineyard.initialize(this.controller.address, "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d", 7, "aDAI", "aDAI", owner)
+
+            await APWineAaveCellar.detectNetwork()
+            await APWineAaveCellar.link("APWineMaths", this.maths.address)
+            this.aaveWeeklyCellar = await APWineAaveCellar.new()
+            await this.aaveWeeklyCellar.initialize(this.aaveWeeklyVineyard.address,owner)
+
+            this.aaveWeeklyFutureWallet = await APWineFutureWallet.new()
+            await this.aaveWeeklyFutureWallet.initialize(this.aaveWeeklyVineyard.address)
+            await this.controller.addVineyard(this.aaveWeeklyVineyard.address, {from:owner});
         })
+
+        // it("vineyard is registered in controller", async function () {
+        //     expect(await this.controller.vineyard(0)).to.equal(this.aaveWeeklyVineyard.address)
+        // })
 
         it("has no registered balance by default", async function () {
             expect(await this.aaveWeeklyVineyard.getRegisteredAmount(user1)).to.be.bignumber.equal(new BN(0))
