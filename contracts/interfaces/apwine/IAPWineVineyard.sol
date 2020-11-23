@@ -12,9 +12,15 @@ interface IAPWineVineyard{
 
     /**
     * @notice Getter for the PAUSE vineyard parameter
-    * @return ture if new periods are not paused, false otherwise
+    * @return true if new periods are not paused, false otherwise
     */  
     function PAUSED() external view returns(bool);
+
+    /**
+    * @notice Getter for the PERIOD vineyard parameter
+    * @return returns the period length of the vineyard
+    */  
+    function PERIOD() external view returns(uint256);
 
     /**
     * @notice Intializer

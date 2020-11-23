@@ -32,8 +32,8 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
     IAPWineController private controller;
 
     /* Settings */
-    uint256 PERIOD;
-    bool PAUSED;
+    uint256 public PERIOD;
+    bool public PAUSED;
 
     RegistrationsTotal[] private registrationsTotal;
     FutureYieldToken[] public fyts;
@@ -153,7 +153,9 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
 
     }
 
-    // function withdrawLockFunds(uint _amount) public virtual; // TODO
+    // function withdrawLockFunds(uint _amount) public virtual{
+    //     require(apwibt.balanceOf(msg.sender)!=0,"Sender does not have any funds");
+    // }
 
     function claimAPWIBT(address _winemaker) public virtual{
         uint256 nextIndex = getNextPeriodIndex();
