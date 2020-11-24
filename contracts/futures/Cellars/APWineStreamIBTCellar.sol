@@ -2,7 +2,7 @@ pragma solidity >=0.4.22 <0.7.3;
 
 import "./APWineCellar.sol";
 
-abstract contract APWineStreamedCellar is APWineCellar{
+abstract contract APWineStreamIBTCellar is APWineCellar{
 
     uint256 private scaledTotal;
     uint256[] private scaledCellars;
@@ -36,7 +36,7 @@ abstract contract APWineStreamedCellar is APWineCellar{
 
         ERC20 ibt = ERC20(vineyard.getIBTAddress());
 
-        uint256 scaledOutput = senderTokenBalance.div(fyt.totalSupply()).mul(scaledCellars[_periodIndex]);
+        uint256 scaledOutput = (senderTokenBalance.div(fyt.totalSupply())).mul(scaledCellars[_periodIndex]);
 
         uint256 claimableYield =  APWineMaths.getActualOutput(scaledOutput,scaledTotal,ibt.balanceOf(address(this)));
         
@@ -51,7 +51,7 @@ abstract contract APWineStreamedCellar is APWineCellar{
         IFutureYieldToken fyt = IFutureYieldToken(vineyard.getFYTofPeriod(_periodIndex));
         uint256 senderTokenBalance = fyt.balanceOf(_tokenHolder);
         ERC20 ibt = ERC20(vineyard.getIBTAddress());
-        uint256 scaledOutput = senderTokenBalance.div(fyt.totalSupply()).mul(scaledCellars[_periodIndex]);
+        uint256 scaledOutput = (senderTokenBalance.div(fyt.totalSupply())).mul(scaledCellars[_periodIndex]);
         return  APWineMaths.getActualOutput(scaledOutput,scaledTotal,ibt.balanceOf(address(this)));
     }
 

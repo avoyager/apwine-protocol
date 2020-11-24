@@ -22,7 +22,6 @@ module.exports = async function (deployer) {
   await APWineAaveCellar.link('APWineMaths',apwineMaths.address);
 
 
-
   console.log("Set APWineProxyFactoryAddress");
   await controller.setAPWineProxyFactoryAddress(proxyFactory.address);
 
