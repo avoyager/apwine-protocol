@@ -14,6 +14,26 @@ const APWineMaths = contract.fromArtifact("APWineMaths")
 
 const ADDRESS_0 = "0x0000000000000000000000000000000000000000"
 
+describe("APWine Libraries", function () {
+
+    this.timeout(100 * 1000)
+    const [owner, user1, user2] = accounts
+
+    beforeEach(async function () {
+        this.maths = await APWineMaths.new()
+    })
+
+    it("getScaledInput for 0 values", async function () {
+        expect(await this.maths.getScaledInput(0,0,0)).to.be.bignumber.equal(new BN(0))
+    })
+
+    it("getActualOutput for 0 values", async function () {
+        expect(await this.maths.getActualOutput(0,0,0)).to.be.bignumber.equal(new BN(0))
+    })
+
+})
+
+
 describe("APWine", function () {
 
     this.timeout(100 * 1000)
@@ -36,6 +56,7 @@ describe("APWine", function () {
         expect(await this.controller.vineyardCount()).to.be.bignumber.equal(new BN(0))
     })
 
+
     describe("with APWineAave deployed", function () {
 
         beforeEach(async function () {
@@ -54,13 +75,18 @@ describe("APWine", function () {
             await this.controller.addVineyard(this.aaveWeeklyVineyard.address, {from:owner});
         })
 
-        // it("vineyard is registered in controller", async function () {
-        //     expect(await this.controller.vineyard(0)).to.equal(this.aaveWeeklyVineyard.address)
-        // })
+        it("vineyard is registered in controller", async function () {
+            expect(await this.controller.vineyard(0)).to.equal(this.aaveWeeklyVineyard.address)
+        })
 
         it("has no registered balance by default", async function () {
             expect(await this.aaveWeeklyVineyard.getRegisteredAmount(user1)).to.be.bignumber.equal(new BN(0))
         })
+
+        // need approve and positive balance
+        // it("user can register", async function () {
+        //     expect(await this.controller.register(this.aaveWeeklyVineyard.address,500))
+        // })
 
     })
 
