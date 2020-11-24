@@ -135,7 +135,7 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
     function register(address _vineyardAddress, uint256 _amount) public {
         require(vineyards.contains(_vineyardAddress), "Invalid vineyard address");
         IAPWineVineyard vineyard = IAPWineVineyard(_vineyardAddress);
-        require(ERC20(vineyard.getIBTAddress()).transferFrom(msg.sender, address(this),_amount), "Insufficient funds");
+        require(ERC20(vineyard.getIBTAddress()).transferFrom(msg.sender, address(_vineyardAddress),_amount), "Insufficient funds");
         IAPWineVineyard(_vineyardAddress).register(msg.sender,_amount);
     }
 

@@ -13,9 +13,7 @@ library APWineMaths{
     }
 
     function getActualOutput(uint256 _scalledOuput, uint256 _initialSum, uint256 _actualSum) public pure returns(uint256){
-        if (_initialSum==0) return 0;
-        require(_actualSum>0,"The actual value of the sum should not be zero");
+        if (_initialSum==0 || _actualSum==0 ) return 0;
         return _scalledOuput.mul(_actualSum).div(_initialSum);
-
     }
 }
