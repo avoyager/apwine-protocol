@@ -82,6 +82,26 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
         fyts[_periodIndex].transfer(_winemaker,apwibt.balanceOf(_winemaker));
     }
 
+    function claimAPWIBT(address _winemaker) public virtual{
+        uint256 nextIndex = getNextPeriodIndex();
+        uint256 claimableAPWIBT = getClaimableAPWIBT(_winemaker);
+        require(claimableAPWIBT>0, "There are no ibt claimable at the moment for this address");
+        if(hasClaimableFYT(_winemaker)){
+            claimFYT(_winemaker); 
+        }
+        apwibt.transfer(_winemaker, claimableAPWIBT);
+        for (uint i = registrations[_winemaker].startIndex; i<nextIndex; i++){ // get not claimed fyt
+            fyts[i].transfer(_winemaker,claimableAPWIBT);
+        }
+        lastPeriodClaimed[_winemaker] = nextIndex-1;
+        delete registrations[_winemaker];
+    }
+
+    // function withdrawLockFunds(uint _amount) public virtual{
+
+    //      require(apwibt.balanceOf(msg.sender)!=0,"Sender does not have any funds");
+    // }
+
     /* Utilitaries functions */
     function deployFutureYieldToken(string memory _tokenName, string memory _tokenSymbol) internal returns(address){
         bytes memory payload = abi.encodeWithSignature("initialize(string,string,address)", _tokenName, _tokenSymbol, address(this));
@@ -113,6 +133,8 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
     function hasClaimableAPWIBT(address _winemaker) public view returns(bool){
         return (registrations[_winemaker].startIndex < getNextPeriodIndex()) && (registrations[_winemaker].scaledBalance>0);
     }
+
+    function getClaimableAPWIBT(address _winemaker) public view virtual returns(uint256);
 
     function getNextPeriodIndex() public view virtual returns(uint256);
 

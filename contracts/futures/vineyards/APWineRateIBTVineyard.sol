@@ -99,21 +99,6 @@ abstract contract APWineRateIBTVineyard is APWineVineyard{
     //     require(apwibt.balanceOf(msg.sender)!=0,"Sender does not have any funds");
     // }
 
-    function claimAPWIBT(address _winemaker) public virtual{
-        uint256 nextIndex = getNextPeriodIndex();
-        uint256 claimStartIndex = registrations[_winemaker].startIndex;
-        uint256 claimableAPWIBT = getClaimableAPWIBT(_winemaker);
-        require(claimableAPWIBT>0, "There are no ibt claimable at the moment for this address");
-        if(hasClaimableFYT(_winemaker)){
-            claimFYT(_winemaker); 
-        }
-        apwibt.transfer(_winemaker, claimableAPWIBT);
-        for (uint i = claimStartIndex; i<nextIndex; i++){ // get not claimed fyt
-            fyts[i].transfer(_winemaker,claimableAPWIBT);
-        }
-        lastPeriodClaimed[_winemaker] = nextIndex-1;
-        delete registrations[_winemaker];
-    }
 
 
     function startNewPeriod(string memory _tokenName, string memory _tokenSymbol) public virtual nextPeriodAvailable periodsActive{
@@ -161,11 +146,10 @@ abstract contract APWineRateIBTVineyard is APWineVineyard{
     }
 
     function scaleIBTAmount(uint256 _initialAmount, uint256 _initialRate, uint256 _newRate) public view returns(uint256){
-        uint256 newRate = getIBTRate();
-        return _initialAmount.mul(_initialRate).div(newRate);
+        return _initialAmount.mul(_initialRate).div(_newRate);
     }
 
-    function getClaimableAPWIBT(address _winemaker) public view returns(uint256){
+    function getClaimableAPWIBT(address _winemaker) public view override returns(uint256){
         if(!hasClaimableAPWIBT(_winemaker)) return 0;
         return scaleIBTAmount(registrations[_winemaker].scaledBalance, registrationsTotal[registrations[_winemaker].startIndex].IBTRate,registrationsTotal[getNextPeriodIndex()-1].IBTRate);
     }

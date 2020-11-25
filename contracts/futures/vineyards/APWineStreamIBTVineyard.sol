@@ -103,23 +103,6 @@ abstract contract APWineStreamIBTVineyard is APWineVineyard{
     //     require(apwibt.balanceOf(msg.sender)!=0,"Sender does not have any funds");
     // }
 
-    function claimAPWIBT(address _winemaker) public virtual{
-        uint256 nextIndex = getNextPeriodIndex();
-        uint256 claimStartIndex = registrations[_winemaker].startIndex;
-        require(hasClaimableAPWIBT(_winemaker), "There aren't any ibt claimable for this address"); // TODO verify
-        uint256 claimableIBT = APWineMaths.getActualOutput(registrations[_winemaker].scaledBalance, registrationsTotal[claimStartIndex].scaled, registrationsTotal[claimStartIndex].actual);
-        require(claimableIBT>0, "There are no ibt claimable at the moment for this address");
-        if(hasClaimableFYT(_winemaker)){
-            claimFYT(_winemaker); 
-        }
-        apwibt.transfer(_winemaker, claimableIBT);
-        for (uint i = claimStartIndex; i<nextIndex; i++){ // get not claimed fyt
-            fyts[i].transfer(_winemaker,claimableIBT);
-        }
-        lastPeriodClaimed[_winemaker] = nextIndex-1;
-        delete registrations[_winemaker];
-    }
-
     function startNewPeriod(string memory _tokenName, string memory _tokenSymbol) public virtual nextPeriodAvailable periodsActive{
         require(hasRole(CAVIST_ROLE, msg.sender), "Caller is not allowed to register a harvest");
 
@@ -159,6 +142,12 @@ abstract contract APWineStreamIBTVineyard is APWineVineyard{
             return APWineMaths.getActualOutput(registrations[_winemaker].scaledBalance, registrationsTotal[periodID].scaled, registrationsTotal[periodID].actual);
         }
     }
+
+    function getClaimableAPWIBT(address _winemaker) public view override returns(uint256){
+        if(!hasClaimableAPWIBT(_winemaker)) return 0;
+        return APWineMaths.getActualOutput(registrations[_winemaker].scaledBalance, registrationsTotal[registrations[_winemaker].startIndex].scaled, registrationsTotal[registrations[_winemaker].startIndex].actual);
+    }
+
 
     function getNextPeriodIndex() public view override returns(uint256){
         return registrationsTotal.length-1;
