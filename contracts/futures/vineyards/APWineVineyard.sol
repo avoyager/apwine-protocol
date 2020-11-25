@@ -97,10 +97,26 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
         delete registrations[_winemaker];
     }
 
-    // function withdrawLockFunds(uint _amount) public virtual{
+    function withdrawLockFunds(uint _amount) public virtual{
+        require(_amount>0, "Amount to withdraw must be positive");
+        if(hasClaimableAPWIBT(msg.sender)){
+            claimAPWIBT(msg.sender);
+        }else if(hasClaimableFYT(msg.sender)){
+            claimFYT(msg.sender);
+        }
 
-    //      require(apwibt.balanceOf(msg.sender)!=0,"Sender does not have any funds");
-    // }
+        uint256 fundsToBeUnlocked = getUnlockableFunds(msg.sender);
+        uint256 getUnrealisedYield = getUnrealisedYield(msg.sender);
+        require(apwibt.transferFrom(msg.sender,address(this),_amount),"Invalid amount of APWIBT");
+        require(fyts[getNextPeriodIndex()-1].transferFrom(msg.sender,address(this),_amount),"Invalid amount of FYT of last period");
+
+        apwibt.burn(_amount);
+        fyts[getNextPeriodIndex()-1].burn(_amount);
+
+        ibt.transferFrom(address(futureWallet), msg.sender, fundsToBeUnlocked); // only send locked, TODO Send Yield
+        ibt.transferFrom(address(futureWallet), controller.APWineTreasuryAddress(),getUnrealisedYield);
+
+    }
 
     /* Utilitaries functions */
     function deployFutureYieldToken(string memory _tokenName, string memory _tokenSymbol) internal returns(address){
@@ -136,6 +152,10 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
 
     function getClaimableAPWIBT(address _winemaker) public view virtual returns(uint256);
 
+    function getUnlockableFunds(address _winemaker) public view virtual returns(uint256);
+
+    function getUnrealisedYield(address _winemaker) public view virtual returns(uint256);
+
     function getNextPeriodIndex() public view virtual returns(uint256);
 
     function getNextPeriodTimestamp() public view returns(uint256){
@@ -159,6 +179,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
     }
 
     // function getClaimableAPWIBT(address _winemaker) public view returns(uint256);
+
 
 
     function getFYTofPeriod(uint256 _periodIndex) public view returns(address){

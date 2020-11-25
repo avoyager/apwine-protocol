@@ -154,6 +154,15 @@ abstract contract APWineRateIBTVineyard is APWineVineyard{
         return scaleIBTAmount(registrations[_winemaker].scaledBalance, registrationsTotal[registrations[_winemaker].startIndex].IBTRate,registrationsTotal[getNextPeriodIndex()-1].IBTRate);
     }
 
+    function getUnlockableFunds(address _winemaker) public view override returns(uint256){
+        return scaleIBTAmount(apwibt.balanceOf(_winemaker),registrationsTotal[getNextPeriodIndex()-1].IBTRate, getIBTRate());
+    }
+
+    function getUnrealisedYield(address _winemaker) public view override returns(uint256){
+        return apwibt.balanceOf(_winemaker).sub(scaleIBTAmount(apwibt.balanceOf(_winemaker),registrationsTotal[getNextPeriodIndex()-1].IBTRate, getIBTRate()));
+    }
+
+
     function getNextPeriodIndex() public view override returns(uint256){
         return registrationsTotal.length-1;
     }
