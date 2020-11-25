@@ -14,63 +14,19 @@ import "../../interfaces/apwine/IAPWineCellar.sol";
 import "../../interfaces/apwine/IAPWineController.sol";
 import "../../interfaces/apwine/IAPWineFutureWallet.sol";
 import "../../oz-upgradability-solc6/upgradeability/ProxyFactory.sol";
+import "./APWineVineyard.sol";
 
 
-abstract contract APWineStreamIBTVineyard is Initializable, AccessControlUpgradeSafe{
-
-    using SafeMath for uint256;
-
-    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
-    bytes32 public constant CAVIST_ROLE = keccak256("CAVIST_ROLE");
-    bytes32 public constant CONTROLLER_ROLE = keccak256("CONTROLLER_ROLE");
-
-
-    IAPWineFutureWallet private futureWallet;
-    IAPWineCellar private cellar;
-    ERC20 private ibt;
-    APWineIBT private apwibt;
-    IAPWineController private controller;
-
-    /* Settings */
-    uint256 public PERIOD;
-    bool public PAUSED;
+abstract contract APWineStreamIBTVineyard is APWineVineyard{
 
     RegistrationsTotal[] private registrationsTotal;
-    FutureYieldToken[] public fyts;
-
 
     struct RegistrationsTotal{
         uint256 scaled;
         uint256 actual;
     }
 
-    mapping(address=>Registration) private registrations;
-    mapping(address=>uint256) private lastPeriodClaimed;
-
-    uint256[] private nextPeriodTimestamp;
-
-    struct Registration{
-        uint256 startIndex;
-        uint256 scaledBalance;
-    }
-
-    /* Events */
-    event UserRegistered(address _userAddress,uint256 _amount, uint256 _periodIndex);
-    event NewPeriodStarted(uint256 _newPeriodIndex);
-
-    /* Modifiers */
-    modifier nextPeriodAvailable(){
-        uint256 controllerDelay = controller.STARTING_DELAY();
-        require(getNextPeriodTimestamp()>block.timestamp.sub(controllerDelay), "The next period start range has not been reached yet");
-        _;
-    }
-
-    modifier periodsActive(){
-        require(!PAUSED, "New periods are currently paused");
-        _;
-    }
-
-
+  
     /**
     * @notice Intializer
     * @param _controllerAddress the address of the controller
@@ -101,16 +57,6 @@ abstract contract APWineStreamIBTVineyard is Initializable, AccessControlUpgrade
 
         bytes memory payload = abi.encodeWithSignature("initialize(string,string,address)", _tokenName, _tokenSymbol, address(this));
         apwibt = APWineIBT(ProxyFactory(controller.APWineProxyFactory()).deployMinimal(controller.APWineIBTLogic(), payload));
-    }
-
-    function setFutureWallet(address _futureWalletAddress) public{ //TODO check if set before start
-        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to set the future wallet address");
-        futureWallet = IAPWineFutureWallet(_futureWalletAddress);
-    }
-
-    function setCellar(address _cellarAddress) public{ //TODO check if set before start
-        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to set the future wallet address");
-        cellar = IAPWineCellar(_cellarAddress);
     }
 
     function register(address _winegrower ,uint256 _amount) public virtual periodsActive{   
@@ -174,31 +120,14 @@ abstract contract APWineStreamIBTVineyard is Initializable, AccessControlUpgrade
         delete registrations[_winemaker];
     }
 
-    function claimFYT(address _winemaker) public virtual{
-        require(hasClaimableFYT(_winemaker),"The is not fyt claimable for this address");
-        uint256 nextIndex = getNextPeriodIndex();
-        for(uint256 i = lastPeriodClaimed[_winemaker]+1; i<nextIndex;i++){
-            claimFYTforPeriod(_winemaker, i); // TODO gas cost can be optimized
-        }
-    }
-
-    function claimFYTforPeriod(address _winemaker, uint256 _periodIndex) internal virtual{
-        assert((lastPeriodClaimed[_winemaker]+1)==_periodIndex);
-        assert(_periodIndex<getNextPeriodIndex());
-        assert(_periodIndex!=0);
-        lastPeriodClaimed[_winemaker] = _periodIndex;
-        fyts[_periodIndex].transfer(_winemaker,apwibt.balanceOf(_winemaker));
-    }
-
     function startNewPeriod(string memory _tokenName, string memory _tokenSymbol) public virtual nextPeriodAvailable periodsActive{
         require(hasRole(CAVIST_ROLE, msg.sender), "Caller is not allowed to register a harvest");
 
         uint256 nextPeriodID = getNextPeriodIndex();
 
-
         /* Yield */
         uint256 yield = ibt.balanceOf(address(futureWallet)).sub(apwibt.totalSupply());
-        assert(ibt.transferFrom(address(futureWallet), address(cellar), yield));
+        if(yield>0) assert(ibt.transferFrom(address(futureWallet), address(cellar), yield));
         cellar.registerExpiredFuture(yield); // Yield deposit in the cellar contract
 
         /* Period Switch*/
@@ -219,17 +148,6 @@ abstract contract APWineStreamIBTVineyard is Initializable, AccessControlUpgrade
         emit NewPeriodStarted(nextPeriodID);
     }
 
-    function deployFutureYieldToken(string memory _tokenName, string memory _tokenSymbol) internal returns(address){
-        bytes memory payload = abi.encodeWithSignature("initialize(string,string,address)", _tokenName, _tokenSymbol, address(this));
-        FutureYieldToken Newtoken = FutureYieldToken(ProxyFactory(controller.APWineProxyFactory()).deployMinimal(controller.FutureYieldTokenLogic(), payload));
-        return address(Newtoken);
-    }
-
-    function setNextPeriodTimestamp(uint256 _nextPeriodTimestamp) public {
-        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to set the future wallet address");
-        nextPeriodTimestamp[nextPeriodTimestamp.length-1]=_nextPeriodTimestamp;
-    }
-
 
     function getRegisteredAmount(address _winemaker) public view returns(uint256){
         uint256 periodID = registrations[_winemaker].startIndex;
@@ -242,59 +160,7 @@ abstract contract APWineStreamIBTVineyard is Initializable, AccessControlUpgrade
         }
     }
 
-
-    function hasClaimableFYT(address _winemaker) public view returns(bool){
-        return lastPeriodClaimed[_winemaker]!=0  && lastPeriodClaimed[_winemaker]<getNextPeriodIndex();
-    }
-
-    function hasClaimableAPWIBT(address _winemaker) public view returns(bool){
-        return (registrations[_winemaker].startIndex < getNextPeriodIndex()) && (registrations[_winemaker].scaledBalance>0);
-    }
-
-    function getNextPeriodIndex() public view returns(uint256){
+    function getNextPeriodIndex() public view override returns(uint256){
         return registrationsTotal.length-1;
     }
-
-    function getNextPeriodTimestamp() public view returns(uint256){
-        return nextPeriodTimestamp[nextPeriodTimestamp.length-1];
-    }
-
-    function getFutureWalletAddress() public view returns(address){
-        return address(futureWallet);
-    }
-
-    function getCellarAddress() public view returns(address){
-        return address(cellar);
-    }
-
-    function getIBTAddress() public view returns(address){
-        return address(ibt);
-    }
-
-    function getAPWIBTAddress() public view returns(address){
-        return address(apwibt);
-    }
-
-    function getFYTofPeriod(uint256 _periodIndex) public view returns(address){
-        require(_periodIndex<getNextPeriodIndex(), "The isnt any fyt for this period yet");
-        return address(fyts[_periodIndex]);
-    }
-
-
-    /* Admin function */
-    function pausePeriods() public{
-        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to set the future wallet address");
-        PAUSED = true;
-    }
-
-    function resumePeriods() public{
-        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to set the future wallet address");
-        PAUSED = false;
-    }
-
-    /* Security functions */
-
-
-
-
 }

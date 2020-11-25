@@ -10,7 +10,6 @@ abstract contract APWineStreamIBTCellar is APWineCellar{
 
     function initialize(address _vineyardAddress, address _adminAddress) public initializer override{
         super.initialize(_vineyardAddress,_adminAddress);
-        scaledCellars.push(0);
     }
 
     function registerExpiredFuture(uint256 _amount) public override{
@@ -18,7 +17,7 @@ abstract contract APWineStreamIBTCellar is APWineCellar{
 
         uint256 currentTotal = ERC20(vineyard.getIBTAddress()).totalSupply();
 
-        if(scaledCellars.length != 0){
+        if(scaledCellars.length>1){
             uint256 scaledInput = APWineMaths.getScaledInput(_amount,scaledTotal,currentTotal);
             scaledTotal = scaledTotal.add(scaledInput);
         }else{

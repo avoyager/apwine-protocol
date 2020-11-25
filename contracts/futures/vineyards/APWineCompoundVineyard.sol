@@ -1,7 +1,7 @@
 pragma solidity >=0.4.22 <0.7.3;
 
 import "./APWineRateIBTVineyard.sol";
-import "../../interfaces/compound/ICerc20.sol";
+import "../../interfaces/compound/ICErc20.sol";
 
 
 contract APWineCompoundVineyard is APWineRateIBTVineyard{
