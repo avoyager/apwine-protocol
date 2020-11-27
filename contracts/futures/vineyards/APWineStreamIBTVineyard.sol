@@ -59,7 +59,7 @@ abstract contract APWineStreamIBTVineyard is APWineVineyard{
         apwibt = APWineIBT(ProxyFactory(controller.APWineProxyFactory()).deployMinimal(controller.APWineIBTLogic(), payload));
     }
 
-    function register(address _winegrower ,uint256 _amount) public virtual periodsActive{   
+    function register(address _winegrower ,uint256 _amount) public virtual override periodsActive{   
         require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to register a wallet");
         uint256 nextIndex = getNextPeriodIndex();
         uint256 scaledInput = APWineMaths.getScaledInput(_amount,registrationsTotal[nextIndex].scaled, ibt.balanceOf(address(this)));
@@ -85,7 +85,7 @@ abstract contract APWineStreamIBTVineyard is APWineVineyard{
         });
     }
 
-    function unregister(uint256 _amount) public virtual{
+    function unregister(uint256 _amount) public virtual override{
         uint256 nextIndex = getNextPeriodIndex();
         require(registrations[msg.sender].startIndex == nextIndex, "There is no ongoing registration for the next period");
 
@@ -103,7 +103,7 @@ abstract contract APWineStreamIBTVineyard is APWineVineyard{
     //     require(apwibt.balanceOf(msg.sender)!=0,"Sender does not have any funds");
     // }
 
-    function startNewPeriod(string memory _tokenName, string memory _tokenSymbol) public virtual nextPeriodAvailable periodsActive{
+    function startNewPeriod(string memory _tokenName, string memory _tokenSymbol) public virtual override nextPeriodAvailable periodsActive{
         require(hasRole(CAVIST_ROLE, msg.sender), "Caller is not allowed to register a harvest");
 
         uint256 nextPeriodID = getNextPeriodIndex();
@@ -132,7 +132,7 @@ abstract contract APWineStreamIBTVineyard is APWineVineyard{
     }
 
 
-    function getRegisteredAmount(address _winemaker) public view returns(uint256){
+    function getRegisteredAmount(address _winemaker) public view virtual override returns(uint256){
         uint256 periodID = registrations[_winemaker].startIndex;
         if (registrations[_winemaker].scaledBalance == 0){
             return 0;

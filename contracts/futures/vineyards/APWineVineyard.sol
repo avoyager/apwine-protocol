@@ -65,6 +65,12 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
         _;
     }
 
+    /* Period functions */
+    function startNewPeriod(string memory _tokenName, string memory _tokenSymbol) public virtual;
+    function register(address _winegrower ,uint256 _amount) public virtual;
+    function unregister(uint256 _amount) public virtual;
+
+
     /* Claim functions */
     function claimFYT(address _winemaker) public virtual{
         require(hasClaimableFYT(_winemaker),"The is not fyt claimable for this address");
@@ -151,11 +157,9 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
     }
 
     function getClaimableAPWIBT(address _winemaker) public view virtual returns(uint256);
-
     function getUnlockableFunds(address _winemaker) public view virtual returns(uint256);
-
+    function getRegisteredAmount(address _winemaker) public view virtual returns(uint256);
     function getUnrealisedYield(address _winemaker) public view virtual returns(uint256);
-
     function getNextPeriodIndex() public view virtual returns(uint256);
 
     function getNextPeriodTimestamp() public view returns(uint256){

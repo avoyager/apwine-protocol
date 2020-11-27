@@ -62,7 +62,7 @@ abstract contract APWineRateIBTVineyard is APWineVineyard{
         apwibt = APWineIBT(ProxyFactory(controller.APWineProxyFactory()).deployMinimal(controller.APWineIBTLogic(), payload));
     }
 
-    function register(address _winegrower ,uint256 _amount) public virtual periodsActive{   
+    function register(address _winegrower ,uint256 _amount) public virtual override periodsActive{   
         require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to register a wallet");
         uint256 nextIndex = getNextPeriodIndex();
 
@@ -86,7 +86,7 @@ abstract contract APWineRateIBTVineyard is APWineVineyard{
         });
     }
 
-    function unregister(uint256 _amount) public virtual{
+    function unregister(uint256 _amount) public virtual override{
         uint256 nextIndex = getNextPeriodIndex();
         require(registrations[msg.sender].startIndex == nextIndex, "The is not ongoing registration for the next period");
         uint256 currentRegistered = registrations[msg.sender].scaledBalance;
@@ -101,7 +101,7 @@ abstract contract APWineRateIBTVineyard is APWineVineyard{
 
 
 
-    function startNewPeriod(string memory _tokenName, string memory _tokenSymbol) public virtual nextPeriodAvailable periodsActive{
+    function startNewPeriod(string memory _tokenName, string memory _tokenSymbol) public virtual override nextPeriodAvailable periodsActive{
         require(hasRole(CAVIST_ROLE, msg.sender), "Caller is not allowed to register a harvest");
 
         uint256 nextPeriodID = getNextPeriodIndex();
@@ -133,7 +133,7 @@ abstract contract APWineRateIBTVineyard is APWineVineyard{
         emit NewPeriodStarted(nextPeriodID);
     }
 
-    function getRegisteredAmount(address _winemaker) public view returns(uint256){
+    function getRegisteredAmount(address _winemaker) public view override returns(uint256){
         uint256 periodID = registrations[_winemaker].startIndex;
         uint256 winemakerRegisteredBalance = registrations[_winemaker].scaledBalance;
         if (winemakerRegisteredBalance== 0){
