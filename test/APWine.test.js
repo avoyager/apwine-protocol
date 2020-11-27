@@ -2,6 +2,7 @@ const { accounts, contract } = require("@openzeppelin/test-environment")
 const { expect } = require("chai")
 
 const { BN, ether: amount, expectRevert, time, balance } = require("@openzeppelin/test-helpers")
+const ether = require("@openzeppelin/test-helpers/src/ether")
 
 const APWineController = contract.fromArtifact("APWineController")
 const APWineAaveVineyard = contract.fromArtifact("APWineAaveVineyard")
@@ -13,6 +14,12 @@ const APWineFutureWallet = contract.fromArtifact("APWineFutureWallet")
 const APWineMaths = contract.fromArtifact("APWineMaths")
 
 const ADDRESS_0 = "0x0000000000000000000000000000000000000000"
+
+const WETH_ADDRESS = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+const ADAI_ADDRESS = "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d"
+const adai = contract.fromArtifact("ERC20", ADAI_ADDRESS)
+
+const uniswapRouter = contract.fromABI(require("@uniswap/v2-periphery/build/IUniswapV2Router02.json").abi, undefined, "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D")
 
 describe("APWine Libraries", function () {
 
@@ -34,10 +41,9 @@ describe("APWine Libraries", function () {
 })
 
 
-describe("APWine", function () {
+describe("APWine Contracts", function () {
 
     this.timeout(100 * 1000)
-
     const [owner, user1, user2] = accounts
 
     beforeEach(async function () {
@@ -57,13 +63,13 @@ describe("APWine", function () {
     })
 
 
-    describe("with APWineAave deployed", function () {
+    describe("APWine Aave integration", function () {
 
         beforeEach(async function () {
             await APWineAaveVineyard.detectNetwork()
             await APWineAaveVineyard.link("APWineMaths", this.maths.address)
             this.aaveWeeklyVineyard = await APWineAaveVineyard.new()
-            await this.aaveWeeklyVineyard.initialize(this.controller.address, "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d", 7, "aDAI", "aDAI", owner)
+            await this.aaveWeeklyVineyard.initialize(this.controller.address, ADAI_ADDRESS, 7, "aDAI", "aDAI", owner)
 
             await APWineAaveCellar.detectNetwork()
             await APWineAaveCellar.link("APWineMaths", this.maths.address)
@@ -83,10 +89,42 @@ describe("APWine", function () {
             expect(await this.aaveWeeklyVineyard.getRegisteredAmount(user1)).to.be.bignumber.equal(new BN(0))
         })
 
-        // need approve and positive balance
-        // it("user can register", async function () {
-        //     expect(await this.controller.register(this.aaveWeeklyVineyard.address,500))
-        // })
+        describe("with initial user ADAI balance", function () {
+
+            beforeEach(async function () {
+                await uniswapRouter.swapExactETHForTokens(0, [WETH_ADDRESS, ADAI_ADDRESS], user1, Date.now() + 25, { from: user1, value: ether("1") })
+            })
+
+            it("has at least 100 ADAI in their wallet", async function () {
+                expect(await adai.balanceOf(user1)).to.be.bignumber.gt(ether("100"))
+            })
+
+            it("can't register if it hasn't approved", async function () {
+                expectRevert.unspecified(this.controller.register(this.aaveWeeklyVineyard.address, ether("100"), { from: user1 }))
+            })
+
+            const register = async (address) => {
+                await adai.approve(this.controller.address, ether("100"))
+                await this.controller.register(this.aaveWeeklyVineyard.address, ether("100"), { from: address })
+            }
+
+            it("can register to the next period", async function () {
+                await register(user1)
+            })
+
+            describe("with ADAI registered for the period", function () {
+
+                beforeEach(async function () {
+                    await register(user1)
+                })
+
+                it("can start the period", async function () {
+                    await this.aaveWeeklyVineyard.startNewPeriod("Week 0 ADAI FYT", "apwW0ADAI")
+                })
+
+            })
+
+        })
 
     })
 
