@@ -93,6 +93,9 @@ abstract contract APWineRateIBTVineyard is APWineVineyard{
         require(currentRegistered>=_amount,"Invalid amount to unregister");
 
         registrations[msg.sender].scaledBalance = registrations[msg.sender].scaledBalance.sub(currentRegistered);
+
+        ibt.transfer(msg.sender, _amount);
+
     }
 
     // function withdrawLockFunds(uint _amount) public virtual{
@@ -112,7 +115,7 @@ abstract contract APWineRateIBTVineyard is APWineVineyard{
 
         /* Yield */
         uint256 yield = ibt.balanceOf(address(futureWallet)).mul((currentRate.sub(registrationsTotal[nextPeriodID-1].IBTRate)).div(currentRate));
-        assert(ibt.transferFrom(address(futureWallet), address(cellar), yield));
+        if(yield>0) assert(ibt.transferFrom(address(futureWallet), address(cellar), yield));
         cellar.registerExpiredFuture(yield); // Yield deposit in the cellar contract
 
         /* Period Switch*/

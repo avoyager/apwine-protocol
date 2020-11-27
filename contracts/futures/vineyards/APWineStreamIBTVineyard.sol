@@ -97,6 +97,8 @@ abstract contract APWineStreamIBTVineyard is APWineVineyard{
         registrations[msg.sender].scaledBalance = registrations[msg.sender].scaledBalance.sub(scaledToUnregister);
         registrationsTotal[nextIndex].scaled= registrationsTotal[nextIndex].scaled.sub(scaledToUnregister);
 
+        ibt.transfer(msg.sender, _amount);
+
     }
 
     // function withdrawLockFunds(uint _amount) public virtual{
