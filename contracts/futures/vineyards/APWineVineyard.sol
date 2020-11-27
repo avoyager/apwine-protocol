@@ -26,6 +26,8 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
         uint256 scaledBalance;
     }
 
+    uint256[] registrationsTotals;
+
     /* ACR ROLE */
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant CAVIST_ROLE = keccak256("CAVIST_ROLE");
@@ -51,7 +53,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
 
     /* Events */
     event UserRegistered(address _userAddress,uint256 _amount, uint256 _periodIndex);
-    event NewPeriodStarted(uint256 _newPeriodIndex);
+    event NewPeriodStarted(uint256 _newPeriodIndex, address _fytAddress);
 
     /* Modifiers */
     modifier nextPeriodAvailable(){
@@ -65,9 +67,63 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
         _;
     }
 
+
+    /* Initializer */
+    /**
+    * @notice Intializer
+    * @param _controllerAddress the address of the controller
+    * @param _ibt the address of the corresponding ibt
+    * @param _periodLength the length of the period (in days)
+    * @param _tokenName the APWineIBT name
+    * @param _tokenSymbol the APWineIBT symbol
+    * @param _adminAddress the address of the ACR admin
+    */  
+    function initialize(address _controllerAddress, address _ibt, uint256 _periodLength, string memory _tokenName, string memory _tokenSymbol,address _adminAddress) public initializer virtual{
+        controller =  IAPWineController(_controllerAddress);
+        ibt = ERC20(_ibt);
+        PERIOD = _periodLength * (1 days);
+
+        _setupRole(DEFAULT_ADMIN_ROLE, _adminAddress);
+        _setupRole(ADMIN_ROLE, _adminAddress);
+        _setupRole(CAVIST_ROLE, _adminAddress);
+        _setupRole(CONTROLLER_ROLE, _controllerAddress);
+        
+        registrationsTotals.push();
+        registrationsTotals.push();
+        fyts.push();
+        nextPeriodTimestamp.push();
+        bytes memory payload = abi.encodeWithSignature("initialize(string,string,address)", _tokenName, _tokenSymbol, address(this));
+        apwibt = APWineIBT(ProxyFactory(controller.APWineProxyFactory()).deployMinimal(controller.APWineIBTLogic(), payload));
+    }
+
     /* Period functions */
     function startNewPeriod(string memory _tokenName, string memory _tokenSymbol) public virtual;
-    function register(address _winegrower ,uint256 _amount) public virtual;
+
+
+    function register(address _winegrower ,uint256 _amount) public virtual periodsActive{   
+        require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to register a wallet");
+        uint256 nextIndex = getNextPeriodIndex();
+        if(registrations[_winegrower].scaledBalance==0){ // User has no record
+            _register(_winegrower,_amount);
+        }else{
+            if(registrations[_winegrower].startIndex == nextIndex){ // User has already an existing registration for the next period
+                 registrations[_winegrower].scaledBalance = registrations[_winegrower].scaledBalance.add(_amount);
+            }else{ // User had an unclaimed registation from a previous period
+                claimAPWIBT(_winegrower);
+                _register(_winegrower,_amount);
+            }
+        }
+        emit UserRegistered(_winegrower,_amount, nextIndex);
+    }
+
+
+    function _register(address _winegrower, uint256 _initialScaledBalance) virtual internal{
+        registrations[_winegrower] = Registration({
+                startIndex:getNextPeriodIndex(),
+                scaledBalance:_initialScaledBalance
+        });
+    } 
+    
     function unregister(uint256 _amount) public virtual;
 
 
@@ -127,8 +183,10 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
     /* Utilitaries functions */
     function deployFutureYieldToken(string memory _tokenName, string memory _tokenSymbol) internal returns(address){
         bytes memory payload = abi.encodeWithSignature("initialize(string,string,address)", _tokenName, _tokenSymbol, address(this));
-        FutureYieldToken Newtoken = FutureYieldToken(ProxyFactory(controller.APWineProxyFactory()).deployMinimal(controller.FutureYieldTokenLogic(), payload));
-        return address(Newtoken);
+        FutureYieldToken newToken = FutureYieldToken(ProxyFactory(controller.APWineProxyFactory()).deployMinimal(controller.FutureYieldTokenLogic(), payload));
+        fyts.push(newToken);
+        newToken.mint(address(this),apwibt.totalSupply().mul(10**( uint256(18-ibt.decimals()) ))); 
+        return address(newToken);
     }
 
     /* Setters */
@@ -149,20 +207,25 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
 
     /* Getters */
     function hasClaimableFYT(address _winemaker) public view returns(bool){
-        return lastPeriodClaimed[_winemaker]!=0  && 
-        
-        [_winemaker]<getNextPeriodIndex();
+        return lastPeriodClaimed[_winemaker]!=0  && lastPeriodClaimed[_winemaker]<getNextPeriodIndex();
     }
 
     function hasClaimableAPWIBT(address _winemaker) public view returns(bool){
         return (registrations[_winemaker].startIndex < getNextPeriodIndex()) && (registrations[_winemaker].scaledBalance>0);
     }
 
+    function getNextPeriodIndex() public view virtual returns(uint256){
+        return registrationsTotals.length-1;
+    }
+
     function getClaimableAPWIBT(address _winemaker) public view virtual returns(uint256);
-    function getUnlockableFunds(address _winemaker) public view virtual returns(uint256);
+
+    function getUnlockableFunds(address _winemaker) public view virtual returns(uint256){
+        return getClaimableAPWIBT(_winemaker).add(apwibt.balanceOf(_winemaker));
+    }
+
     function getRegisteredAmount(address _winemaker) public view virtual returns(uint256);
     function getUnrealisedYield(address _winemaker) public view virtual returns(uint256);
-    function getNextPeriodIndex() public view virtual returns(uint256);
 
     function getNextPeriodTimestamp() public view returns(uint256){
         return nextPeriodTimestamp[nextPeriodTimestamp.length-1];
@@ -183,9 +246,6 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
     function getAPWIBTAddress() public view returns(address){
         return address(apwibt);
     }
-
-    // function getClaimableAPWIBT(address _winemaker) public view returns(uint256);
-
 
 
     function getFYTofPeriod(uint256 _periodIndex) public view returns(address){

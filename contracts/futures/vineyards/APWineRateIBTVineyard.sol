@@ -22,16 +22,7 @@ abstract contract APWineRateIBTVineyard is APWineVineyard{
     using SafeMath for uint256;
 
     uint256 apwibtRate;
-
-    RegistrationsTotal[] private registrationsTotal;
-
-
-    struct RegistrationsTotal{
-        uint256 totalLMT;
-        uint256 total; // not scaled here
-        uint256 IBTRate;
-    }
-
+    uint256[] IBTRates;
 
     /**
     * @notice Intializer
@@ -42,48 +33,10 @@ abstract contract APWineRateIBTVineyard is APWineVineyard{
     * @param _tokenSymbol the APWineIBT symbol
     * @param _adminAddress the address of the ACR admin
     */  
-    function initialize(address _controllerAddress, address _ibt, uint256 _periodLength, string memory _tokenName, string memory _tokenSymbol,address _adminAddress) public initializer virtual{
-        controller =  IAPWineController(_controllerAddress);
-        ibt = ERC20(_ibt);
-        PERIOD = _periodLength * (1 days);
-
-        _setupRole(DEFAULT_ADMIN_ROLE, _adminAddress);
-        _setupRole(ADMIN_ROLE, _adminAddress);
-        _setupRole(CAVIST_ROLE, _adminAddress);
-        _setupRole(CONTROLLER_ROLE, _controllerAddress);
-
-        registrationsTotal.push(); // empty period
-        fyts.push();
-        nextPeriodTimestamp.push();
-
-        registrationsTotal.push(); // new period
-
-        bytes memory payload = abi.encodeWithSignature("initialize(string,string,address)", _tokenName, _tokenSymbol, address(this));
-        apwibt = APWineIBT(ProxyFactory(controller.APWineProxyFactory()).deployMinimal(controller.APWineIBTLogic(), payload));
-    }
-
-    function register(address _winegrower ,uint256 _amount) public virtual override periodsActive{   
-        require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to register a wallet");
-        uint256 nextIndex = getNextPeriodIndex();
-
-        if(registrations[_winegrower].scaledBalance==0){ // User has no record
-            _register(_winegrower,_amount);
-        }else{
-            if(registrations[_winegrower].startIndex == nextIndex){ // User has already an existing registration for the next period
-                 registrations[_winegrower].scaledBalance = registrations[_winegrower].scaledBalance.add(_amount);
-            }else{ // User had an unclaimed registation from a previous period
-                claimAPWIBT(_winegrower);
-                _register(_winegrower,_amount);
-            }
-        }
-        emit UserRegistered(_winegrower,_amount, nextIndex);
-    }
-
-    function _register(address _winegrower, uint256 _initialScaledBalance) internal{
-        registrations[_winegrower] = Registration({
-                startIndex:getNextPeriodIndex(),
-                scaledBalance:_initialScaledBalance
-        });
+    function initialize(address _controllerAddress, address _ibt, uint256 _periodLength, string memory _tokenName, string memory _tokenSymbol,address _adminAddress) public initializer virtual override{
+        super.initialize(_controllerAddress,_ibt,_periodLength,_tokenName,_tokenSymbol,_adminAddress);
+        IBTRates.push();
+        IBTRates.push();
     }
 
     function unregister(uint256 _amount) public virtual override{
@@ -98,11 +51,6 @@ abstract contract APWineRateIBTVineyard is APWineVineyard{
 
     }
 
-    // function withdrawLockFunds(uint _amount) public virtual{
-    //     require(apwibt.balanceOf(msg.sender)!=0,"Sender does not have any funds");
-    // }
-
-
 
     function startNewPeriod(string memory _tokenName, string memory _tokenSymbol) public virtual override nextPeriodAvailable periodsActive{
         require(hasRole(CAVIST_ROLE, msg.sender), "Caller is not allowed to register a harvest");
@@ -110,41 +58,33 @@ abstract contract APWineRateIBTVineyard is APWineVineyard{
         uint256 nextPeriodID = getNextPeriodIndex();
         uint256 currentRate = getIBTRate();
         
-        registrationsTotal[nextPeriodID].IBTRate = currentRate;
-        registrationsTotal[nextPeriodID].total = ibt.balanceOf(address(this));
+        IBTRates[nextPeriodID] = currentRate;
+        registrationsTotals[nextPeriodID] = ibt.balanceOf(address(this));
 
         /* Yield */
-        uint256 yield = ibt.balanceOf(address(futureWallet)).mul((currentRate.sub(registrationsTotal[nextPeriodID-1].IBTRate)).div(currentRate));
+        uint256 yield = ibt.balanceOf(address(futureWallet)).mul((currentRate.sub(IBTRates[nextPeriodID-1])).div(currentRate));
         if(yield>0) assert(ibt.transferFrom(address(futureWallet), address(cellar), yield));
         cellar.registerExpiredFuture(yield); // Yield deposit in the cellar contract
 
         /* Period Switch*/
         // registrationsTotal[nextPeriodID].totalLMT = ibt.balanceOf(address(this));
-        apwibt.mint(address(this), registrationsTotal[nextPeriodID].total.mul(registrationsTotal[nextPeriodID].IBTRate)); // Mint new APWIBTs
-
-        ibt.transfer(address(futureWallet), registrationsTotal[nextPeriodID].total); // Send ibt to future for the new period
+        apwibt.mint(address(this), registrationsTotals[nextPeriodID].mul(IBTRates[nextPeriodID])); // Mint new APWIBTs
+        ibt.transfer(address(futureWallet), registrationsTotals[nextPeriodID]); // Send ibt to future for the new period
         nextPeriodTimestamp.push(block.timestamp+PERIOD); // Program next switch
-
-        registrationsTotal.push();
+        registrationsTotals.push();
+        IBTRates.push();
 
         /* Future Yield Token*/
-        address futureTokenAddress = deployFutureYieldToken(_tokenName,_tokenSymbol);
-        FutureYieldToken futureYieldToken = FutureYieldToken(futureTokenAddress);
-        fyts.push(futureYieldToken);
-        futureYieldToken.mint(address(this),apwibt.totalSupply().mul(10**( uint256(18-ibt.decimals()) ))); 
-
-        emit NewPeriodStarted(nextPeriodID);
+        address fytAddress = deployFutureYieldToken(_tokenName,_tokenSymbol);
+        emit NewPeriodStarted(nextPeriodID,fytAddress);
     }
 
     function getRegisteredAmount(address _winemaker) public view override returns(uint256){
         uint256 periodID = registrations[_winemaker].startIndex;
-        uint256 winemakerRegisteredBalance = registrations[_winemaker].scaledBalance;
-        if (winemakerRegisteredBalance== 0){
-            return 0;
-        }else if (periodID==getNextPeriodIndex()){
-            return winemakerRegisteredBalance;
+        if (periodID==getNextPeriodIndex()){
+            return registrations[_winemaker].scaledBalance;
         }else{
-            return scaleIBTAmount(winemakerRegisteredBalance, registrationsTotal[registrations[_winemaker].startIndex].IBTRate,registrationsTotal[getNextPeriodIndex()-1].IBTRate);
+            return 0;
         }
     }
 
@@ -154,20 +94,15 @@ abstract contract APWineRateIBTVineyard is APWineVineyard{
 
     function getClaimableAPWIBT(address _winemaker) public view override returns(uint256){
         if(!hasClaimableAPWIBT(_winemaker)) return 0;
-        return scaleIBTAmount(registrations[_winemaker].scaledBalance, registrationsTotal[registrations[_winemaker].startIndex].IBTRate,registrationsTotal[getNextPeriodIndex()-1].IBTRate);
+        return scaleIBTAmount(registrations[_winemaker].scaledBalance, IBTRates[registrations[_winemaker].startIndex],IBTRates[getNextPeriodIndex()-1]);
     }
 
     function getUnlockableFunds(address _winemaker) public view override returns(uint256){
-        return scaleIBTAmount(apwibt.balanceOf(_winemaker),registrationsTotal[getNextPeriodIndex()-1].IBTRate, getIBTRate());
+        return scaleIBTAmount(super.getUnlockableFunds(_winemaker),IBTRates[getNextPeriodIndex()-1], getIBTRate());
     }
 
     function getUnrealisedYield(address _winemaker) public view override returns(uint256){
-        return apwibt.balanceOf(_winemaker).sub(scaleIBTAmount(apwibt.balanceOf(_winemaker),registrationsTotal[getNextPeriodIndex()-1].IBTRate, getIBTRate()));
-    }
-
-
-    function getNextPeriodIndex() public view override returns(uint256){
-        return registrationsTotal.length-1;
+        return apwibt.balanceOf(_winemaker).sub(scaleIBTAmount(apwibt.balanceOf(_winemaker),IBTRates[getNextPeriodIndex()-1], getIBTRate()));
     }
 
     function getIBTRate() public view virtual returns(uint256);
