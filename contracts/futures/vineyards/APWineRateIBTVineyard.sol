@@ -21,7 +21,6 @@ abstract contract APWineRateIBTVineyard is APWineVineyard{
 
     using SafeMath for uint256;
 
-    uint256 apwibtRate;
     uint256[] IBTRates;
 
     /**
