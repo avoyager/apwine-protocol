@@ -78,10 +78,10 @@ module.exports = {
     solc: {
       version: "0.6.12+commit.27d51765",    // Fetch exact version from solc-bin (default: truffle's version)
       settings: {          // See the solidity docs for advice about optimization and evmVersion
-      //  optimizer: {
-      //    enabled: false,
-      //    runs: 200
-      //  },
+       optimizer: {
+         enabled: true,
+         runs: 200000
+       },
       }
     }
   }
