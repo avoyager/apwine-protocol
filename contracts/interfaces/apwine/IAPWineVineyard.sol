@@ -7,7 +7,6 @@ interface IAPWineVineyard{
     struct Registration{
         uint256 startIndex;
         uint256 scaledBalance;
-        bool ibtClaimed;
     }
 
     /**

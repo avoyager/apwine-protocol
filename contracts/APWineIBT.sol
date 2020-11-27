@@ -124,6 +124,14 @@ contract APWineIBT is Initializable, ContextUpgradeSafe, AccessControlUpgradeSaf
         }
     }
 
+    function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
+        _transfer(sender, recipient, amount);
+        if(sender!=vineyard){
+            _approve(sender, _msgSender(), allowance(sender,_msgSender()).sub(amount, "ERC20: transfer amount exceeds allowance"));
+        }
+        return true;
+    }
+
     uint256[50] private __gap;
 }
 
