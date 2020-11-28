@@ -38,6 +38,16 @@ describe("APWine Libraries", function () {
         expect(await this.maths.getActualOutput(0,0,0)).to.be.bignumber.equal(new BN(0))
     })
 
+    it("scalling of input is consistent", async function () {
+        // Input 10 is first of sum, it doubles before second input of 10
+        expect(await this.maths.getScaledInput(10,10,20)).to.be.bignumber.equal(new BN(5))
+    })
+
+    it("scalling of output is consistent", async function () {
+        // Input 10 is first of sum, it doubles before second input of 10
+        expect(await this.maths.getActualOutput(5,15,30)).to.be.bignumber.equal(new BN(10))
+    })
+
 })
 
 

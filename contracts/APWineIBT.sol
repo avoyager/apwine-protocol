@@ -110,7 +110,7 @@ contract APWineIBT is Initializable, ContextUpgradeSafe, AccessControlUpgradeSaf
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal override(ERC20UpgradeSafe, ERC20PausableUpgradeSafe) {
         super._beforeTokenTransfer(from, to, amount);
 
-        // Sender state update
+        // sender and receiver state update
         if(from!=vineyard && to!=vineyard){
             if(IAPWineVineyard(vineyard).hasClaimableFYT(from)){
                 IAPWineVineyard(vineyard).claimFYT(from);

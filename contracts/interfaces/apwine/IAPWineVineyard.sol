@@ -89,7 +89,6 @@ interface IAPWineVineyard{
     function setNextPeriodTimestamp(uint256 _nextPeriodTimestamp) external;
 
 
-
     /**
     * @notice Check if a winemaker has fyt not claimed
     * @param _winemaker the winemaker to check
