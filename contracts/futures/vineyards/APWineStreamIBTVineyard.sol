@@ -34,7 +34,7 @@ abstract contract APWineStreamIBTVineyard is APWineVineyard{
         uint256 currentRegistered = APWineMaths.getActualOutput(registrations[msg.sender].scaledBalance, scaledTotals[nextIndex], ibt.balanceOf(address(this)));
         require(currentRegistered>=_amount,"Invalid amount to unregister");
 
-        uint256 scaledToUnregister = registrations[msg.sender].scaledBalance.mul(_amount.div(currentRegistered));
+        uint256 scaledToUnregister = (registrations[msg.sender].scaledBalance.mul(_amount)).div(currentRegistered);
 
         registrations[msg.sender].scaledBalance = registrations[msg.sender].scaledBalance.sub(scaledToUnregister);
         scaledTotals[nextIndex]= scaledTotals[nextIndex].sub(scaledToUnregister);

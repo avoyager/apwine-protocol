@@ -35,7 +35,7 @@ abstract contract APWineStreamIBTCellar is APWineCellar{
 
         ERC20 ibt = ERC20(vineyard.getIBTAddress());
 
-        uint256 scaledOutput = (senderTokenBalance.div(fyt.totalSupply())).mul(scaledCellars[_periodIndex]);
+        uint256 scaledOutput = (senderTokenBalance.mul(scaledCellars[_periodIndex])).div(fyt.totalSupply());
 
         uint256 claimableYield =  APWineMaths.getActualOutput(scaledOutput,scaledTotal,ibt.balanceOf(address(this)));
         
@@ -50,7 +50,7 @@ abstract contract APWineStreamIBTCellar is APWineCellar{
         IFutureYieldToken fyt = IFutureYieldToken(vineyard.getFYTofPeriod(_periodIndex));
         uint256 senderTokenBalance = fyt.balanceOf(_tokenHolder);
         ERC20 ibt = ERC20(vineyard.getIBTAddress());
-        uint256 scaledOutput = (senderTokenBalance.div(fyt.totalSupply())).mul(scaledCellars[_periodIndex]);
+        uint256 scaledOutput = (senderTokenBalance.mul(scaledCellars[_periodIndex])).div(fyt.totalSupply());
         return  APWineMaths.getActualOutput(scaledOutput,scaledTotal,ibt.balanceOf(address(this)));
     }
 

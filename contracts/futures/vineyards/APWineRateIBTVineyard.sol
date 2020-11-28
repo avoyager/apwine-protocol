@@ -61,7 +61,7 @@ abstract contract APWineRateIBTVineyard is APWineVineyard{
         registrationsTotals[nextPeriodID] = ibt.balanceOf(address(this));
 
         /* Yield */
-        uint256 yield = ibt.balanceOf(address(futureWallet)).mul((currentRate.sub(IBTRates[nextPeriodID-1])).div(currentRate));
+        uint256 yield = (ibt.balanceOf(address(futureWallet)).mul(currentRate.sub(IBTRates[nextPeriodID-1]))).div(currentRate);
         if(yield>0) assert(ibt.transferFrom(address(futureWallet), address(cellar), yield));
         cellar.registerExpiredFuture(yield); // Yield deposit in the cellar contract
 
@@ -88,7 +88,7 @@ abstract contract APWineRateIBTVineyard is APWineVineyard{
     }
 
     function scaleIBTAmount(uint256 _initialAmount, uint256 _initialRate, uint256 _newRate) public view returns(uint256){
-        return _initialAmount.mul(_initialRate).div(_newRate);
+        return (_initialAmount.mul(_initialRate)).div(_newRate);
     }
 
     function getClaimableAPWIBT(address _winemaker) public view override returns(uint256){
