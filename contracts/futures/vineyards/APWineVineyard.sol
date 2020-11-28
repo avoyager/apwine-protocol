@@ -154,7 +154,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
         uint256 claimableAPWIBT = getClaimableAPWIBT(_winemaker);
         // require(claimableAPWIBT>0, "There are no ibt claimable at the moment for this address");
 
-        if(hasClaimableFYT(_winemaker)) _claimFYT(_winemaker);
+        if(_hasOnlyClaimableFYT(_winemaker)) _claimFYT(_winemaker);
         apwibt.transfer(_winemaker, claimableAPWIBT);
 
         for (uint i = registrations[_winemaker].startIndex; i<nextIndex; i++){ // get not claimed fyt
@@ -213,7 +213,11 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
 
     /* Getters */
     function hasClaimableFYT(address _winemaker) public view returns(bool){
-        return hasClaimableAPWIBT(_winemaker) || (lastPeriodClaimed[_winemaker]!=0  && lastPeriodClaimed[_winemaker]<getNextPeriodIndex());
+        return hasClaimableAPWIBT(_winemaker) || _hasOnlyClaimableFYT(_winemaker);
+    }
+
+    function _hasOnlyClaimableFYT(address _winemaker) internal view returns(bool){
+        return lastPeriodClaimed[_winemaker]!=0  && lastPeriodClaimed[_winemaker]<getNextPeriodIndex();
     }
 
     function hasClaimableAPWIBT(address _winemaker) public view returns(bool){
