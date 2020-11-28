@@ -82,10 +82,9 @@ abstract contract APWineStreamIBTVineyard is APWineVineyard{
         return APWineMaths.getActualOutput(registrations[_winemaker].scaledBalance, scaledTotals[registrations[_winemaker].startIndex], registrationsTotals[registrations[_winemaker].startIndex]);
     }
 
-    function getUnrealisedYield(address _winemaker) public view override returns(uint256){
-        uint256 yieldShare = (ibt.balanceOf(address(futureWallet)).sub(apwibt.totalSupply())).div(ibt.balanceOf(address(futureWallet)));
-        uint256 winemakerShare = apwibt.balanceOf(_winemaker).div(apwibt.totalSupply());
-        return winemakerShare.mul(yieldShare).mul(ibt.balanceOf(address(futureWallet)));
+    function getUnrealisedYield(address _cavist) public view override returns(uint256){
+        uint256 cavistYield = ((ibt.balanceOf(address(futureWallet)).sub(apwibt.totalSupply())).mul(fyts[getNextPeriodIndex()-1].balanceOf(_cavist))).div(fyts[getNextPeriodIndex()-1].totalSupply());
+        return cavistYield;
     }
 
 
