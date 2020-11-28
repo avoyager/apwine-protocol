@@ -58,7 +58,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
     /* Modifiers */
     modifier nextPeriodAvailable(){
         uint256 controllerDelay = controller.STARTING_DELAY();
-        require(getNextPeriodTimestamp()>block.timestamp.sub(controllerDelay), "The next period start range has not been reached yet");
+        require(getNextPeriodTimestamp()<block.timestamp.sub(controllerDelay), "The next period start range has not been reached yet");
         _;
     }
 
