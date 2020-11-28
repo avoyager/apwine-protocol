@@ -154,10 +154,10 @@ contract APWineController is Initializable, AccessControlUpgradeSafe{
     /* Views */
 
     /**
-     * @notice Checks whether the address is a valid future
-     * @return bool true if the given future is valid
+     * @notice Checks whether the address is a valid vineyard
+     * @return bool true if the given vineyard is valid
      */
-    function isRegisteredFuture(address _vineyardAddress) public view returns (bool) {
+    function isRegisteredVineyard(address _vineyardAddress) public view returns (bool) {
        return vineyards.contains(_vineyardAddress);
     }
 
