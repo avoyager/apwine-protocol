@@ -217,7 +217,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
     }
 
     function _hasOnlyClaimableFYT(address _winemaker) internal view returns(bool){
-        return lastPeriodClaimed[_winemaker]!=0  && lastPeriodClaimed[_winemaker]<getNextPeriodIndex();
+        return lastPeriodClaimed[_winemaker]!=0  && lastPeriodClaimed[_winemaker]<getNextPeriodIndex()-1;
     }
 
     function hasClaimableAPWIBT(address _winemaker) public view returns(bool){
