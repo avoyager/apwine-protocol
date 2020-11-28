@@ -111,14 +111,11 @@ contract APWineIBT is Initializable, ContextUpgradeSafe, AccessControlUpgradeSaf
         super._beforeTokenTransfer(from, to, amount);
 
         // Sender state update
-        if(from!=vineyard && IAPWineVineyard(vineyard).hasClaimableFYT(from)){
-             IAPWineVineyard(vineyard).claimFYT(from);
-        }
-        // Receiver state update
-        if(to!=vineyard){
-            if(IAPWineVineyard(vineyard).hasClaimableAPWIBT(to)){
-                IAPWineVineyard(vineyard).claimAPWIBT(to);
-            }else if(IAPWineVineyard(vineyard).hasClaimableFYT(to)){
+        if(from!=vineyard && to!=vineyard){
+            if(IAPWineVineyard(vineyard).hasClaimableFYT(from)){
+                IAPWineVineyard(vineyard).claimFYT(from);
+            }
+            if(IAPWineVineyard(vineyard).hasClaimableFYT(to)){
                 IAPWineVineyard(vineyard).claimFYT(to);
             }
         }

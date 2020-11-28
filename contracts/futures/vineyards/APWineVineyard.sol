@@ -130,6 +130,11 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
     /* Claim functions */
     function claimFYT(address _winemaker) public virtual{
         require(hasClaimableFYT(_winemaker),"The is not fyt claimable for this address");
+        if(hasClaimableAPWIBT(_winemaker)) claimAPWIBT(_winemaker);
+        else _claimFYT(_winemaker);   
+    }
+
+    function _claimFYT(address _winemaker) internal virtual{
         uint256 nextIndex = getNextPeriodIndex();
         for(uint256 i = lastPeriodClaimed[_winemaker]+1; i<nextIndex;i++){
             claimFYTforPeriod(_winemaker, i); // TODO gas cost can be optimized
@@ -144,17 +149,18 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
         fyts[_periodIndex].transfer(_winemaker,apwibt.balanceOf(_winemaker));
     }
 
-    function claimAPWIBT(address _winemaker) public virtual{
+    function claimAPWIBT(address _winemaker) internal virtual{
         uint256 nextIndex = getNextPeriodIndex();
         uint256 claimableAPWIBT = getClaimableAPWIBT(_winemaker);
-        require(claimableAPWIBT>0, "There are no ibt claimable at the moment for this address");
-        if(hasClaimableFYT(_winemaker)){
-            claimFYT(_winemaker); 
-        }
+        // require(claimableAPWIBT>0, "There are no ibt claimable at the moment for this address");
+
+        if(hasClaimableFYT(_winemaker)) _claimFYT(_winemaker);
         apwibt.transfer(_winemaker, claimableAPWIBT);
+
         for (uint i = registrations[_winemaker].startIndex; i<nextIndex; i++){ // get not claimed fyt
             fyts[i].transfer(_winemaker,claimableAPWIBT);
         }
+
         lastPeriodClaimed[_winemaker] = nextIndex-1;
         delete registrations[_winemaker];
     }
@@ -207,7 +213,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
 
     /* Getters */
     function hasClaimableFYT(address _winemaker) public view returns(bool){
-        return lastPeriodClaimed[_winemaker]!=0  && lastPeriodClaimed[_winemaker]<getNextPeriodIndex();
+        return hasClaimableAPWIBT(_winemaker) || (lastPeriodClaimed[_winemaker]!=0  && lastPeriodClaimed[_winemaker]<getNextPeriodIndex());
     }
 
     function hasClaimableAPWIBT(address _winemaker) public view returns(bool){
