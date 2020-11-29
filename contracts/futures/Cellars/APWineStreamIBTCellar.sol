@@ -42,13 +42,5 @@ abstract contract APWineStreamIBTCellar is APWineCellar{
         return claimableYield;
     }
 
-    function getscaledTotal() public view returns(uint256){
-        return scaledTotal;
-    }
-
-    function getscaledCellars() public view returns( uint256[] memory){
-        return scaledCellars;
-    }
-
 
 }
