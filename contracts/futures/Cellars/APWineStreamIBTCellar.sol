@@ -15,7 +15,7 @@ abstract contract APWineStreamIBTCellar is APWineCellar{
     function registerExpiredFuture(uint256 _amount) public override{
         require(hasRole(CAVIST_ROLE, msg.sender), "Caller is not allowed to register a harvest");
 
-        uint256 currentTotal = ibt.totalSupply();
+        uint256 currentTotal = ibt.balanceOf(address(this));
 
         if(scaledCellars.length>1){
             uint256 scaledInput = APWineMaths.getScaledInput(_amount,scaledTotal,currentTotal);
@@ -31,7 +31,7 @@ abstract contract APWineStreamIBTCellar is APWineCellar{
         IFutureYieldToken fyt = IFutureYieldToken(vineyard.getFYTofPeriod(_periodIndex));
         uint256 senderTokenBalance = fyt.balanceOf(_tokenHolder);
         uint256 scaledOutput = (senderTokenBalance.mul(scaledCellars[_periodIndex]));
-        return APWineMaths.getActualOutput(scaledOutput,scaledTotal,ibt.balanceOf(address(this))).div(fyt.totalSupply());
+       return APWineMaths.getActualOutput(scaledOutput,scaledTotal,ibt.balanceOf(address(this))).div(fyt.totalSupply());
     }
 
     function _updateYieldBalances(uint256 _periodIndex, uint256 _cavistFYT, uint256 _totalFYT) internal override returns(uint256){
@@ -41,5 +41,14 @@ abstract contract APWineStreamIBTCellar is APWineCellar{
         scaledTotal = scaledTotal.sub(scaledOutput);
         return claimableYield;
     }
+
+    function getscaledTotal() public view returns(uint256){
+        return scaledTotal;
+    }
+
+    function getscaledCellars() public view returns( uint256[] memory){
+        return scaledCellars;
+    }
+
 
 }
