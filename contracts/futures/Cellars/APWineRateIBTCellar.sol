@@ -24,7 +24,7 @@ abstract contract APWineRateIBTCellar is APWineCellar{
 
     function _updateYieldBalances(uint256 _periodIndex, uint256 _cavistFYT, uint256 _totalFYT) internal override returns(uint256){
         uint256 claimableYield = (_cavistFYT.mul(cellars[_periodIndex])).div(_totalFYT);
-        cellars[_periodIndex].sub(claimableYield);
+        cellars[_periodIndex] = cellars[_periodIndex].sub(claimableYield);
         return claimableYield;
     }
 
