@@ -31,16 +31,21 @@ abstract contract APWineStreamIBTVineyard is APWineVineyard{
     function unregister(uint256 _amount) public virtual override{
         uint256 nextIndex = getNextPeriodIndex();
         require(registrations[msg.sender].startIndex == nextIndex, "There is no ongoing registration for the next period");
-        uint256 currentRegistered = APWineMaths.getActualOutput(registrations[msg.sender].scaledBalance, scaledTotals[nextIndex], ibt.balanceOf(address(this)));
-        require(currentRegistered>=_amount,"Invalid amount to unregister");
-
-        uint256 scaledToUnregister = (registrations[msg.sender].scaledBalance.mul(_amount)).div(currentRegistered);
-
-        registrations[msg.sender].scaledBalance = registrations[msg.sender].scaledBalance.sub(scaledToUnregister);
+        uint256 userScaledBalance = registrations[msg.sender].scaledBalance;
+        uint256 currentRegistered = APWineMaths.getActualOutput(userScaledBalance, scaledTotals[nextIndex], ibt.balanceOf(address(this)));
+        uint256 scaledToUnregister;
+        if(_amount == 0){
+            require(currentRegistered>0,"Invalid amount to unregister");
+            scaledToUnregister = userScaledBalance;
+            delete registrations[msg.sender];
+            ibt.transfer(msg.sender, currentRegistered);
+        }else{
+            require(currentRegistered>=_amount,"Invalid amount to unregister");
+            scaledToUnregister = (registrations[msg.sender].scaledBalance.mul(_amount)).div(currentRegistered);
+            registrations[msg.sender].scaledBalance = registrations[msg.sender].scaledBalance.sub(scaledToUnregister);
+            ibt.transfer(msg.sender, _amount);
+        }
         scaledTotals[nextIndex]= scaledTotals[nextIndex].sub(scaledToUnregister);
-
-        ibt.transfer(msg.sender, _amount);
-
     }
 
 
