@@ -19,7 +19,7 @@ contract FutureYieldToken is ERC20PresetMinterPauserUpgradeSafe{
 
     function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
         _transfer(sender, recipient, amount);
-        if(sender!=vineyard && sender!=IAPWineVineyard(vineyard).getCellarAddress()){
+        if(recipient!=vineyard && recipient!=IAPWineVineyard(vineyard).getCellarAddress()){
             _approve(sender, _msgSender(), allowance(sender,_msgSender()).sub(amount, "ERC20: transfer amount exceeds allowance"));
         }
         return true;

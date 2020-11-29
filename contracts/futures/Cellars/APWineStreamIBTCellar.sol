@@ -27,6 +27,7 @@ abstract contract APWineStreamIBTCellar is APWineCellar{
     }
 
     function redeemYield(uint256 _periodIndex) public override{
+        require(_periodIndex<vineyard.getNextPeriodIndex()-1,"Invalid period index");
         IFutureYieldToken fyt = IFutureYieldToken(vineyard.getFYTofPeriod(_periodIndex));
         uint256 senderTokenBalance = fyt.balanceOf(msg.sender);
 
