@@ -16,8 +16,8 @@ abstract contract APWineStreamIBTVineyard is APWineVineyard{
     * @param _tokenSymbol the APWineIBT symbol
     * @param _adminAddress the address of the ACR admin
     */  
-    function initialize(address _controllerAddress, address _ibt, uint256 _periodLength, string memory _tokenName, string memory _tokenSymbol,address _adminAddress) public initializer virtual override{
-        super.initialize(_controllerAddress,_ibt,_periodLength,_tokenName,_tokenSymbol,_adminAddress);
+    function initialize(address _controllerAddress, address _ibt, uint256 _periodLength,string memory _platform, string memory _tokenName, string memory _tokenSymbol,address _adminAddress) public initializer virtual override{
+        super.initialize(_controllerAddress,_ibt,_periodLength,_platform,_tokenName,_tokenSymbol,_adminAddress);
         scaledTotals.push();
         scaledTotals.push();
     }
@@ -61,8 +61,11 @@ abstract contract APWineStreamIBTVineyard is APWineVineyard{
 
         /* Period Switch*/
         registrationsTotals[nextPeriodID] = ibt.balanceOf(address(this));
-        apwibt.mint(address(this), registrationsTotals[nextPeriodID]); // Mint new APWIBTs
-        ibt.transfer(address(futureWallet), registrationsTotals[nextPeriodID]); // Send ibt to future for the new period
+        if(registrationsTotals[nextPeriodID] >0){
+            apwibt.mint(address(this), registrationsTotals[nextPeriodID]); // Mint new APWIBTs
+            ibt.transfer(address(futureWallet), registrationsTotals[nextPeriodID]); // Send ibt to future for the new period
+        }
+       
         nextPeriodTimestamp.push(block.timestamp+PERIOD); // Program next switch
         registrationsTotals.push();
         scaledTotals.push();
@@ -91,6 +94,5 @@ abstract contract APWineStreamIBTVineyard is APWineVineyard{
         uint256 cavistYield = ((ibt.balanceOf(address(futureWallet)).sub(apwibt.totalSupply())).mul(fyts[getNextPeriodIndex()-1].balanceOf(_cavist))).div(fyts[getNextPeriodIndex()-1].totalSupply());
         return cavistYield;
     }
-
 
 }

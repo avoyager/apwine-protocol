@@ -49,6 +49,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
 
     /* Settings */
     uint256 public PERIOD;
+    string public PLATFORM;
     bool public PAUSED;
 
     /* Events */
@@ -78,10 +79,11 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
     * @param _tokenSymbol the APWineIBT symbol
     * @param _adminAddress the address of the ACR admin
     */  
-    function initialize(address _controllerAddress, address _ibt, uint256 _periodLength, string memory _tokenName, string memory _tokenSymbol,address _adminAddress) public initializer virtual{
+    function initialize(address _controllerAddress, address _ibt, uint256 _periodLength,string memory _platform, string memory _tokenName, string memory _tokenSymbol,address _adminAddress) public initializer virtual{
         controller =  IAPWineController(_controllerAddress);
         ibt = ERC20(_ibt);
         PERIOD = _periodLength * (1 days);
+        PLATFORM = _platform;
 
         _setupRole(DEFAULT_ADMIN_ROLE, _adminAddress);
         _setupRole(ADMIN_ROLE, _adminAddress);
@@ -174,7 +176,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
         }
 
         uint256 fundsToBeUnlocked = getUnlockableFunds(msg.sender);
-        uint256 getUnrealisedYield = getUnrealisedYield(msg.sender);
+        uint256 unrealisedYield = getUnrealisedYield(msg.sender);
         require(apwibt.transferFrom(msg.sender,address(this),_amount),"Invalid amount of APWIBT");
         require(fyts[getNextPeriodIndex()-1].transferFrom(msg.sender,address(this),_amount),"Invalid amount of FYT of last period");
 
@@ -182,7 +184,7 @@ abstract contract APWineVineyard is Initializable, AccessControlUpgradeSafe{
         fyts[getNextPeriodIndex()-1].burn(_amount);
 
         ibt.transferFrom(address(futureWallet), msg.sender, fundsToBeUnlocked); // only send locked, TODO Send Yield
-        ibt.transferFrom(address(futureWallet), controller.APWineTreasuryAddress(),getUnrealisedYield);
+        ibt.transferFrom(address(futureWallet), controller.APWineTreasury(),unrealisedYield);
 
     }
 

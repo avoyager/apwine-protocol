@@ -4,7 +4,7 @@ pragma solidity >=0.4.22 <0.7.3;
 interface IAPWineController {
     /* Getters */
 
-    function APWineTreasuryAddress() external view returns(address);
+    function APWineTreasury() external view returns(address);
 
     function FutureYieldTokenLogic() external view returns(address);
 

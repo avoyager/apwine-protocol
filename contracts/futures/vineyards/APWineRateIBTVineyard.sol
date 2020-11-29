@@ -32,8 +32,8 @@ abstract contract APWineRateIBTVineyard is APWineVineyard{
     * @param _tokenSymbol the APWineIBT symbol
     * @param _adminAddress the address of the ACR admin
     */  
-    function initialize(address _controllerAddress, address _ibt, uint256 _periodLength, string memory _tokenName, string memory _tokenSymbol,address _adminAddress) public initializer virtual override{
-        super.initialize(_controllerAddress,_ibt,_periodLength,_tokenName,_tokenSymbol,_adminAddress);
+    function initialize(address _controllerAddress, address _ibt, uint256 _periodLength,string memory _platform, string memory _tokenName, string memory _tokenSymbol,address _adminAddress) public initializer virtual override{
+        super.initialize(_controllerAddress,_ibt,_periodLength,_platform,_tokenName,_tokenSymbol,_adminAddress);
         IBTRates.push();
         IBTRates.push();
     }

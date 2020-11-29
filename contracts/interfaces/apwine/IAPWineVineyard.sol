@@ -26,11 +26,12 @@ interface IAPWineVineyard{
     * @param _controllerAddress the address of the controller
     * @param _ibt the address of the corresponding ibt
     * @param _periodLength the length of the period (in days)
+    * @param _platform the name of the platform and tools
     * @param _tokenName the APWineIBT name
     * @param _tokenSymbol the APWineIBT symbol
     * @param _adminAddress the address of the ACR admin
     */  
-    function initialize(address _controllerAddress, address _ibt, uint256 _periodLength,string memory _tokenName, string memory _tokenSymbol,address _adminAddress) external;
+    function initialize(address _controllerAddress, address _ibt, uint256 _periodLength,string memory _platform,string memory _tokenName, string memory _tokenSymbol,address _adminAddress) external;
 
     /**
     * @notice Set future wallet address

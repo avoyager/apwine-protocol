@@ -35,9 +35,9 @@ abstract contract APWineStreamIBTCellar is APWineCellar{
     }
 
     function _updateYieldBalances(uint256 _periodIndex, uint256 _cavistFYT, uint256 _totalFYT) internal override returns(uint256){
-        uint256 scaledOutput = (_cavistFYT.mul(scaledCellars[_periodIndex]));
-        uint256 claimableYield =  APWineMaths.getActualOutput(scaledOutput,scaledTotal,ibt.balanceOf(address(this))).div(_totalFYT);
-        scaledCellars[_periodIndex].sub(scaledOutput);
+        uint256 scaledOutput = (_cavistFYT.mul(scaledCellars[_periodIndex])).div(_totalFYT);
+        uint256 claimableYield =  APWineMaths.getActualOutput(scaledOutput,scaledTotal,ibt.balanceOf(address(this)));
+        scaledCellars[_periodIndex] = scaledCellars[_periodIndex].sub(scaledOutput);
         scaledTotal = scaledTotal.sub(scaledOutput);
         return claimableYield;
     }
