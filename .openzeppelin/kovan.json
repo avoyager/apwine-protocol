@@ -873,6 +873,13 @@
         "implementation": "0x475A2a3bf493905cF4eD3C7A153940dB0700EbD5",
         "admin": "0xC82589AdF26C5CA245434dc887fE1Fe8C52e02Be",
         "kind": "Upgradeable"
+      },
+      {
+        "address": "0x75ee24a99043a819ef1BfCFFe1acdA716DAe649f",
+        "version": "1.0.0",
+        "implementation": "0x475A2a3bf493905cF4eD3C7A153940dB0700EbD5",
+        "admin": "0xC82589AdF26C5CA245434dc887fE1Fe8C52e02Be",
+        "kind": "Upgradeable"
       }
     ],
     "apwine-protocol/APWineAaveCellar": [
@@ -882,11 +889,25 @@
         "implementation": "0xf038fEd7E84a96Ff0190830202043B54264b0619",
         "admin": "0xC82589AdF26C5CA245434dc887fE1Fe8C52e02Be",
         "kind": "Upgradeable"
+      },
+      {
+        "address": "0x152C504AeFd8b83becdf4eD2b82523Af11475E8F",
+        "version": "1.0.0",
+        "implementation": "0xf038fEd7E84a96Ff0190830202043B54264b0619",
+        "admin": "0xC82589AdF26C5CA245434dc887fE1Fe8C52e02Be",
+        "kind": "Upgradeable"
       }
     ],
     "apwine-protocol/APWineFutureWallet": [
       {
         "address": "0x15a45E005557569C92234C9c91E8bFd18C05C702",
+        "version": "1.0.0",
+        "implementation": "0x6Eee8295DC0Bb93838e4E914Fa56CD43d1Ce1A72",
+        "admin": "0xC82589AdF26C5CA245434dc887fE1Fe8C52e02Be",
+        "kind": "Upgradeable"
+      },
+      {
+        "address": "0x531df42F0b200b38dE9a280f26Fd2643f30DEFD4",
         "version": "1.0.0",
         "implementation": "0x6Eee8295DC0Bb93838e4E914Fa56CD43d1Ce1A72",
         "admin": "0xC82589AdF26C5CA245434dc887fE1Fe8C52e02Be",
