@@ -66,9 +66,11 @@ abstract contract APWineRateIBTVineyard is APWineVineyard{
         cellar.registerExpiredFuture(yield); // Yield deposit in the cellar contract
 
         /* Period Switch*/
-        // registrationsTotal[nextPeriodID].totalLMT = ibt.balanceOf(address(this));
-        apwibt.mint(address(this), registrationsTotals[nextPeriodID].mul(IBTRates[nextPeriodID])); // Mint new APWIBTs
-        ibt.transfer(address(futureWallet), registrationsTotals[nextPeriodID]); // Send ibt to future for the new period
+        if(registrationsTotals[nextPeriodID] >0){
+            apwibt.mint(address(this), registrationsTotals[nextPeriodID].mul(IBTRates[nextPeriodID])); // Mint new APWIBTs
+            ibt.transfer(address(futureWallet), registrationsTotals[nextPeriodID]); // Send ibt to future for the new period
+        }
+
         nextPeriodTimestamp.push(block.timestamp+PERIOD); // Program next switch
         registrationsTotals.push();
         IBTRates.push();
