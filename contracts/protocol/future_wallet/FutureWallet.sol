@@ -70,4 +70,22 @@ abstract contract FutureWallet is Initializable, AccessControlUpgradeSafe{
 
     function _updateYieldBalances(uint256 _periodIndex, uint256 _cavistFYT, uint256 _totalFYT) internal virtual returns(uint256);
 
+
+    /**
+    * @notice getter for the address of the future corresponding to this future wallet
+    * @return the address of the future
+    */  
+    function getFutureAddress() public view virtual returns(address){
+        return address(future);
+    }
+
+    /**
+    * @notice getter for the address of the ibt corresponding to this future wallet
+    * @return the address of the ibt
+    */  
+    function getIBTAddress() public view virtual returns(address){
+        return address(ibt);
+    }
+
+
 }

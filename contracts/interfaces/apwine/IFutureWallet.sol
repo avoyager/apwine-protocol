@@ -29,4 +29,17 @@ interface IFutureWallet {
     * @return the yield that could be claimed by the token holder for this period
     */  
     function getClaimableYield(uint256 _periodIndex, address _tokenHolder) external view returns(uint256);
+
+    /**
+    * @notice getter for the address of the future corresponding to this future wallet
+    * @return the address of the future
+    */  
+    function getFutureAddress() external view returns(address);
+
+    /**
+    * @notice getter for the address of the ibt corresponding to this future wallet
+    * @return the address of the ibt
+    */  
+    function getIBTAddress() external view returns(address);
+
 }

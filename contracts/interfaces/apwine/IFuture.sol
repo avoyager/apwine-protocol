@@ -22,6 +22,13 @@ interface IFuture{
     function PERIOD() external view returns(uint256);
 
     /**
+    * @notice Getter for the PLATFORM future parameter
+    * @return returns the platform of the future
+    */  
+    function PLATFORM() external view returns(uint256);
+
+
+    /**
     * @notice Intializer
     * @param _controllerAddress the address of the controller
     * @param _ibt the address of the corresponding ibt

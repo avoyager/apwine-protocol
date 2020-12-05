@@ -545,11 +545,11 @@
       }
     },
     "AaveFutureWallet": {
-      "address": "0x85B713cF4794Ba7445b55d7914b8417b4d9f1A3f",
-      "constructorCode": "608060405234801561001057600080fd5b50612260806100206000396000f3fe",
-      "bodyBytecodeHash": "e22075d81328b00378f1f1e662c319abbe043b23b1823c88c2c593d51f3fd203",
-      "localBytecodeHash": "2869bef61ad9e9bef03c67e1d4140e3603513146466b6f961207568e736ea52d",
-      "deployedBytecodeHash": "60e93969090f228cc59ce2fe2bf2daffa1d0cdfa67d7be58c127780a42f7e38b",
+      "address": "0xA69Fb1C7ACad76A68Af06A4eaDb137b76302c7f4",
+      "constructorCode": "608060405234801561001057600080fd5b50612332806100206000396000f3fe",
+      "bodyBytecodeHash": "881a767a2c26bab86250447337393a45d35ece851a988546a6809e12d594629e",
+      "localBytecodeHash": "0e6c7948dc819caf4a2ad336076601700b6d0a3c0c7e98d64ad760516c01f393",
+      "deployedBytecodeHash": "faeaea05ef763bdc0fd7aca101ee2492715344a197b1c817824b5a31c5a8fa0e",
       "types": {
         "t_bool": {
           "id": "t_bool",
@@ -716,7 +716,7 @@
           "contract": "FutureWallet",
           "path": "contracts/protocol/future_wallet/FutureWallet.sol",
           "label": "future",
-          "astId": 5427,
+          "astId": 5445,
           "type": "t_address",
           "src": "729:21:43"
         },
@@ -724,7 +724,7 @@
           "contract": "FutureWallet",
           "path": "contracts/protocol/future_wallet/FutureWallet.sol",
           "label": "ibt",
-          "astId": 5429,
+          "astId": 5447,
           "type": "t_address",
           "src": "756:16:43"
         },
@@ -732,7 +732,7 @@
           "contract": "StreamFutureWallet",
           "path": "contracts/protocol/future_wallet/StreamFutureWallet.sol",
           "label": "scaledTotal",
-          "astId": 5845,
+          "astId": 5887,
           "type": "t_uint256",
           "src": "123:27:46"
         },
@@ -740,7 +740,7 @@
           "contract": "StreamFutureWallet",
           "path": "contracts/protocol/future_wallet/StreamFutureWallet.sol",
           "label": "scaledFutureWallets",
-          "astId": 5848,
+          "astId": 5890,
           "type": "t_array:dyn<t_uint256>",
           "src": "156:37:46"
         }
@@ -750,7 +750,18 @@
         "hasSelfDestruct": false,
         "hasDelegateCall": false,
         "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": []
+        "uninitializedBaseContracts": [],
+        "storageUncheckedVars": [
+          {
+            "contract": "AccessControlUpgradeSafe",
+            "path": "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol",
+            "label": "_roles",
+            "astId": 163,
+            "type": "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>",
+            "src": "1727:44:2"
+          }
+        ],
+        "storageDiff": []
       }
     },
     "FutureVault": {
@@ -985,7 +996,7 @@
       {
         "address": "0xEA646db3b10A44F0dc9905cBa59DaaD2F39343f6",
         "version": "1.0.0",
-        "implementation": "0x85B713cF4794Ba7445b55d7914b8417b4d9f1A3f",
+        "implementation": "0xA69Fb1C7ACad76A68Af06A4eaDb137b76302c7f4",
         "admin": "0xC8F17B4cf76fC1dD50622ff8EdfD9B940bb07cC0",
         "kind": "Upgradeable"
       }
