@@ -5,8 +5,8 @@ const { BN, ether: amount, expectRevert, time, balance } = require("@openzeppeli
 const ether = require("@openzeppelin/test-helpers/src/ether")
 
 const Controller = contract.fromArtifact("Controller")
-const APWineAaveFuture = contract.fromArtifact("APWineAaveFuture")
-const APWineAaveFutureWallet = contract.fromArtifact("APWineAaveFutureWallet")
+const AaveFuture = contract.fromArtifact("AaveFuture")
+const AaveFutureWallet = contract.fromArtifact("AaveFutureWallet")
 const ProxyFactory = contract.fromArtifact("ProxyFactory")
 const APWineIBT = contract.fromArtifact("APWineIBT")
 const FutureYieldToken = contract.fromArtifact("FutureYieldToken")
@@ -76,18 +76,21 @@ describe("APWine Contracts", function () {
     describe("APWine Aave integration", function () {
 
         beforeEach(async function () {
-            await APWineAaveFuture.detectNetwork()
-            await APWineAaveFuture.link("APWineMaths", this.maths.address)
-            this.aaveWeeklyFuture = await APWineAaveFuture.new()
-            await this.aaveWeeklyFuture.initialize(this.controller.address, ADAI_ADDRESS, 7, "aDAI", "aDAI", owner)
+            await AaveFuture.detectNetwork()
+            await AaveFuture.link("APWineMaths", this.maths.address)
+            this.aaveWeeklyFuture = await AaveFuture.new()
+            await this.aaveWeeklyFuture.initialize(this.controller.address, ADAI_ADDRESS, 7,"Aave", "aDAI", "aDAI", owner)
 
-            await APWineAaveFutureWallet.detectNetwork()
-            await APWineAaveFutureWallet.link("APWineMaths", this.maths.address)
-            this.aaveWeeklyFutureWallet = await APWineAaveFutureWallet.new()
+            await AaveFutureWallet.detectNetwork()
+            await AaveFutureWallet.link("APWineMaths", this.maths.address)
+            this.aaveWeeklyFutureWallet = await AaveFutureWallet.new()
             await this.aaveWeeklyFutureWallet.initialize(this.aaveWeeklyFuture.address,owner)
 
-            this.aaveWeeklyFutureVaylt = await FutureVault.new()
-            await this.aaveWeeklyFutureVaylt.initialize(this.aaveWeeklyFuture.address)
+            this.aaveWeeklyFutureVault = await FutureVault.new()
+            await this.aaveWeeklyFutureVault.initialize(this.aaveWeeklyFuture.address, owner)
+            await this.aaveWeeklyFuture.setFutureVault(this.aaveWeeklyFutureVault.address,{from:owner})
+            await this.aaveWeeklyFuture.setFutureWallet(this.aaveWeeklyFutureWallet.address,{from:owner})
+
             await this.controller.addFuture(this.aaveWeeklyFuture.address, {from:owner});
         })
 
@@ -113,23 +116,34 @@ describe("APWine Contracts", function () {
                 expectRevert.unspecified(this.controller.register(this.aaveWeeklyFuture.address, ether("100"), { from: user1 }))
             })
 
-            const register = async (address) => {
-                await adai.approve(this.controller.address, ether("100"))
-                await this.controller.register(this.aaveWeeklyFuture.address, ether("100"), { from: address })
-            }
+            // const register = async (address) => {
+            //     await adai.approve(this.controller.address, ether("100"))
+            //     await this.controller.register(this.aaveWeeklyFuture.address, ether("100"), { from: address })
+            // }
 
             it("can register to the next period", async function () {
-                await register(user1)
+                await adai.approve(this.controller.address, ether("100"), { from: user1 })
+                await this.controller.register(this.aaveWeeklyFuture.address, ether("100"), { from: user1 })
             })
 
             describe("with ADAI registered for the period", function () {
 
                 beforeEach(async function () {
-                    await register(user1)
+                    await adai.approve(this.controller.address, ether("100"), { from: user1 })
+                    await this.controller.register(this.aaveWeeklyFuture.address, ether("1"), { from: user1 })
                 })
 
                 it("can start the period", async function () {
-                    await this.aaveWeeklyFuture.startNewPeriod("Week 0 ADAI FYT", "apwW0ADAI")
+                    await this.controller.setPeriodStartingDelay(24*60*60*7,{ from: owner })
+                    await this.aaveWeeklyFuture.startNewPeriod("Week 0 ADAI FYT", "apwW0ADAI",{ from: owner })
+                })
+
+                it("can unregister", async function() {
+                    await this.aaveWeeklyFuture.unregister(ether("1"), { from: user1 })
+                })
+
+                it("can get its registered funds", async function() {
+                    expect(await this.aaveWeeklyFuture.getRegisteredAmount(user1)).to.be.bignumber.gte(ether("1"))
                 })
 
             })
