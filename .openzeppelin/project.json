@@ -1,10 +1,10 @@
 {
   "manifestVersion": "2.2",
   "contracts": {
-    "APWineController": "APWineController",
-    "APWineAaveVineyard": "APWineAaveVineyard",
-    "APWineAaveCellar": "APWineAaveCellar",
-    "APWineFutureWallet": "APWineFutureWallet"
+    "Controller": "Controller",
+    "AaveFuture": "AaveFuture",
+    "AaveFutureWallet": "AaveFutureWallet",
+    "FutureVault": "FutureVault"
   },
   "dependencies": {},
   "name": "apwine-protocol",
