@@ -55,15 +55,15 @@ abstract contract StreamFuture is Future{
         uint256 nextPeriodID = getNextPeriodIndex();
 
         /* Yield */
-        uint256 yield = ibt.balanceOf(address(futureWallet)).sub(apwibt.totalSupply());
-        if(yield>0) assert(ibt.transferFrom(address(futureWallet), address(cellar), yield));
-        cellar.registerExpiredFuture(yield); // Yield deposit in the cellar contract
+        uint256 yield = ibt.balanceOf(address(futureVault)).sub(apwibt.totalSupply());
+        if(yield>0) assert(ibt.transferFrom(address(futureVault), address(futureWallet), yield));
+        futureWallet.registerExpiredFuture(yield); // Yield deposit in the futureWallet contract
 
         /* Period Switch*/
         registrationsTotals[nextPeriodID] = ibt.balanceOf(address(this));
         if(registrationsTotals[nextPeriodID] >0){
             apwibt.mint(address(this), registrationsTotals[nextPeriodID]); // Mint new APWIBTs
-            ibt.transfer(address(futureWallet), registrationsTotals[nextPeriodID]); // Send ibt to future for the new period
+            ibt.transfer(address(futureVault), registrationsTotals[nextPeriodID]); // Send ibt to future for the new period
         }
        
         nextPeriodTimestamp.push(block.timestamp+PERIOD); // Program next switch
@@ -91,7 +91,7 @@ abstract contract StreamFuture is Future{
     }
 
     function getUnrealisedYield(address _cavist) public view override returns(uint256){
-        uint256 cavistYield = ((ibt.balanceOf(address(futureWallet)).sub(apwibt.totalSupply())).mul(fyts[getNextPeriodIndex()-1].balanceOf(_cavist))).div(fyts[getNextPeriodIndex()-1].totalSupply());
+        uint256 cavistYield = ((ibt.balanceOf(address(futureVault)).sub(apwibt.totalSupply())).mul(fyts[getNextPeriodIndex()-1].balanceOf(_cavist))).div(fyts[getNextPeriodIndex()-1].totalSupply());
         return cavistYield;
     }
 

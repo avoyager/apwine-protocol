@@ -62,14 +62,14 @@ abstract contract RateFuture is Future{
         registrationsTotals[nextPeriodID] = ibt.balanceOf(address(this));
 
         /* Yield */
-        uint256 yield = (ibt.balanceOf(address(futureWallet)).mul(currentRate.sub(IBTRates[nextPeriodID-1]))).div(currentRate);
-        if(yield>0) assert(ibt.transferFrom(address(futureWallet), address(cellar), yield));
-        cellar.registerExpiredFuture(yield); // Yield deposit in the cellar contract
+        uint256 yield = (ibt.balanceOf(address(futureVault)).mul(currentRate.sub(IBTRates[nextPeriodID-1]))).div(currentRate);
+        if(yield>0) assert(ibt.transferFrom(address(futureVault), address(futureWallet), yield));
+        futureWallet.registerExpiredFuture(yield); // Yield deposit in the futureWallet contract
 
         /* Period Switch*/
         if(registrationsTotals[nextPeriodID] >0){
             apwibt.mint(address(this), registrationsTotals[nextPeriodID].mul(IBTRates[nextPeriodID])); // Mint new APWIBTs
-            ibt.transfer(address(futureWallet), registrationsTotals[nextPeriodID]); // Send ibt to future for the new period
+            ibt.transfer(address(futureVault), registrationsTotals[nextPeriodID]); // Send ibt to future for the new period
         }
 
         nextPeriodTimestamp.push(block.timestamp+PERIOD); // Program next switch

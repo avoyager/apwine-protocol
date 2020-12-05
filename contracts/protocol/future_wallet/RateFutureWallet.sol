@@ -4,7 +4,7 @@ import "./FutureWallet.sol";
 
 abstract contract RateFutureWallet is FutureWallet{
 
-    uint256[] internal cellars;
+    uint256[] internal futureWallets;
 
     function initialize(address _futureAddress, address _adminAddress) public initializer override{
         super.initialize(_futureAddress,_adminAddress);
@@ -12,19 +12,19 @@ abstract contract RateFutureWallet is FutureWallet{
 
     function registerExpiredFuture(uint256 _amount) public override{
         require(hasRole(CAVIST_ROLE, msg.sender), "Caller is not allowed to register a harvest");
-        cellars.push(_amount);
+        futureWallets.push(_amount);
     }
 
 
     function getRedeemableYield(uint256 _periodIndex, address _tokenHolder) public view override returns(uint256){
         IFutureYieldToken fyt = IFutureYieldToken(future.getFYTofPeriod(_periodIndex));
         uint256 senderTokenBalance = fyt.balanceOf(_tokenHolder);
-        return (senderTokenBalance.mul(cellars[_periodIndex])).div(fyt.totalSupply());
+        return (senderTokenBalance.mul(futureWallets[_periodIndex])).div(fyt.totalSupply());
     }
 
     function _updateYieldBalances(uint256 _periodIndex, uint256 _cavistFYT, uint256 _totalFYT) internal override returns(uint256){
-        uint256 claimableYield = (_cavistFYT.mul(cellars[_periodIndex])).div(_totalFYT);
-        cellars[_periodIndex] = cellars[_periodIndex].sub(claimableYield);
+        uint256 claimableYield = (_cavistFYT.mul(futureWallets[_periodIndex])).div(_totalFYT);
+        futureWallets[_periodIndex] = futureWallets[_periodIndex].sub(claimableYield);
         return claimableYield;
     }
 

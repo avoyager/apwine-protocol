@@ -43,8 +43,8 @@ abstract contract Future is Initializable, AccessControlUpgradeSafe{
 
 
     /* External contracts */
-    IFutureVault internal futureWallet;
-    IFutureWallet internal cellar;
+    IFutureVault internal futureVault;
+    IFutureWallet internal futureWallet;
     ERC20 internal ibt;
     APWineIBT internal apwibt;
     IController internal controller;
@@ -185,8 +185,8 @@ abstract contract Future is Initializable, AccessControlUpgradeSafe{
         apwibt.burn(_amount);
         fyts[getNextPeriodIndex()-1].burn(_amount);
 
-        ibt.transferFrom(address(futureWallet), msg.sender, fundsToBeUnlocked); // only send locked, TODO Send Yield
-        ibt.transferFrom(address(futureWallet), controller.APWineTreasury(),unrealisedYield);
+        ibt.transferFrom(address(futureVault), msg.sender, fundsToBeUnlocked); // only send locked, TODO Send Yield
+        ibt.transferFrom(address(futureVault), controller.APWineTreasury(),unrealisedYield);
 
     }
 
@@ -200,14 +200,14 @@ abstract contract Future is Initializable, AccessControlUpgradeSafe{
     }
 
     /* Setters */
-    function setFutureWallet(address _futureWalletAddress) public{ //TODO check if set before start
+    function setFutureVault(address _futureVaultAddress) public{ //TODO check if set before start
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to set the future wallet address");
-        futureWallet = IFutureVault(_futureWalletAddress);
+        futureVault = IFutureVault(_futureVaultAddress);
     }
 
-    function setCellar(address _cellarAddress) public{ //TODO check if set before start
+    function setFutureWallet(address _futureWalletAddress) public{ //TODO check if set before start
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to set the future wallet address");
-        cellar = IFutureWallet(_cellarAddress);
+        futureWallet = IFutureWallet(_futureWalletAddress);
     }
 
     function setNextPeriodTimestamp(uint256 _nextPeriodTimestamp) public {
@@ -245,12 +245,12 @@ abstract contract Future is Initializable, AccessControlUpgradeSafe{
         return nextPeriodTimestamp[nextPeriodTimestamp.length-1];
     }
 
-    function getFutureWalletAddress() public view returns(address){
-        return address(futureWallet);
+    function getFutureVaultAddress() public view returns(address){
+        return address(futureVault);
     }
 
-    function getCellarAddress() public view returns(address){
-        return address(cellar);
+    function getFutureWalletAddress() public view returns(address){
+        return address(futureWallet);
     }
 
     function getIBTAddress() public view returns(address){

@@ -6,7 +6,7 @@ const ether = require("@openzeppelin/test-helpers/src/ether")
 
 const Controller = contract.fromArtifact("Controller")
 const APWineAaveFuture = contract.fromArtifact("APWineAaveFuture")
-const APWineAaveCellar = contract.fromArtifact("APWineAaveCellar")
+const APWineAaveFutureWallet = contract.fromArtifact("APWineAaveFutureWallet")
 const ProxyFactory = contract.fromArtifact("ProxyFactory")
 const APWineIBT = contract.fromArtifact("APWineIBT")
 const FutureYieldToken = contract.fromArtifact("FutureYieldToken")
@@ -81,13 +81,13 @@ describe("APWine Contracts", function () {
             this.aaveWeeklyFuture = await APWineAaveFuture.new()
             await this.aaveWeeklyFuture.initialize(this.controller.address, ADAI_ADDRESS, 7, "aDAI", "aDAI", owner)
 
-            await APWineAaveCellar.detectNetwork()
-            await APWineAaveCellar.link("APWineMaths", this.maths.address)
-            this.aaveWeeklyCellar = await APWineAaveCellar.new()
-            await this.aaveWeeklyCellar.initialize(this.aaveWeeklyFuture.address,owner)
+            await APWineAaveFutureWallet.detectNetwork()
+            await APWineAaveFutureWallet.link("APWineMaths", this.maths.address)
+            this.aaveWeeklyFutureWallet = await APWineAaveFutureWallet.new()
+            await this.aaveWeeklyFutureWallet.initialize(this.aaveWeeklyFuture.address,owner)
 
-            this.aaveWeeklyFutureWallet = await FutureVault.new()
-            await this.aaveWeeklyFutureWallet.initialize(this.aaveWeeklyFuture.address)
+            this.aaveWeeklyFutureVaylt = await FutureVault.new()
+            await this.aaveWeeklyFutureVaylt.initialize(this.aaveWeeklyFuture.address)
             await this.controller.addFuture(this.aaveWeeklyFuture.address, {from:owner});
         })
 

@@ -21,7 +21,7 @@ abstract contract RateDroppedFutureWallet is RateFutureWallet, DroppedFutureWall
     function _updateDroppedTokenBalances() internal override{
      uint256 nextTotal = getNewTotal();
        for(uint256 i=0;i<droppedTokenBalance.length;i++){
-            droppedTokenBalance[i] = droppedTokenBalance[i].add(((nextTotal.sub(totalTokensAccounted)).mul(cellars[i]).mul(nextTotal)).div(totalTokensAccounted.mul(ibt.balanceOf(address(this)))));
+            droppedTokenBalance[i] = droppedTokenBalance[i].add(((nextTotal.sub(totalTokensAccounted)).mul(futureWallets[i]).mul(nextTotal)).div(totalTokensAccounted.mul(ibt.balanceOf(address(this)))));
        }
        totalTokensAccounted = nextTotal;
     }

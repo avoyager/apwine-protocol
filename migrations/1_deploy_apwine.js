@@ -9,7 +9,7 @@ const ProxyFactory = artifacts.require('ProxyFactory');
 const FutureYieldToken = artifacts.require('FutureYieldToken');
 const APWineIBT = artifacts.require('APWineIBT');
 const APWineAaveFuture = artifacts.require('APWineAaveFuture');
-const APWineAaveCellar = artifacts.require('APWineAaveCellar');
+const APWineAaveFutureWallet = artifacts.require('APWineAaveFutureWallet');
 const FutureVault = artifacts.require('FutureVault');
 
 
@@ -19,7 +19,7 @@ module.exports = async function (deployer) {
   const proxyFactory = await deployer.deploy(ProxyFactory);
   const apwineMaths = await deployer.deploy(APWineMaths);
   await APWineAaveFuture.link('APWineMaths',apwineMaths.address);
-  await APWineAaveCellar.link('APWineMaths',apwineMaths.address);
+  await APWineAaveFutureWallet.link('APWineMaths',apwineMaths.address);
 
 
   console.log("Set APWineProxyFactoryAddress");
@@ -39,8 +39,8 @@ module.exports = async function (deployer) {
   await controller.setTreasuryAddress(controller.address);
 
   const aaveFuture = await deployProxy(APWineAaveFuture, [controller.address,"0x58AD4cB396411B691A9AAb6F74545b2C5217FE6a",7,"Weekly Aave Dai Future","WADAI",admin_address], { deployer,unsafeAllowCustomTypes:true,unsafeAllowLinkedLibraries:true});
-  const aaveCellar = await deployProxy(APWineAaveCellar, [aaveFuture.address,admin_address], { deployer,unsafeAllowCustomTypes:true,unsafeAllowLinkedLibraries:true});
-  const aaveFutureWallet = await deployProxy(FutureVault, [aaveFuture.address], { deployer,unsafeAllowCustomTypes:true,unsafeAllowLinkedLibraries:true});
+  const aaveFutureWallet = await deployProxy(APWineAaveFutureWallet, [aaveFuture.address,admin_address], { deployer,unsafeAllowCustomTypes:true,unsafeAllowLinkedLibraries:true});
+  const aaveFutureVault = await deployProxy(FutureVault, [aaveFuture.address], { deployer,unsafeAllowCustomTypes:true,unsafeAllowLinkedLibraries:true});
 
   console.log("Register vineyard in controller");
   await controller.addFuture(aaveFuture.address);
@@ -55,8 +55,8 @@ module.exports = async function (deployer) {
   console.log('FutureYieldToken: ', fyt.address);
   console.log('APWineIBT: ', apwineIBT.address);
   console.log('APWineAaveFuture: ', aaveFuture.address);
-  console.log('APWineAaveCellar: ', aaveCellar.address);
-  console.log('FutureVault: ', aaveFutureWallet.address);
+  console.log('APWineAaveFutureWallet: ', aaveFutureWallet.address);
+  console.log('FutureVault: ', aaveFutureVault.address);
   console.log('The admin adress used is:',admin_address);
 
 };

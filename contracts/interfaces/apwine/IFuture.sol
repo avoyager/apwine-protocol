@@ -35,17 +35,17 @@ interface IFuture{
 
     /**
     * @notice Set future wallet address
-    * @param _futureWalletAddress the address of the new future wallet
+    * @param _futureVaultAddress the address of the new future wallet
+    * @dev needs corresponding permissions for sender
+    */
+    function setFutureVault(address _futureVaultAddress) external;
+
+    /**
+    * @notice Set futureWallet address
+    * @param _futureWalletAddress the address of the new futureWallet
     * @dev needs corresponding permissions for sender
     */
     function setFutureWallet(address _futureWalletAddress) external;
-
-    /**
-    * @notice Set cellar address
-    * @param _cellarAddress the address of the new cellar
-    * @dev needs corresponding permissions for sender
-    */
-    function setCellar(address _cellarAddress) external;
 
     /**
     * @notice Sender registers an amount of ibt for the next period
@@ -154,13 +154,13 @@ interface IFuture{
     * @notice Getter for future wallet address
     * @return future wallet address
     */
-    function getFutureWalletAddress() external view returns(address);
+    function getFutureVaultAddress() external view returns(address);
 
     /**
-    * @notice Getter for cellar address
-    * @return cellar address
+    * @notice Getter for futureWallet address
+    * @return futureWallet address
     */
-    function getCellarAddress() external view returns(address);
+    function getFutureWalletAddress() external view returns(address);
 
 
     /**

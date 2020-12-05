@@ -5,7 +5,7 @@ import "./FutureWallet.sol";
 abstract contract StreamFutureWallet is FutureWallet{
 
     uint256 private scaledTotal;
-    uint256[] private scaledCellars;
+    uint256[] private scaledFutureWallets;
 
 
     function initialize(address _futureAddress, address _adminAddress) public initializer override{
@@ -17,12 +17,12 @@ abstract contract StreamFutureWallet is FutureWallet{
 
         uint256 currentTotal = ibt.balanceOf(address(this));
 
-        if(scaledCellars.length>1){
+        if(scaledFutureWallets.length>1){
             uint256 scaledInput = APWineMaths.getScaledInput(_amount,scaledTotal,currentTotal);
-            scaledCellars.push(scaledInput);
+            scaledFutureWallets.push(scaledInput);
             scaledTotal = scaledTotal.add(scaledInput);
         }else{
-            scaledCellars.push(_amount);
+            scaledFutureWallets.push(_amount);
             scaledTotal = scaledTotal.add(_amount);
         }
     }
@@ -30,14 +30,14 @@ abstract contract StreamFutureWallet is FutureWallet{
     function getRedeemableYield(uint256 _periodIndex, address _tokenHolder) public view override returns(uint256){
         IFutureYieldToken fyt = IFutureYieldToken(future.getFYTofPeriod(_periodIndex));
         uint256 senderTokenBalance = fyt.balanceOf(_tokenHolder);
-        uint256 scaledOutput = (senderTokenBalance.mul(scaledCellars[_periodIndex]));
+        uint256 scaledOutput = (senderTokenBalance.mul(scaledFutureWallets[_periodIndex]));
        return APWineMaths.getActualOutput(scaledOutput,scaledTotal,ibt.balanceOf(address(this))).div(fyt.totalSupply());
     }
 
     function _updateYieldBalances(uint256 _periodIndex, uint256 _cavistFYT, uint256 _totalFYT) internal override returns(uint256){
-        uint256 scaledOutput = (_cavistFYT.mul(scaledCellars[_periodIndex])).div(_totalFYT);
+        uint256 scaledOutput = (_cavistFYT.mul(scaledFutureWallets[_periodIndex])).div(_totalFYT);
         uint256 claimableYield =  APWineMaths.getActualOutput(scaledOutput,scaledTotal,ibt.balanceOf(address(this)));
-        scaledCellars[_periodIndex] = scaledCellars[_periodIndex].sub(scaledOutput);
+        scaledFutureWallets[_periodIndex] = scaledFutureWallets[_periodIndex].sub(scaledOutput);
         scaledTotal = scaledTotal.sub(scaledOutput);
         return claimableYield;
     }
