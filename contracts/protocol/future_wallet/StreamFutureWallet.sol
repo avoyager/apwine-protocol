@@ -8,8 +8,8 @@ abstract contract StreamFutureWallet is FutureWallet{
     uint256[] private scaledCellars;
 
 
-    function initialize(address _vineyardAddress, address _adminAddress) public initializer override{
-        super.initialize(_vineyardAddress,_adminAddress);
+    function initialize(address _futureAddress, address _adminAddress) public initializer override{
+        super.initialize(_futureAddress,_adminAddress);
     }
 
     function registerExpiredFuture(uint256 _amount) public override{
@@ -28,7 +28,7 @@ abstract contract StreamFutureWallet is FutureWallet{
     }
 
     function getRedeemableYield(uint256 _periodIndex, address _tokenHolder) public view override returns(uint256){
-        IFutureYieldToken fyt = IFutureYieldToken(vineyard.getFYTofPeriod(_periodIndex));
+        IFutureYieldToken fyt = IFutureYieldToken(future.getFYTofPeriod(_periodIndex));
         uint256 senderTokenBalance = fyt.balanceOf(_tokenHolder);
         uint256 scaledOutput = (senderTokenBalance.mul(scaledCellars[_periodIndex]));
        return APWineMaths.getActualOutput(scaledOutput,scaledTotal,ibt.balanceOf(address(this))).div(fyt.totalSupply());

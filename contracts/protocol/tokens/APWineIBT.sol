@@ -27,7 +27,7 @@ contract APWineIBT is Initializable, ContextUpgradeSafe, AccessControlUpgradeSaf
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
-    address public vineyard;
+    address public future;
 
     /**
      * @dev Grants `DEFAULT_ADMIN_ROLE`, `MINTER_ROLE` and `PAUSER_ROLE` to the
@@ -36,12 +36,12 @@ contract APWineIBT is Initializable, ContextUpgradeSafe, AccessControlUpgradeSaf
      * See {ERC20-constructor}.
      */
 
-    function initialize(string memory name, string memory symbol, address _vineyardAddress) public {
+    function initialize(string memory name, string memory symbol, address _futureAddress) public {
         __ERC20PresetMinterPauser_init(name, symbol);
-        _setupRole(DEFAULT_ADMIN_ROLE, _vineyardAddress);
-        _setupRole(MINTER_ROLE, _vineyardAddress);
-        _setupRole(PAUSER_ROLE, _vineyardAddress);
-        vineyard = _vineyardAddress;
+        _setupRole(DEFAULT_ADMIN_ROLE, _futureAddress);
+        _setupRole(MINTER_ROLE, _futureAddress);
+        _setupRole(PAUSER_ROLE, _futureAddress);
+        future = _futureAddress;
     }
 
     function __ERC20PresetMinterPauser_init(string memory name, string memory symbol) internal initializer {
@@ -111,19 +111,19 @@ contract APWineIBT is Initializable, ContextUpgradeSafe, AccessControlUpgradeSaf
         super._beforeTokenTransfer(from, to, amount);
 
         // sender and receiver state update
-        if(from!=vineyard && to!=vineyard){
-            if(IFuture(vineyard).hasClaimableFYT(from)){
-                IFuture(vineyard).claimFYT(from);
+        if(from!=future && to!=future){
+            if(IFuture(future).hasClaimableFYT(from)){
+                IFuture(future).claimFYT(from);
             }
-            if(IFuture(vineyard).hasClaimableFYT(to)){
-                IFuture(vineyard).claimFYT(to);
+            if(IFuture(future).hasClaimableFYT(to)){
+                IFuture(future).claimFYT(to);
             }
         }
     }
 
     function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
         _transfer(sender, recipient, amount);
-        if(recipient!=vineyard){
+        if(recipient!=future){
             _approve(sender, _msgSender(), allowance(sender,_msgSender()).sub(amount, "ERC20: transfer amount exceeds allowance"));
         }
         return true;

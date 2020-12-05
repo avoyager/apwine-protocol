@@ -5,10 +5,10 @@ interface IFutureWallet {
 
     /**
     * @notice Intializer
-    * @param _vineyardAddress the address of the corresponding vineyard
+    * @param _futureAddress the address of the corresponding future
     * @param _adminAddress the address of the ACR admin
     */  
-    function initialize(address _vineyardAddress, address _adminAddress) external;
+    function initialize(address _futureAddress, address _adminAddress) external;
 
     /**
     * @notice register the yield of an expired period

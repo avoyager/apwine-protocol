@@ -6,8 +6,8 @@ abstract contract RateFutureWallet is FutureWallet{
 
     uint256[] internal cellars;
 
-    function initialize(address _vineyardAddress, address _adminAddress) public initializer override{
-        super.initialize(_vineyardAddress,_adminAddress);
+    function initialize(address _futureAddress, address _adminAddress) public initializer override{
+        super.initialize(_futureAddress,_adminAddress);
     }
 
     function registerExpiredFuture(uint256 _amount) public override{
@@ -17,7 +17,7 @@ abstract contract RateFutureWallet is FutureWallet{
 
 
     function getRedeemableYield(uint256 _periodIndex, address _tokenHolder) public view override returns(uint256){
-        IFutureYieldToken fyt = IFutureYieldToken(vineyard.getFYTofPeriod(_periodIndex));
+        IFutureYieldToken fyt = IFutureYieldToken(future.getFYTofPeriod(_periodIndex));
         uint256 senderTokenBalance = fyt.balanceOf(_tokenHolder);
         return (senderTokenBalance.mul(cellars[_periodIndex])).div(fyt.totalSupply());
     }

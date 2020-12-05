@@ -13,28 +13,28 @@ contract FutureVault is Initializable,AccessControlUpgradeSafe{
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant CAVIST_ROLE = keccak256("CAVIST_ROLE");
 
-    IFuture private vineyard;
+    IFuture private future;
 
 
     /**
     * @notice Intializer
-    * @param _vineyardAddress the address of the corresponding vineyard
+    * @param _futureAddress the address of the corresponding future
     */  
-    function initialize(address _vineyardAddress,address _adminAddress) public initializer virtual{
-        vineyard = IFuture(_vineyardAddress);
-        ERC20(vineyard.getIBTAddress()).approve(_vineyardAddress, uint256(-1));
+    function initialize(address _futureAddress,address _adminAddress) public initializer virtual{
+        future = IFuture(_futureAddress);
+        ERC20(future.getIBTAddress()).approve(_futureAddress, uint256(-1));
         _setupRole(DEFAULT_ADMIN_ROLE, _adminAddress);
         _setupRole(ADMIN_ROLE, _adminAddress);
-        _setupRole(CAVIST_ROLE, _vineyardAddress);
+        _setupRole(CAVIST_ROLE, _futureAddress);
     }
 
-    function getVineyardAddress() public view returns(address){
-        return address(vineyard);
+    function getFutureAddress() public view returns(address){
+        return address(future);
     }
 
     function approveAdditionalToken(address _tokenAddress) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to register approve another token");
-        ERC20(_tokenAddress).approve(address(vineyard), uint256(-1));
+        ERC20(_tokenAddress).approve(address(future), uint256(-1));
     }
 
 

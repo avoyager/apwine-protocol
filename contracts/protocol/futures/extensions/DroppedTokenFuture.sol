@@ -1,7 +1,7 @@
 // pragma solidity >=0.4.22 <0.7.3;
 
 // import "../../../interfaces/ERC20.sol";
-// import "../../../interfaces/apwine/IAPWineVineyard.sol";
+// import "../../../interfaces/apwine/IAPWineFuture.sol";
 // import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
 // import "@openzeppelin/contracts-ethereum-package/contracts/utils/EnumerableSet.sol";
 // import '@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol';
@@ -14,7 +14,7 @@
 //     using EnumerableSet for EnumerableSet.AddressSet;
 //     using SafeMath for uint256;
 
-//     IAPWineVineyard public vineyard;
+//     IAPWineFuture public future;
 //     EnumerableSet.AddressSet private tokensDropped;
 
 //     uint256[] private total;
@@ -24,11 +24,11 @@
 
 //     /**
 //     * @notice Intializer
-//     * @param _vineyardAddress the address of the corresponding future
+//     * @param _futureAddress the address of the corresponding future
 //     * @param _tokens the address of the differents tokens
 //     */  
-//     function initialize(address _vineyardAddress, address[] memory _tokens) internal initializer virtual{
-//         vineyard = IAPWineVineyard(_vineyardAddress);   
+//     function initialize(address _futureAddress, address[] memory _tokens) internal initializer virtual{
+//         future = IAPWineFuture(_futureAddress);   
 //         for(uint i = 0; i<_tokens.length;i++){
 //             tokensDropped.add(_tokens[i]);
 //             total.push();

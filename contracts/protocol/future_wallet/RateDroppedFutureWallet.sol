@@ -6,14 +6,14 @@ import "./DroppedFutureWallet.sol";
 
 abstract contract RateDroppedFutureWallet is RateFutureWallet, DroppedFutureWallet{
 
-    function initialize(address _vineyardAddress,address _adminAddress, address _droppedToken) public virtual initializer{
-        super.initialize(_vineyardAddress,_adminAddress);
+    function initialize(address _futureAddress,address _adminAddress, address _droppedToken) public virtual initializer{
+        super.initialize(_futureAddress,_adminAddress);
         _tokenDroppedinitialize(_droppedToken);
     }
 
     function redeemYield(uint256 _periodIndex) public override{
         super.redeemYield(_periodIndex);
-        IFutureYieldToken fyt = IFutureYieldToken(vineyard.getFYTofPeriod(_periodIndex));
+        IFutureYieldToken fyt = IFutureYieldToken(future.getFYTofPeriod(_periodIndex));
         uint256 senderTokenBalance = fyt.balanceOf(msg.sender);
         _redeemRegistration(_periodIndex,senderTokenBalance,fyt.totalSupply());
     }

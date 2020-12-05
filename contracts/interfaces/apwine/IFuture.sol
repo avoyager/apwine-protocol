@@ -10,14 +10,14 @@ interface IFuture{
     }
 
     /**
-    * @notice Getter for the PAUSE vineyard parameter
+    * @notice Getter for the PAUSE future parameter
     * @return true if new periods are not paused, false otherwise
     */  
     function PAUSED() external view returns(bool);
 
     /**
-    * @notice Getter for the PERIOD vineyard parameter
-    * @return returns the period length of the vineyard
+    * @notice Getter for the PERIOD future parameter
+    * @return returns the period length of the future
     */  
     function PERIOD() external view returns(uint256);
 

@@ -21,20 +21,20 @@ abstract contract FutureWallet is Initializable, AccessControlUpgradeSafe{
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant CAVIST_ROLE = keccak256("CAVIST_ROLE");
 
-    IFuture public vineyard;
+    IFuture public future;
     ERC20 public ibt;
 
     /**
     * @notice Intializer
-    * @param _vineyardAddress the address of the corresponding future
+    * @param _futureAddress the address of the corresponding future
     * @param _adminAddress the address of the ACR admin
     */  
-    function initialize(address _vineyardAddress, address _adminAddress) public initializer virtual{
-        vineyard = IFuture(_vineyardAddress);   
-        ibt =  ERC20(vineyard.getIBTAddress());     
+    function initialize(address _futureAddress, address _adminAddress) public initializer virtual{
+        future = IFuture(_futureAddress);   
+        ibt =  ERC20(future.getIBTAddress());     
         _setupRole(DEFAULT_ADMIN_ROLE, _adminAddress);
         _setupRole(ADMIN_ROLE, _adminAddress);
-        _setupRole(CAVIST_ROLE, _vineyardAddress);
+        _setupRole(CAVIST_ROLE, _futureAddress);
     }
 
     /**
@@ -48,8 +48,8 @@ abstract contract FutureWallet is Initializable, AccessControlUpgradeSafe{
     * @param _periodIndex the index of the period to redeem the yield from
     */  
     function redeemYield(uint256 _periodIndex) public virtual{
-        require(_periodIndex<vineyard.getNextPeriodIndex()-1,"Invalid period index");
-        IFutureYieldToken fyt = IFutureYieldToken(vineyard.getFYTofPeriod(_periodIndex));
+        require(_periodIndex<future.getNextPeriodIndex()-1,"Invalid period index");
+        IFutureYieldToken fyt = IFutureYieldToken(future.getFYTofPeriod(_periodIndex));
         uint256 senderTokenBalance = fyt.balanceOf(msg.sender);
         require(senderTokenBalance > 0,"FYT sender balance should not be null");
         require(fyt.transferFrom(msg.sender, address(this), senderTokenBalance),"Failed transfer");

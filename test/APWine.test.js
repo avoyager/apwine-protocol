@@ -5,7 +5,7 @@ const { BN, ether: amount, expectRevert, time, balance } = require("@openzeppeli
 const ether = require("@openzeppelin/test-helpers/src/ether")
 
 const Controller = contract.fromArtifact("Controller")
-const APWineAaveVineyard = contract.fromArtifact("APWineAaveVineyard")
+const APWineAaveFuture = contract.fromArtifact("APWineAaveFuture")
 const APWineAaveCellar = contract.fromArtifact("APWineAaveCellar")
 const ProxyFactory = contract.fromArtifact("ProxyFactory")
 const APWineIBT = contract.fromArtifact("APWineIBT")
@@ -68,35 +68,35 @@ describe("APWine Contracts", function () {
         this.maths = await APWineMaths.new()
     })
 
-    it("has no vineyards available by default", async function () {
-        expect(await this.controller.vineyardCount()).to.be.bignumber.equal(new BN(0))
+    it("has no futures available by default", async function () {
+        expect(await this.controller.futureCount()).to.be.bignumber.equal(new BN(0))
     })
 
 
     describe("APWine Aave integration", function () {
 
         beforeEach(async function () {
-            await APWineAaveVineyard.detectNetwork()
-            await APWineAaveVineyard.link("APWineMaths", this.maths.address)
-            this.aaveWeeklyVineyard = await APWineAaveVineyard.new()
-            await this.aaveWeeklyVineyard.initialize(this.controller.address, ADAI_ADDRESS, 7, "aDAI", "aDAI", owner)
+            await APWineAaveFuture.detectNetwork()
+            await APWineAaveFuture.link("APWineMaths", this.maths.address)
+            this.aaveWeeklyFuture = await APWineAaveFuture.new()
+            await this.aaveWeeklyFuture.initialize(this.controller.address, ADAI_ADDRESS, 7, "aDAI", "aDAI", owner)
 
             await APWineAaveCellar.detectNetwork()
             await APWineAaveCellar.link("APWineMaths", this.maths.address)
             this.aaveWeeklyCellar = await APWineAaveCellar.new()
-            await this.aaveWeeklyCellar.initialize(this.aaveWeeklyVineyard.address,owner)
+            await this.aaveWeeklyCellar.initialize(this.aaveWeeklyFuture.address,owner)
 
             this.aaveWeeklyFutureWallet = await FutureVault.new()
-            await this.aaveWeeklyFutureWallet.initialize(this.aaveWeeklyVineyard.address)
-            await this.controller.addVineyard(this.aaveWeeklyVineyard.address, {from:owner});
+            await this.aaveWeeklyFutureWallet.initialize(this.aaveWeeklyFuture.address)
+            await this.controller.addFuture(this.aaveWeeklyFuture.address, {from:owner});
         })
 
-        it("vineyard is registered in controller", async function () {
-            expect(await this.controller.vineyard(0)).to.equal(this.aaveWeeklyVineyard.address)
+        it("future is registered in controller", async function () {
+            expect(await this.controller.future(0)).to.equal(this.aaveWeeklyFuture.address)
         })
 
         it("has no registered balance by default", async function () {
-            expect(await this.aaveWeeklyVineyard.getRegisteredAmount(user1)).to.be.bignumber.equal(new BN(0))
+            expect(await this.aaveWeeklyFuture.getRegisteredAmount(user1)).to.be.bignumber.equal(new BN(0))
         })
 
         describe("with initial user ADAI balance", function () {
@@ -110,12 +110,12 @@ describe("APWine Contracts", function () {
             })
 
             it("can't register if it hasn't approved", async function () {
-                expectRevert.unspecified(this.controller.register(this.aaveWeeklyVineyard.address, ether("100"), { from: user1 }))
+                expectRevert.unspecified(this.controller.register(this.aaveWeeklyFuture.address, ether("100"), { from: user1 }))
             })
 
             const register = async (address) => {
                 await adai.approve(this.controller.address, ether("100"))
-                await this.controller.register(this.aaveWeeklyVineyard.address, ether("100"), { from: address })
+                await this.controller.register(this.aaveWeeklyFuture.address, ether("100"), { from: address })
             }
 
             it("can register to the next period", async function () {
@@ -129,7 +129,7 @@ describe("APWine Contracts", function () {
                 })
 
                 it("can start the period", async function () {
-                    await this.aaveWeeklyVineyard.startNewPeriod("Week 0 ADAI FYT", "apwW0ADAI")
+                    await this.aaveWeeklyFuture.startNewPeriod("Week 0 ADAI FYT", "apwW0ADAI")
                 })
 
             })

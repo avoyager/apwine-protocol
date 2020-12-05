@@ -26,16 +26,16 @@ contract Controller is Initializable, AccessControlUpgradeSafe{
 
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    EnumerableSet.AddressSet private vineyards;
+    EnumerableSet.AddressSet private futures;
 
     /* Events */
 
-    event VineyardRegistered(address _vineyardAddress);
-    event VineyardUnregistered(address _vineyardAddress);
+    event FutureRegistered(address _futureAddress);
+    event FutureUnregistered(address _futureAddress);
     event TreasuryAddressChanged(address _treasuryAddress);
 
 
-    /* Vineyard Settings */
+    /* Future Settings */
     uint256 public STARTING_DELAY;
 
     /* Modifiers */
@@ -54,23 +54,23 @@ contract Controller is Initializable, AccessControlUpgradeSafe{
     /* Public methods */
 
     /**
-     * @notice Adds a vineyard for everyone to use
-     * @param _vineyardAddress the address of the vineyard
+     * @notice Adds a future for everyone to use
+     * @param _futureAddress the address of the future
      */
-    function addVineyard(address _vineyardAddress) public {
+    function addFuture(address _futureAddress) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        require(vineyards.add(_vineyardAddress), "Vineyard already registered");
-        emit VineyardRegistered(_vineyardAddress);
+        require(futures.add(_futureAddress), "Future already registered");
+        emit FutureRegistered(_futureAddress);
     }
 
     /**
-     * @notice Removes a vineyard from the registered vineyards list
-     * @param _vineyardAddress the address of the vineyard
+     * @notice Removes a future from the registered futures list
+     * @param _futureAddress the address of the future
      */
-    function delVineyard(address _vineyardAddress) public {
+    function delFuture(address _futureAddress) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        require(vineyards.remove(_vineyardAddress), "Vineyard not registered");
-        emit VineyardUnregistered(_vineyardAddress);
+        require(futures.remove(_futureAddress), "Future not registered");
+        emit FutureUnregistered(_futureAddress);
     }
 
 
@@ -113,7 +113,7 @@ contract Controller is Initializable, AccessControlUpgradeSafe{
         APWineIBTLogic = _APWineIBTLogic;
     }
 
-    /* Vineyard Settings Setters */
+    /* Future Settings Setters */
 
     /**
      * @notice Change the delay for starting a new period
@@ -128,90 +128,90 @@ contract Controller is Initializable, AccessControlUpgradeSafe{
     /* User Methods */
 
     /**
-     * @notice Register the sender to the corresponding vineyard
-     * @param _vineyardAddress the address of the vineyard to be registered to
+     * @notice Register the sender to the corresponding future
+     * @param _futureAddress the address of the future to be registered to
      * @param _amount the amount to register
      */
-    function register(address _vineyardAddress, uint256 _amount) public {
-        require(vineyards.contains(_vineyardAddress), "Invalid vineyard address");
-        IFuture vineyard = IFuture(_vineyardAddress);
-        IFuture(_vineyardAddress).register(msg.sender,_amount);
-        require(ERC20(vineyard.getIBTAddress()).transferFrom(msg.sender, address(_vineyardAddress),_amount), "Insufficient funds");
+    function register(address _futureAddress, uint256 _amount) public {
+        require(futures.contains(_futureAddress), "Invalid future address");
+        IFuture future = IFuture(_futureAddress);
+        IFuture(_futureAddress).register(msg.sender,_amount);
+        require(ERC20(future.getIBTAddress()).transferFrom(msg.sender, address(_futureAddress),_amount), "Insufficient funds");
     }
 
     /**
-     * @notice Register the sender to the corresponding vineyard
+     * @notice Register the sender to the corresponding future
      * @param _winemaker the address of the winemaker
-     * @param _vineyardAddress the addresses of the vineyards to claim the fyts from
+     * @param _futureAddress the addresses of the futures to claim the fyts from
      */
-    function claimSelectedYield(address _winemaker, address[] memory _vineyardAddress) public {
-        for(uint256 i = 0;  i<_vineyardAddress.length;i++){
-            require(vineyards.contains(_vineyardAddress[i]),"Incorrect vineyard address");
-            IFuture(_vineyardAddress[i]).claimFYT(_winemaker);
+    function claimSelectedYield(address _winemaker, address[] memory _futureAddress) public {
+        for(uint256 i = 0;  i<_futureAddress.length;i++){
+            require(futures.contains(_futureAddress[i]),"Incorrect future address");
+            IFuture(_futureAddress[i]).claimFYT(_winemaker);
         }
     }
 
     /* Views */
 
     /**
-     * @notice Checks whether the address is a valid vineyard
-     * @return bool true if the given vineyard is valid
+     * @notice Checks whether the address is a valid future
+     * @return bool true if the given future is valid
      */
-    function isRegisteredVineyard(address _vineyardAddress) public view returns (bool) {
-       return vineyards.contains(_vineyardAddress);
+    function isRegisteredFuture(address _futureAddress) public view returns (bool) {
+       return futures.contains(_futureAddress);
     }
 
     /**
      * @notice Checks whether the address is a valid future
      * @param _winemaker the address of the winemaker
-     * @return array of vineyards addresses where the winemaker can claim fyt
+     * @return array of futures addresses where the winemaker can claim fyt
      * @dev shouldn't be called in a contract
      */
-    function getVineyardWithClaimableFYT(address _winemaker) external view returns (address[] memory) {
-        address[] memory selectedVineyards = new address[](vineyards.length());
+    function getFutureWithClaimableFYT(address _winemaker) external view returns (address[] memory) {
+        address[] memory selectedFutures = new address[](futures.length());
         uint8 index = 0;
-        for (uint256 i = 0; i < vineyards.length(); i++) { 
-             if(IFuture(vineyards.at(i)).hasClaimableFYT(_winemaker)){
-                 selectedVineyards[i]= vineyards.at(i);
+        for (uint256 i = 0; i < futures.length(); i++) { 
+             if(IFuture(futures.at(i)).hasClaimableFYT(_winemaker)){
+                 selectedFutures[i]= futures.at(i);
                  index +=1;
              }
         }
-        return selectedVineyards;
+        return selectedFutures;
     }
 
     /**
      * @notice Checks whether the address is a valid future
      * @param _winemaker the address of the winemaker
-     * @return array of vineyards addresses where the winemaker can claim ibt
+     * @return array of futures addresses where the winemaker can claim ibt
      * @dev shouldn't be called in a contract
      */
-    function getVineyardWithClaimableAPWIBT(address _winemaker) external view returns (address[] memory) {
-        address[] memory selectedVineyards = new address[](vineyards.length());
+    function getFutureWithClaimableAPWIBT(address _winemaker) external view returns (address[] memory) {
+        address[] memory selectedFutures = new address[](futures.length());
         uint8 index = 0;
-        for (uint256 i = 0; i < vineyards.length(); i++) { 
-             if(IFuture(vineyards.at(i)).hasClaimableAPWIBT(_winemaker)){
-                 selectedVineyards[i]= vineyards.at(i);
+        for (uint256 i = 0; i < futures.length(); i++) { 
+             if(IFuture(futures.at(i)).hasClaimableAPWIBT(_winemaker)){
+                 selectedFutures[i]= futures.at(i);
                 index +=1;
              }
         }
-        return selectedVineyards;
+        return selectedFutures;
     }
 
     /**
-     * @notice Number of vineyard
-     * @return uint256 the number of vineyard
+     * @notice Number of future
+     * @return uint256 the number of future
      */
-    function vineyardCount() external view returns (uint256) {
-        return vineyards.length();
+    function futureCount() external view returns (uint256) {
+        return futures.length();
     }
 
     /**
-     * @notice View available vineyard
+     * @notice View available future
      * @param _index index of the future to retrieve
-     * @return address the vineyard address at index
+     * @return address the future address at index
      */
-    function vineyard(uint256 _index) external view returns (address) {
-        return vineyards.at(_index);
+    function future(uint256 _index) external view returns (address) {
+        return futures.at(_index);
     }
 
 }

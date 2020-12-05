@@ -5,15 +5,15 @@ interface IFutureVault {
 
     /**
     * @notice Intializer
-    * @param _vineyardAddress the address of the corresponding vineyard
+    * @param _futureAddress the address of the corresponding future
     */  
-    function initialize(address _vineyardAddress) external;
+    function initialize(address _futureAddress) external;
 
 
     /**
-    * @notice Getter for the vineyard address
+    * @notice Getter for the future address
     * @return the vinyard address linked to this future wallet
     */  
-    function getVineyardAddress() external view returns(address);
+    function getFutureAddress() external view returns(address);
 
 }
