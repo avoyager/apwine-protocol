@@ -4,7 +4,7 @@ import "./APWineCellar.sol";
 
 abstract contract APWineRateIBTCellar is APWineCellar{
 
-    uint256[] private cellars;
+    uint256[] internal cellars;
 
     function initialize(address _vineyardAddress, address _adminAddress) public initializer override{
         super.initialize(_vineyardAddress,_adminAddress);

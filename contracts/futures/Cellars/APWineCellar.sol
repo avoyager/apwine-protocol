@@ -35,7 +35,6 @@ abstract contract APWineCellar is Initializable, AccessControlUpgradeSafe{
         _setupRole(DEFAULT_ADMIN_ROLE, _adminAddress);
         _setupRole(ADMIN_ROLE, _adminAddress);
         _setupRole(CAVIST_ROLE, _vineyardAddress);
-        
     }
 
     /**
