@@ -4,13 +4,13 @@ const { expect } = require("chai")
 const { BN, ether: amount, expectRevert, time, balance } = require("@openzeppelin/test-helpers")
 const ether = require("@openzeppelin/test-helpers/src/ether")
 
-const APWineController = contract.fromArtifact("APWineController")
+const Controller = contract.fromArtifact("Controller")
 const APWineAaveVineyard = contract.fromArtifact("APWineAaveVineyard")
 const APWineAaveCellar = contract.fromArtifact("APWineAaveCellar")
 const ProxyFactory = contract.fromArtifact("ProxyFactory")
 const APWineIBT = contract.fromArtifact("APWineIBT")
 const FutureYieldToken = contract.fromArtifact("FutureYieldToken")
-const APWineFutureWallet = contract.fromArtifact("APWineFutureWallet")
+const FutureVault = contract.fromArtifact("FutureVault")
 const APWineMaths = contract.fromArtifact("APWineMaths")
 
 const ADDRESS_0 = "0x0000000000000000000000000000000000000000"
@@ -57,7 +57,7 @@ describe("APWine Contracts", function () {
     const [owner, user1, user2] = accounts
 
     beforeEach(async function () {
-        this.controller = await APWineController.new()
+        this.controller = await Controller.new()
         await this.controller.initialize(owner)
         this.proxyFactory = await ProxyFactory.new()
         await this.controller.setAPWineProxyFactoryAddress(this.proxyFactory.address, {from:owner})
@@ -86,7 +86,7 @@ describe("APWine Contracts", function () {
             this.aaveWeeklyCellar = await APWineAaveCellar.new()
             await this.aaveWeeklyCellar.initialize(this.aaveWeeklyVineyard.address,owner)
 
-            this.aaveWeeklyFutureWallet = await APWineFutureWallet.new()
+            this.aaveWeeklyFutureWallet = await FutureVault.new()
             await this.aaveWeeklyFutureWallet.initialize(this.aaveWeeklyVineyard.address)
             await this.controller.addVineyard(this.aaveWeeklyVineyard.address, {from:owner});
         })
