@@ -132,41 +132,41 @@ abstract contract Future is Initializable, AccessControlUpgradeSafe{
 
 
     /* Claim functions */
-    function claimFYT(address _winemaker) public virtual{
-        require(hasClaimableFYT(_winemaker),"The is not fyt claimable for this address");
-        if(hasClaimableAPWIBT(_winemaker)) claimAPWIBT(_winemaker);
-        else _claimFYT(_winemaker);   
+    function claimFYT(address _user) public virtual{
+        require(hasClaimableFYT(_user),"The is not fyt claimable for this address");
+        if(hasClaimableAPWIBT(_user)) claimAPWIBT(_user);
+        else _claimFYT(_user);   
     }
 
-    function _claimFYT(address _winemaker) internal virtual{
+    function _claimFYT(address _user) internal virtual{
         uint256 nextIndex = getNextPeriodIndex();
-        for(uint256 i = lastPeriodClaimed[_winemaker]+1; i<nextIndex;i++){
-            claimFYTforPeriod(_winemaker, i); // TODO gas cost can be optimized
+        for(uint256 i = lastPeriodClaimed[_user]+1; i<nextIndex;i++){
+            claimFYTforPeriod(_user, i); // TODO gas cost can be optimized
         }
     }
 
-    function claimFYTforPeriod(address _winemaker, uint256 _periodIndex) internal virtual{
-        assert((lastPeriodClaimed[_winemaker]+1)==_periodIndex);
+    function claimFYTforPeriod(address _user, uint256 _periodIndex) internal virtual{
+        assert((lastPeriodClaimed[_user]+1)==_periodIndex);
         assert(_periodIndex<getNextPeriodIndex());
         assert(_periodIndex!=0);
-        lastPeriodClaimed[_winemaker] = _periodIndex;
-        fyts[_periodIndex].transfer(_winemaker,apwibt.balanceOf(_winemaker));
+        lastPeriodClaimed[_user] = _periodIndex;
+        fyts[_periodIndex].transfer(_user,apwibt.balanceOf(_user));
     }
 
-    function claimAPWIBT(address _winemaker) internal virtual{
+    function claimAPWIBT(address _user) internal virtual{
         uint256 nextIndex = getNextPeriodIndex();
-        uint256 claimableAPWIBT = getClaimableAPWIBT(_winemaker);
+        uint256 claimableAPWIBT = getClaimableAPWIBT(_user);
         // require(claimableAPWIBT>0, "There are no ibt claimable at the moment for this address");
 
-        if(_hasOnlyClaimableFYT(_winemaker)) _claimFYT(_winemaker);
-        apwibt.transfer(_winemaker, claimableAPWIBT);
+        if(_hasOnlyClaimableFYT(_user)) _claimFYT(_user);
+        apwibt.transfer(_user, claimableAPWIBT);
 
-        for (uint i = registrations[_winemaker].startIndex; i<nextIndex; i++){ // get not claimed fyt
-            fyts[i].transfer(_winemaker,claimableAPWIBT);
+        for (uint i = registrations[_user].startIndex; i<nextIndex; i++){ // get not claimed fyt
+            fyts[i].transfer(_user,claimableAPWIBT);
         }
 
-        lastPeriodClaimed[_winemaker] = nextIndex-1;
-        delete registrations[_winemaker];
+        lastPeriodClaimed[_user] = nextIndex-1;
+        delete registrations[_user];
     }
 
     function withdrawLockFunds(uint _amount) public virtual{
@@ -216,30 +216,30 @@ abstract contract Future is Initializable, AccessControlUpgradeSafe{
     }
 
     /* Getters */
-    function hasClaimableFYT(address _winemaker) public view returns(bool){
-        return hasClaimableAPWIBT(_winemaker) || _hasOnlyClaimableFYT(_winemaker);
+    function hasClaimableFYT(address _user) public view returns(bool){
+        return hasClaimableAPWIBT(_user) || _hasOnlyClaimableFYT(_user);
     }
 
-    function _hasOnlyClaimableFYT(address _winemaker) internal view returns(bool){
-        return lastPeriodClaimed[_winemaker]!=0  && lastPeriodClaimed[_winemaker]<getNextPeriodIndex()-1;
+    function _hasOnlyClaimableFYT(address _user) internal view returns(bool){
+        return lastPeriodClaimed[_user]!=0  && lastPeriodClaimed[_user]<getNextPeriodIndex()-1;
     }
 
-    function hasClaimableAPWIBT(address _winemaker) public view returns(bool){
-        return (registrations[_winemaker].startIndex < getNextPeriodIndex()) && (registrations[_winemaker].scaledBalance>0);
+    function hasClaimableAPWIBT(address _user) public view returns(bool){
+        return (registrations[_user].startIndex < getNextPeriodIndex()) && (registrations[_user].scaledBalance>0);
     }
 
     function getNextPeriodIndex() public view virtual returns(uint256){
         return registrationsTotals.length-1;
     }
 
-    function getClaimableAPWIBT(address _winemaker) public view virtual returns(uint256);
+    function getClaimableAPWIBT(address _user) public view virtual returns(uint256);
 
-    function getUnlockableFunds(address _winemaker) public view virtual returns(uint256){
-        return getClaimableAPWIBT(_winemaker).add(apwibt.balanceOf(_winemaker));
+    function getUnlockableFunds(address _user) public view virtual returns(uint256){
+        return getClaimableAPWIBT(_user).add(apwibt.balanceOf(_user));
     }
 
-    function getRegisteredAmount(address _winemaker) public view virtual returns(uint256);
-    function getUnrealisedYield(address _winemaker) public view virtual returns(uint256);
+    function getRegisteredAmount(address _user) public view virtual returns(uint256);
+    function getUnrealisedYield(address _user) public view virtual returns(uint256);
 
     function getNextPeriodTimestamp() public view returns(uint256){
         return nextPeriodTimestamp[nextPeriodTimestamp.length-1];

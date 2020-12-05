@@ -81,10 +81,10 @@ abstract contract RateFuture is Future{
         emit NewPeriodStarted(nextPeriodID,fytAddress);
     }
 
-    function getRegisteredAmount(address _winemaker) public view override returns(uint256){
-        uint256 periodID = registrations[_winemaker].startIndex;
+    function getRegisteredAmount(address _user) public view override returns(uint256){
+        uint256 periodID = registrations[_user].startIndex;
         if (periodID==getNextPeriodIndex()){
-            return registrations[_winemaker].scaledBalance;
+            return registrations[_user].scaledBalance;
         }else{
             return 0;
         }
@@ -94,17 +94,17 @@ abstract contract RateFuture is Future{
         return (_initialAmount.mul(_initialRate)).div(_newRate);
     }
 
-    function getClaimableAPWIBT(address _winemaker) public view override returns(uint256){
-        if(!hasClaimableAPWIBT(_winemaker)) return 0;
-        return scaleIBTAmount(registrations[_winemaker].scaledBalance, IBTRates[registrations[_winemaker].startIndex],IBTRates[getNextPeriodIndex()-1]);
+    function getClaimableAPWIBT(address _user) public view override returns(uint256){
+        if(!hasClaimableAPWIBT(_user)) return 0;
+        return scaleIBTAmount(registrations[_user].scaledBalance, IBTRates[registrations[_user].startIndex],IBTRates[getNextPeriodIndex()-1]);
     }
 
-    function getUnlockableFunds(address _winemaker) public view override returns(uint256){
-        return scaleIBTAmount(super.getUnlockableFunds(_winemaker),IBTRates[getNextPeriodIndex()-1], getIBTRate());
+    function getUnlockableFunds(address _user) public view override returns(uint256){
+        return scaleIBTAmount(super.getUnlockableFunds(_user),IBTRates[getNextPeriodIndex()-1], getIBTRate());
     }
 
-    function getUnrealisedYield(address _winemaker) public view override returns(uint256){
-        return apwibt.balanceOf(_winemaker).sub(scaleIBTAmount(apwibt.balanceOf(_winemaker),IBTRates[getNextPeriodIndex()-1], getIBTRate()));
+    function getUnrealisedYield(address _user) public view override returns(uint256){
+        return apwibt.balanceOf(_user).sub(scaleIBTAmount(apwibt.balanceOf(_user),IBTRates[getNextPeriodIndex()-1], getIBTRate()));
     }
 
     function getIBTRate() public view virtual returns(uint256);

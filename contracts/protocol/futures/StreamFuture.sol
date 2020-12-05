@@ -76,18 +76,18 @@ abstract contract StreamFuture is Future{
     }
 
 
-    function getRegisteredAmount(address _winemaker) public view virtual override returns(uint256){
-        uint256 periodID = registrations[_winemaker].startIndex;
+    function getRegisteredAmount(address _user) public view virtual override returns(uint256){
+        uint256 periodID = registrations[_user].startIndex;
         if (periodID==getNextPeriodIndex()){
-            return APWineMaths.getActualOutput(registrations[_winemaker].scaledBalance, scaledTotals[periodID], ibt.balanceOf(address(this)));
+            return APWineMaths.getActualOutput(registrations[_user].scaledBalance, scaledTotals[periodID], ibt.balanceOf(address(this)));
         }else{
             return 0;
         }
     }
 
-    function getClaimableAPWIBT(address _winemaker) public view override returns(uint256){
-        if(!hasClaimableAPWIBT(_winemaker)) return 0;
-        return APWineMaths.getActualOutput(registrations[_winemaker].scaledBalance, scaledTotals[registrations[_winemaker].startIndex], registrationsTotals[registrations[_winemaker].startIndex]);
+    function getClaimableAPWIBT(address _user) public view override returns(uint256){
+        if(!hasClaimableAPWIBT(_user)) return 0;
+        return APWineMaths.getActualOutput(registrations[_user].scaledBalance, scaledTotals[registrations[_user].startIndex], registrationsTotals[registrations[_user].startIndex]);
     }
 
     function getUnrealisedYield(address _cavist) public view override returns(uint256){

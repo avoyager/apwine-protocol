@@ -141,13 +141,13 @@ contract Controller is Initializable, AccessControlUpgradeSafe{
 
     /**
      * @notice Register the sender to the corresponding future
-     * @param _winemaker the address of the winemaker
+     * @param _user the address of the user
      * @param _futureAddress the addresses of the futures to claim the fyts from
      */
-    function claimSelectedYield(address _winemaker, address[] memory _futureAddress) public {
+    function claimSelectedYield(address _user, address[] memory _futureAddress) public {
         for(uint256 i = 0;  i<_futureAddress.length;i++){
             require(futures.contains(_futureAddress[i]),"Incorrect future address");
-            IFuture(_futureAddress[i]).claimFYT(_winemaker);
+            IFuture(_futureAddress[i]).claimFYT(_user);
         }
     }
 
@@ -163,15 +163,15 @@ contract Controller is Initializable, AccessControlUpgradeSafe{
 
     /**
      * @notice Checks whether the address is a valid future
-     * @param _winemaker the address of the winemaker
-     * @return array of futures addresses where the winemaker can claim fyt
+     * @param _user the address of the user
+     * @return array of futures addresses where the user can claim fyt
      * @dev shouldn't be called in a contract
      */
-    function getFutureWithClaimableFYT(address _winemaker) external view returns (address[] memory) {
+    function getFutureWithClaimableFYT(address _user) external view returns (address[] memory) {
         address[] memory selectedFutures = new address[](futures.length());
         uint8 index = 0;
         for (uint256 i = 0; i < futures.length(); i++) { 
-             if(IFuture(futures.at(i)).hasClaimableFYT(_winemaker)){
+             if(IFuture(futures.at(i)).hasClaimableFYT(_user)){
                  selectedFutures[i]= futures.at(i);
                  index +=1;
              }
@@ -181,15 +181,15 @@ contract Controller is Initializable, AccessControlUpgradeSafe{
 
     /**
      * @notice Checks whether the address is a valid future
-     * @param _winemaker the address of the winemaker
-     * @return array of futures addresses where the winemaker can claim ibt
+     * @param _user the address of the user
+     * @return array of futures addresses where the user can claim ibt
      * @dev shouldn't be called in a contract
      */
-    function getFutureWithClaimableAPWIBT(address _winemaker) external view returns (address[] memory) {
+    function getFutureWithClaimableAPWIBT(address _user) external view returns (address[] memory) {
         address[] memory selectedFutures = new address[](futures.length());
         uint8 index = 0;
         for (uint256 i = 0; i < futures.length(); i++) { 
-             if(IFuture(futures.at(i)).hasClaimableAPWIBT(_winemaker)){
+             if(IFuture(futures.at(i)).hasClaimableAPWIBT(_user)){
                  selectedFutures[i]= futures.at(i);
                 index +=1;
              }

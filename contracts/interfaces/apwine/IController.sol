@@ -80,10 +80,10 @@ interface IController {
 
     /**
      * @notice Register the sender to the corresponding future
-     * @param _winemaker the address of the winemaker
+     * @param _user the address of the user
      * @param _futureAddress the addresses of the futures to claim the fyts from
      */
-    function claimSelectedYield(address _winemaker, address[] memory _futureAddress) external; 
+    function claimSelectedYield(address _user, address[] memory _futureAddress) external; 
 
     /* Views */
 
@@ -96,20 +96,20 @@ interface IController {
 
     /**
      * @notice Checks whether the address is a valid future
-     * @param _winemaker the address of the winemaker
-     * @return array of futures addresses where the winemaker can claim fyt
+     * @param _user the address of the user
+     * @return array of futures addresses where the user can claim fyt
      * @dev shouldn't be called in a contract
      */
-    function getFutureWithClaimableFYT(address _winemaker) external view returns (address[] memory);
+    function getFutureWithClaimableFYT(address _user) external view returns (address[] memory);
 
 
     /**
      * @notice Checks whether the address is a valid future
-     * @param _winemaker the address of the winemaker
-     * @return array of futures addresses where the winemaker can claim ibt
+     * @param _user the address of the user
+     * @return array of futures addresses where the user can claim ibt
      * @dev shouldn't be called in a contract
      */
-    function getFutureWithClaimableAPWIBT(address _winemaker) external view returns (address[] memory);
+    function getFutureWithClaimableAPWIBT(address _user) external view returns (address[] memory);
 
     /**
      * @notice Number of future
