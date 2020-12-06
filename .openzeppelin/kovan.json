@@ -219,11 +219,11 @@
       }
     },
     "AaveFuture": {
-      "address": "0x5dBD543F7Db51A51694c2b700c0A64Cd2077C65b",
-      "constructorCode": "608060405234801561001057600080fd5b50615d0580620000216000396000f3fe",
-      "bodyBytecodeHash": "b5084b34559cab8050d472c391d5cf12719274602fd80a77fabe2d22fd6c5ea4",
-      "localBytecodeHash": "4760db97da2f5c4e8646a3422448880de0e3eef8c30ecb97a98f4a87ab134891",
-      "deployedBytecodeHash": "ad03157db5a3c2c71e932db8ddd90135ece3ecffaa7c38d11bcb45b188035f52",
+      "address": "0x3D8923A2D429c2E06Bf675689F7324CFd675200A",
+      "constructorCode": "608060405234801561001057600080fd5b50615e4280620000216000396000f3fe",
+      "bodyBytecodeHash": "0e5b0e6686682801c47961a63a64bc09e310d5d7961dda69483c142ec35d7eae",
+      "localBytecodeHash": "cdc6681204a17dc020fd67dc426ba6c8530c6a59deb3d592a298bb8fd23e8050",
+      "deployedBytecodeHash": "e3fc9b30a6e965c939c4d253116d18bfef8ddd08952a9f18a420ee37f338d21a",
       "types": {
         "t_bool": {
           "id": "t_bool",
@@ -338,13 +338,13 @@
           "members": [
             {
               "label": "startIndex",
-              "astId": 6085,
+              "astId": 6148,
               "type": "t_uint256",
               "src": "817:18:49"
             },
             {
               "label": "scaledBalance",
-              "astId": 6087,
+              "astId": 6150,
               "type": "t_uint256",
               "src": "845:21:49"
             }
@@ -427,7 +427,7 @@
           "contract": "Future",
           "path": "contracts/protocol/futures/Future.sol",
           "label": "registrationsTotals",
-          "astId": 6091,
+          "astId": 6154,
           "type": "t_array:dyn<t_uint256>",
           "src": "879:29:49"
         },
@@ -435,7 +435,7 @@
           "contract": "Future",
           "path": "contracts/protocol/futures/Future.sol",
           "label": "lastPeriodClaimed",
-          "astId": 6110,
+          "astId": 6173,
           "type": "t_mapping<t_uint256>",
           "src": "1171:52:49"
         },
@@ -443,7 +443,7 @@
           "contract": "Future",
           "path": "contracts/protocol/futures/Future.sol",
           "label": "registrations",
-          "astId": 6114,
+          "astId": 6177,
           "type": "t_mapping<t_struct<Future.Registration>>",
           "src": "1229:53:49"
         },
@@ -451,7 +451,7 @@
           "contract": "Future",
           "path": "contracts/protocol/futures/Future.sol",
           "label": "nextPeriodTimestamp",
-          "astId": 6117,
+          "astId": 6180,
           "type": "t_array:dyn<t_uint256>",
           "src": "1288:38:49"
         },
@@ -459,7 +459,7 @@
           "contract": "Future",
           "path": "contracts/protocol/futures/Future.sol",
           "label": "fyts",
-          "astId": 6120,
+          "astId": 6183,
           "type": "t_array:dyn<t_address>",
           "src": "1332:30:49"
         },
@@ -467,7 +467,7 @@
           "contract": "Future",
           "path": "contracts/protocol/futures/Future.sol",
           "label": "futureVault",
-          "astId": 6122,
+          "astId": 6185,
           "type": "t_address",
           "src": "1399:33:49"
         },
@@ -475,7 +475,7 @@
           "contract": "Future",
           "path": "contracts/protocol/futures/Future.sol",
           "label": "futureWallet",
-          "astId": 6124,
+          "astId": 6187,
           "type": "t_address",
           "src": "1438:35:49"
         },
@@ -483,7 +483,7 @@
           "contract": "Future",
           "path": "contracts/protocol/futures/Future.sol",
           "label": "ibt",
-          "astId": 6126,
+          "astId": 6189,
           "type": "t_address",
           "src": "1479:18:49"
         },
@@ -491,7 +491,7 @@
           "contract": "Future",
           "path": "contracts/protocol/futures/Future.sol",
           "label": "apwibt",
-          "astId": 6128,
+          "astId": 6191,
           "type": "t_address",
           "src": "1503:25:49"
         },
@@ -499,7 +499,7 @@
           "contract": "Future",
           "path": "contracts/protocol/futures/Future.sol",
           "label": "controller",
-          "astId": 6130,
+          "astId": 6193,
           "type": "t_address",
           "src": "1534:31:49"
         },
@@ -507,7 +507,7 @@
           "contract": "Future",
           "path": "contracts/protocol/futures/Future.sol",
           "label": "PERIOD",
-          "astId": 6132,
+          "astId": 6195,
           "type": "t_uint256",
           "src": "1591:21:49"
         },
@@ -515,7 +515,7 @@
           "contract": "Future",
           "path": "contracts/protocol/futures/Future.sol",
           "label": "PLATFORM",
-          "astId": 6134,
+          "astId": 6197,
           "type": "t_string",
           "src": "1618:22:49"
         },
@@ -523,7 +523,7 @@
           "contract": "Future",
           "path": "contracts/protocol/futures/Future.sol",
           "label": "PAUSED",
-          "astId": 6136,
+          "astId": 6199,
           "type": "t_bool",
           "src": "1646:18:49"
         },
@@ -531,7 +531,7 @@
           "contract": "StreamFuture",
           "path": "contracts/protocol/futures/StreamFuture.sol",
           "label": "scaledTotals",
-          "astId": 7514,
+          "astId": 7598,
           "type": "t_array:dyn<t_uint256>",
           "src": "106:22:51"
         }
@@ -541,15 +541,34 @@
         "hasSelfDestruct": false,
         "hasDelegateCall": false,
         "hasInitialValuesInDeclarations": false,
-        "uninitializedBaseContracts": []
+        "uninitializedBaseContracts": [],
+        "storageUncheckedVars": [
+          {
+            "contract": "AccessControlUpgradeSafe",
+            "path": "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol",
+            "label": "_roles",
+            "astId": 163,
+            "type": "t_mapping<t_struct<AccessControlUpgradeSafe.RoleData>>",
+            "src": "1727:44:2"
+          },
+          {
+            "contract": "Future",
+            "path": "contracts/protocol/futures/Future.sol",
+            "label": "registrations",
+            "astId": 6177,
+            "type": "t_mapping<t_struct<Future.Registration>>",
+            "src": "1229:53:49"
+          }
+        ],
+        "storageDiff": []
       }
     },
     "AaveFutureWallet": {
-      "address": "0xA69Fb1C7ACad76A68Af06A4eaDb137b76302c7f4",
-      "constructorCode": "608060405234801561001057600080fd5b50612332806100206000396000f3fe",
-      "bodyBytecodeHash": "881a767a2c26bab86250447337393a45d35ece851a988546a6809e12d594629e",
-      "localBytecodeHash": "0e6c7948dc819caf4a2ad336076601700b6d0a3c0c7e98d64ad760516c01f393",
-      "deployedBytecodeHash": "faeaea05ef763bdc0fd7aca101ee2492715344a197b1c817824b5a31c5a8fa0e",
+      "address": "0xfE37B8C31300281Ef43D2836C097c8762883D511",
+      "constructorCode": "608060405234801561001057600080fd5b5061246f806100206000396000f3fe",
+      "bodyBytecodeHash": "1ae7aabf76ceaf856b7623313437896111cbfad2159ba3b5e491439b3df3bf9c",
+      "localBytecodeHash": "7453996bf85f34d4301df53765e699d578de0004213a97d309362f0d16e6df17",
+      "deployedBytecodeHash": "8d8b01aa5da55e3faf9e18a5dae3d2b775e52a093bd9813987a902ea4521854a",
       "types": {
         "t_bool": {
           "id": "t_bool",
@@ -732,7 +751,7 @@
           "contract": "StreamFutureWallet",
           "path": "contracts/protocol/future_wallet/StreamFutureWallet.sol",
           "label": "scaledTotal",
-          "astId": 5887,
+          "astId": 5908,
           "type": "t_uint256",
           "src": "123:27:46"
         },
@@ -740,7 +759,7 @@
           "contract": "StreamFutureWallet",
           "path": "contracts/protocol/future_wallet/StreamFutureWallet.sol",
           "label": "scaledFutureWallets",
-          "astId": 5890,
+          "astId": 5911,
           "type": "t_array:dyn<t_uint256>",
           "src": "156:37:46"
         }
@@ -987,7 +1006,7 @@
       {
         "address": "0xd4A9873722Cc4031A9FD0C8eA5094FDEE22EdAe7",
         "version": "1.0.0",
-        "implementation": "0x5dBD543F7Db51A51694c2b700c0A64Cd2077C65b",
+        "implementation": "0x3D8923A2D429c2E06Bf675689F7324CFd675200A",
         "admin": "0xC8F17B4cf76fC1dD50622ff8EdfD9B940bb07cC0",
         "kind": "Upgradeable"
       }
@@ -996,7 +1015,7 @@
       {
         "address": "0xEA646db3b10A44F0dc9905cBa59DaaD2F39343f6",
         "version": "1.0.0",
-        "implementation": "0xA69Fb1C7ACad76A68Af06A4eaDb137b76302c7f4",
+        "implementation": "0xfE37B8C31300281Ef43D2836C097c8762883D511",
         "admin": "0xC8F17B4cf76fC1dD50622ff8EdfD9B940bb07cC0",
         "kind": "Upgradeable"
       }

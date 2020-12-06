@@ -87,5 +87,9 @@ abstract contract FutureWallet is Initializable, AccessControlUpgradeSafe{
         return address(ibt);
     }
 
+    function setIBTAddress(address _newAddress) public virtual{
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to change ibt address");
+        ibt = ERC20(_newAddress);
+    } 
 
 }

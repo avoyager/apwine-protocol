@@ -280,5 +280,10 @@ abstract contract Future is Initializable, AccessControlUpgradeSafe{
 
     /* Security functions */
 
+    function setIBTAddress(address _newAddress) public virtual{
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to change ibt address");
+        ibt = ERC20(_newAddress);
+    } 
+
 
 }
