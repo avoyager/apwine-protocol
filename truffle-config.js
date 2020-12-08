@@ -80,9 +80,12 @@ module.exports = {
       settings: {          // See the solidity docs for advice about optimization and evmVersion
        optimizer: {
          enabled: true,
-         runs: 200000
+         runs: 1
        },
       }
     }
-  }
+  },
+  plugins: [
+    'truffle-contract-size'
+  ]
 };
