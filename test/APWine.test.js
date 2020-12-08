@@ -12,6 +12,8 @@ const APWineIBT = contract.fromArtifact("APWineIBT")
 const FutureYieldToken = contract.fromArtifact("FutureYieldToken")
 const FutureVault = contract.fromArtifact("FutureVault")
 const APWineMaths = contract.fromArtifact("APWineMaths")
+const APWineNaming = contract.fromArtifact("APWineNaming")
+
 
 const ADDRESS_0 = "0x0000000000000000000000000000000000000000"
 
@@ -26,26 +28,39 @@ describe("APWine Libraries", function () {
     this.timeout(100 * 1000)
     const [owner, user1, user2] = accounts
 
-    beforeEach(async function () {
-        this.maths = await APWineMaths.new()
+    describe("APWineMaths", function(){
+        beforeEach(async function () {
+            this.maths = await APWineMaths.new()
+        })
+
+        it("getScaledInput for 0 values", async function () {
+            expect(await this.maths.getScaledInput(0,0,0)).to.be.bignumber.equal(new BN(0))
+        })
+
+        it("getActualOutput for 0 values", async function () {
+            expect(await this.maths.getActualOutput(0,0,0)).to.be.bignumber.equal(new BN(0))
+        })
+
+        it("scalling of input is consistent", async function () {
+            // Input 10 is first of sum, it doubles before second input of 10
+            expect(await this.maths.getScaledInput(10,10,20)).to.be.bignumber.equal(new BN(5))
+        })
+
+        it("scalling of output is consistent", async function () {
+            // Input 10 is first of sum, it doubles before second input of 10
+            expect(await this.maths.getActualOutput(5,15,30)).to.be.bignumber.equal(new BN(10))
+        })
+
     })
 
-    it("getScaledInput for 0 values", async function () {
-        expect(await this.maths.getScaledInput(0,0,0)).to.be.bignumber.equal(new BN(0))
-    })
+    describe("APWineNaming", function(){
+        beforeEach(async function () {
+            this.naming = await APWineNaming.new()
+        })
+        it("Token Name generation works for corrects inputs", async function () {
+            expect(await this.naming.genTokenSymbol(0,"ADAI","AAVE", "W") == "W0ADAIAAVE");
+        })
 
-    it("getActualOutput for 0 values", async function () {
-        expect(await this.maths.getActualOutput(0,0,0)).to.be.bignumber.equal(new BN(0))
-    })
-
-    it("scalling of input is consistent", async function () {
-        // Input 10 is first of sum, it doubles before second input of 10
-        expect(await this.maths.getScaledInput(10,10,20)).to.be.bignumber.equal(new BN(5))
-    })
-
-    it("scalling of output is consistent", async function () {
-        // Input 10 is first of sum, it doubles before second input of 10
-        expect(await this.maths.getActualOutput(5,15,30)).to.be.bignumber.equal(new BN(10))
     })
 
 })
@@ -66,6 +81,7 @@ describe("APWine Contracts", function () {
         this.fyt = await FutureYieldToken.new()
         await this.controller.setFutureYieldTokenLogic(this.fyt.address, {from:owner})
         this.maths = await APWineMaths.new()
+        this.naming = await APWineNaming.new()
     })
 
     it("has no futures available by default", async function () {
@@ -78,9 +94,9 @@ describe("APWine Contracts", function () {
         beforeEach(async function () {
             await AaveFuture.detectNetwork()
             await AaveFuture.link("APWineMaths", this.maths.address)
+            await AaveFuture.link("APWineNaming", this.naming.address)
             this.aaveWeeklyFuture = await AaveFuture.new()
-            await this.aaveWeeklyFuture.initialize(this.controller.address, ADAI_ADDRESS, 7,"Aave", "aDAI", "aDAI", owner)
-
+            await this.aaveWeeklyFuture.initialize(this.controller.address, ADAI_ADDRESS, 7,"W","Aave", "Weekly Aave DAI", "WADAIAAVE", owner)
             await AaveFutureWallet.detectNetwork()
             await AaveFutureWallet.link("APWineMaths", this.maths.address)
             this.aaveWeeklyFutureWallet = await AaveFutureWallet.new()
@@ -135,7 +151,7 @@ describe("APWine Contracts", function () {
 
                 it("can start the period", async function () {
                     await this.controller.setPeriodStartingDelay(24*60*60*7,{ from: owner })
-                    await this.aaveWeeklyFuture.startNewPeriod("Week 0 ADAI FYT", "apwW0ADAI",{ from: owner })
+                    await this.aaveWeeklyFuture.startNewPeriod({ from: owner })
                 })
 
                 it("can unregister", async function() {
@@ -146,9 +162,37 @@ describe("APWine Contracts", function () {
                     expect(await this.aaveWeeklyFuture.getRegisteredAmount(user1)).to.be.bignumber.gte(ether("1"))
                 })
 
+                describe("with next period started", function () {
+
+                    beforeEach(async function () {
+                        await this.controller.setPeriodStartingDelay(24*60*60*7,{ from: owner })
+                        await this.aaveWeeklyFuture.startNewPeriod({ from: owner })
+                    })
+
+                    it("fyt was generated with the right name", async function() {
+                       let addressFYT = await this.aaveWeeklyFuture.getFYTofPeriod(1, { from: user1 })
+                       const fyt1 = await contract.fromArtifact("ERC20", addressFYT)
+                       let symbolFYT = await fyt1.symbol()
+                       expect(symbolFYT == "W1ADAIAAVE")
+                    })
+
+                    it("user can claim tokens generated", async function() {
+                        await this.aaveWeeklyFuture.claimFYT(user1, { from: user1 })
+                    })
+
+        
+        
+                })
+
+
+
             })
 
         })
+
+
+
+
 
     })
 
