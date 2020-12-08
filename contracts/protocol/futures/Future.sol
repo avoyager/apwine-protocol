@@ -276,5 +276,4 @@ abstract contract Future is Initializable,AccessControlUpgradeSafe{
 
     /* Security functions */
 
-
 }

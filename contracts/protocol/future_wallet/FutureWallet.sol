@@ -87,5 +87,4 @@ abstract contract FutureWallet is Initializable, AccessControlUpgradeSafe{
         return address(ibt);
     }
 
-
 }
