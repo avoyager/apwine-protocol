@@ -1,24 +1,25 @@
 
 pragma solidity >=0.4.22 <0.7.3;
 
-
 import '@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol';
-import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
 
 import "../../interfaces/ERC20.sol";
+import "../../interfaces/IProxyFactory.sol";
+
 import "../tokens/FutureYieldToken.sol";
 import "../../libraries/APWineMaths.sol";
+import "../../libraries/APWineNaming.sol";
+
 import "../tokens/APWineIBT.sol";
 
 import "../../interfaces/apwine/IFutureWallet.sol";
 import "../../interfaces/apwine/IController.sol";
 import "../../interfaces/apwine/IFutureVault.sol";
 
-import "../../oz-upgradability-solc6/upgradeability/ProxyFactory.sol";
 
-
-abstract contract Future is Initializable, AccessControlUpgradeSafe{
+abstract contract Future is Initializable,AccessControlUpgradeSafe{
 
     using SafeMath for uint256;
 
@@ -53,6 +54,7 @@ abstract contract Future is Initializable, AccessControlUpgradeSafe{
     uint256 public PERIOD;
     string public PLATFORM;
     bool public PAUSED;
+    string public PERIOD_DENOMINATOR;
 
     /* Events */
     event UserRegistered(address _userAddress,uint256 _amount, uint256 _periodIndex);
@@ -61,7 +63,7 @@ abstract contract Future is Initializable, AccessControlUpgradeSafe{
     /* Modifiers */
     modifier nextPeriodAvailable(){
         uint256 controllerDelay = controller.STARTING_DELAY();
-        require(getNextPeriodTimestamp()<block.timestamp.add(controllerDelay), "The next period start range has not been reached yet");
+        require(getNextPeriodTimestamp()<block.timestamp.add(controllerDelay), "Next period start range not reached yet");
         _;
     }
 
@@ -70,22 +72,13 @@ abstract contract Future is Initializable, AccessControlUpgradeSafe{
         _;
     }
 
-
     /* Initializer */
-    /**
-    * @notice Intializer
-    * @param _controllerAddress the address of the controller
-    * @param _ibt the address of the corresponding ibt
-    * @param _periodLength the length of the period (in days)
-    * @param _tokenName the APWineIBT name
-    * @param _tokenSymbol the APWineIBT symbol
-    * @param _adminAddress the address of the ACR admin
-    */  
-    function initialize(address _controllerAddress, address _ibt, uint256 _periodLength,string memory _platform, string memory _tokenName, string memory _tokenSymbol,address _adminAddress) public initializer virtual{
+    function initialize(address _controllerAddress, address _ibt, uint256 _periodLength,string memory _periodDenominator,string memory _platform, string memory _tokenName, string memory _tokenSymbol,address _adminAddress) public initializer virtual{
         controller =  IController(_controllerAddress);
         ibt = ERC20(_ibt);
         PERIOD = _periodLength * (1 days);
         PLATFORM = _platform;
+        PERIOD_DENOMINATOR = _periodDenominator;
 
         _setupRole(DEFAULT_ADMIN_ROLE, _adminAddress);
         _setupRole(ADMIN_ROLE, _adminAddress);
@@ -97,12 +90,11 @@ abstract contract Future is Initializable, AccessControlUpgradeSafe{
         fyts.push();
         nextPeriodTimestamp.push();
         bytes memory payload = abi.encodeWithSignature("initialize(string,string,address)", _tokenName, _tokenSymbol, address(this));
-        apwibt = APWineIBT(ProxyFactory(controller.APWineProxyFactory()).deployMinimal(controller.APWineIBTLogic(), payload));
+        apwibt = APWineIBT(IProxyFactory(controller.APWineProxyFactory()).deployMinimal(controller.APWineIBTLogic(), payload));
     }
 
     /* Period functions */
-    function startNewPeriod(string memory _tokenName, string memory _tokenSymbol) public virtual;
-
+    function startNewPeriod() public virtual;
 
     function register(address _winegrower ,uint256 _amount) public virtual periodsActive{   
         require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to register a wallet");
@@ -119,7 +111,6 @@ abstract contract Future is Initializable, AccessControlUpgradeSafe{
         }
         emit UserRegistered(_winegrower,_amount, nextIndex);
     }
-
 
     function _register(address _winegrower, uint256 _initialScaledBalance) virtual internal{
         registrations[_winegrower] = Registration({
@@ -191,9 +182,10 @@ abstract contract Future is Initializable, AccessControlUpgradeSafe{
     }
 
     /* Utilitaries functions */
-    function deployFutureYieldToken(string memory _tokenName, string memory _tokenSymbol) internal returns(address){
-        bytes memory payload = abi.encodeWithSignature("initialize(string,string,address)", _tokenName, _tokenSymbol, address(this));
-        FutureYieldToken newToken = FutureYieldToken(ProxyFactory(controller.APWineProxyFactory()).deployMinimal(controller.FutureYieldTokenLogic(), payload));
+    function deployFutureYieldToken() internal returns(address){
+        string memory tokenDenomination = APWineNaming.genTokenSymbol(uint8(getNextPeriodIndex()), ibt.symbol(),PLATFORM, PERIOD_DENOMINATOR);
+        bytes memory payload = abi.encodeWithSignature("initialize(string,string,address)", tokenDenomination, tokenDenomination, address(this));
+        FutureYieldToken newToken = FutureYieldToken(IProxyFactory(controller.APWineProxyFactory()).deployMinimal(controller.FutureYieldTokenLogic(), payload));
         fyts.push(newToken);
         newToken.mint(address(this),apwibt.totalSupply().mul(10**( uint256(18-ibt.decimals()) ))); 
         return address(newToken);
@@ -201,7 +193,7 @@ abstract contract Future is Initializable, AccessControlUpgradeSafe{
 
     /* Setters */
     function setFutureVault(address _futureVaultAddress) public{ //TODO check if set before start
-        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to set the future wallet address");
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to set the future vault address");
         futureVault = IFutureVault(_futureVaultAddress);
     }
 
@@ -211,8 +203,13 @@ abstract contract Future is Initializable, AccessControlUpgradeSafe{
     }
 
     function setNextPeriodTimestamp(uint256 _nextPeriodTimestamp) public {
-        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to set the future wallet address");
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to set next period timestamp");
         nextPeriodTimestamp[nextPeriodTimestamp.length-1]=_nextPeriodTimestamp;
+    }
+
+    function setPeriodDenominator(string memory _periodDenominator) public {
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to set period denominator");
+        PERIOD_DENOMINATOR = _periodDenominator;
     }
 
     /* Getters */
@@ -261,7 +258,6 @@ abstract contract Future is Initializable, AccessControlUpgradeSafe{
         return address(apwibt);
     }
 
-
     function getFYTofPeriod(uint256 _periodIndex) public view returns(address){
         require(_periodIndex<getNextPeriodIndex(), "The isnt any fyt for this period yet");
         return address(fyts[_periodIndex]);
@@ -269,12 +265,12 @@ abstract contract Future is Initializable, AccessControlUpgradeSafe{
 
     /* Admin function */
     function pausePeriods() public{
-        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to set the future wallet address");
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to pause future");
         PAUSED = true;
     }
 
     function resumePeriods() public{
-        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to set the future wallet address");
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to resume future");
         PAUSED = false;
     }
 

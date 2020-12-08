@@ -24,17 +24,8 @@ abstract contract RateFuture is Future{
 
     uint256[] IBTRates;
 
-    /**
-    * @notice Intializer
-    * @param _controllerAddress the address of the controller
-    * @param _ibt the address of the corresponding ibt
-    * @param _periodLength the length of the period (in days)
-    * @param _tokenName the APWineIBT name
-    * @param _tokenSymbol the APWineIBT symbol
-    * @param _adminAddress the address of the ACR admin
-    */  
-    function initialize(address _controllerAddress, address _ibt, uint256 _periodLength,string memory _platform, string memory _tokenName, string memory _tokenSymbol,address _adminAddress) public initializer virtual override{
-        super.initialize(_controllerAddress,_ibt,_periodLength,_platform,_tokenName,_tokenSymbol,_adminAddress);
+    function initialize(address _controllerAddress, address _ibt, uint256 _periodLength,string memory _periodDenominator,string memory _platform, string memory _tokenName, string memory _tokenSymbol,address _adminAddress) public initializer virtual override{
+        super.initialize(_controllerAddress,_ibt,_periodLength,_periodDenominator,_platform,_tokenName,_tokenSymbol,_adminAddress);
         IBTRates.push();
         IBTRates.push();
     }
@@ -52,7 +43,7 @@ abstract contract RateFuture is Future{
     }
 
 
-    function startNewPeriod(string memory _tokenName, string memory _tokenSymbol) public virtual override nextPeriodAvailable periodsActive{
+    function startNewPeriod() public virtual override nextPeriodAvailable periodsActive{
         require(hasRole(CAVIST_ROLE, msg.sender), "Caller is not allowed to register a harvest");
 
         uint256 nextPeriodID = getNextPeriodIndex();
@@ -77,7 +68,7 @@ abstract contract RateFuture is Future{
         IBTRates.push();
 
         /* Future Yield Token*/
-        address fytAddress = deployFutureYieldToken(_tokenName,_tokenSymbol);
+        address fytAddress = deployFutureYieldToken();
         emit NewPeriodStarted(nextPeriodID,fytAddress);
     }
 
