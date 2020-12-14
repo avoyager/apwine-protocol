@@ -1,10 +1,10 @@
 
-pragma solidity >=0.4.22 <0.7.3;
+pragma solidity >=0.7.0 <0.8.0;
 
 
-import '@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol';
-import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol";
+import '@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol';
+import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
 import "../../interfaces/ERC20.sol";
 import "contracts/interfaces/apwine/tokens/IFutureYieldToken.sol";
@@ -13,9 +13,9 @@ import "contracts/interfaces/apwine/IFuture.sol";
 import "../../libraries/APWineMaths.sol";
 
 
-abstract contract FutureWallet is Initializable, AccessControlUpgradeSafe{
+abstract contract FutureWallet is Initializable, AccessControlUpgradeable{
 
-    using SafeMath for uint256;
+    using SafeMathUpgradeable for uint256;
 
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");

@@ -1,9 +1,9 @@
-pragma solidity >=0.4.22 <0.7.3;
+pragma solidity >=0.7.0 <0.8.0;
 
 
-import '@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol';
-import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol";
+import '@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol';
+import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
 import "../../interfaces/ERC20.sol";
 
@@ -15,12 +15,11 @@ import "../../libraries/APWineMaths.sol";
 import "contracts/interfaces/apwine/IFutureWallet.sol";
 import "contracts/interfaces/apwine/IController.sol";
 import "contracts/interfaces/apwine/IFutureWallet.sol";
-import "../../oz-upgradability-solc6/upgradeability/ProxyFactory.sol";
 import "./Future.sol";
 
 abstract contract RateFuture is Future{
 
-    using SafeMath for uint256;
+    using SafeMathUpgradeable for uint256;
 
     uint256[] IBTRates;
 

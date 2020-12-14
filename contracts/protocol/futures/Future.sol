@@ -1,10 +1,9 @@
 
-pragma solidity >=0.4.22 <0.7.3;
+pragma solidity >=0.7.0 <0.8.0;
 
-import '@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol';
-import "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
-
+import '@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol';
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "../../interfaces/ERC20.sol";
 import "../../interfaces/IProxyFactory.sol";
 
@@ -19,9 +18,9 @@ import "../../interfaces/apwine/IController.sol";
 import "../../interfaces/apwine/IFutureVault.sol";
 
 
-abstract contract Future is Initializable,AccessControlUpgradeSafe{
+abstract contract Future is Initializable,AccessControlUpgradeable{
 
-    using SafeMath for uint256;
+    using SafeMathUpgradeable for uint256;
 
     /* Structs */
     struct Registration{

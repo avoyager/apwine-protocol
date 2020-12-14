@@ -1,20 +1,19 @@
 
-pragma solidity >=0.4.22 <0.7.3;
+pragma solidity >=0.7.0 <0.8.0;
 
-import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "../interfaces/ERC20.sol";
 import "../interfaces/apwine/IFuture.sol";
 
 
 
-contract FutureVault is Initializable,AccessControlUpgradeSafe{
+contract FutureVault is Initializable,AccessControlUpgradeable{
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant CAVIST_ROLE = keccak256("CAVIST_ROLE");
 
     IFuture private future;
-
 
     /**
     * @notice Intializer

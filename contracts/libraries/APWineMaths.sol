@@ -1,10 +1,10 @@
-pragma solidity >=0.4.22 <0.7.3;
+pragma solidity >=0.7.0 <0.8.0;
 
-import '@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol';
+import '@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol';
 
 library APWineMaths{
 
-    using SafeMath for uint256;
+    using SafeMathUpgradeable for uint256;
 
     function getScaledInput(uint256 _actualValue, uint256 _initialSum, uint256 _actualSum) public pure returns(uint256){
         if  (_initialSum==0) return _actualValue;

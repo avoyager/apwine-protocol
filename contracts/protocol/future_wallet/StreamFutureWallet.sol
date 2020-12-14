@@ -1,8 +1,9 @@
-pragma solidity >=0.4.22 <0.7.3;
+pragma solidity >=0.7.0 <0.8.0;
 
 import "./FutureWallet.sol";
 
 abstract contract StreamFutureWallet is FutureWallet{
+    using SafeMathUpgradeable for uint256;
 
     uint256 private scaledTotal;
     uint256[] private scaledFutureWallets;

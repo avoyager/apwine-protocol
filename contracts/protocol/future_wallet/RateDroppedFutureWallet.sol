@@ -1,10 +1,11 @@
-pragma solidity >=0.4.22 <0.7.3;
+pragma solidity >=0.7.0 <0.8.0;
 
 import "./RateFutureWallet.sol";
 import "./DroppedFutureWallet.sol";
 
 
 abstract contract RateDroppedFutureWallet is RateFutureWallet, DroppedFutureWallet{
+    using SafeMathUpgradeable for uint256;
 
     function initialize(address _futureAddress,address _adminAddress, address _droppedToken) public virtual initializer{
         super.initialize(_futureAddress,_adminAddress);

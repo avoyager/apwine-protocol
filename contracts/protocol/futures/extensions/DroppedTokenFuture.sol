@@ -1,21 +1,21 @@
-// pragma solidity >=0.4.22 <0.7.3;
+// pragma solidity >=0.7.0 <0.8.0;
 
 // import "../../../interfaces/ERC20.sol";
 // import "../../../interfaces/apwine/IAPWineFuture.sol";
-// import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
-// import "@openzeppelin/contracts-ethereum-package/contracts/utils/EnumerableSet.sol";
-// import '@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol';
+// import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol
+// ";// import "@openzeppelin/contracts-upgradeable/utils/EnumerableSetUpgradeableUpgradeable.so";
+// import '@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol';
 
 
 
 
 
 // abstract contract APWineDroppedTokens is Initializable{
-//     using EnumerableSet for EnumerableSet.AddressSet;
-//     using SafeMath for uint256;
+//     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
+//     using SafeMathUpgradeable for uint256;
 
 //     IAPWineFuture public future;
-//     EnumerableSet.AddressSet private tokensDropped;
+//     EnumerableSetUpgradeable.AddressSet private tokensDropped;
 
 //     uint256[] private total;
 

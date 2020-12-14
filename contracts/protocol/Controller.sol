@@ -1,17 +1,12 @@
-pragma solidity >=0.4.22 <0.7.3;
+pragma solidity >=0.7.0 <0.8.0;
 
-import "@openzeppelin/contracts-ethereum-package/contracts/utils/EnumerableSet.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
-import "../oz-upgradability-solc6/upgradeability/ProxyFactory.sol";
-
-
+import "@openzeppelin/contracts-upgradeable/utils/EnumerableSetUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "contracts/interfaces/apwine/tokens/IFutureYieldToken.sol";
 import "contracts/interfaces/apwine/IFuture.sol";
 
 
-
-contract Controller is Initializable, AccessControlUpgradeSafe{
+contract Controller is Initializable, AccessControlUpgradeable{
 
     /* ACR Roles*/
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
@@ -24,9 +19,9 @@ contract Controller is Initializable, AccessControlUpgradeSafe{
     address public FutureYieldTokenLogic;
 
 
-    using EnumerableSet for EnumerableSet.AddressSet;
+    using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
 
-    EnumerableSet.AddressSet private futures;
+    EnumerableSetUpgradeable.AddressSet private futures;
 
     /* Events */
 
