@@ -1,6 +1,6 @@
 pragma solidity >=0.7.0 <0.8.0;
 
-import '../../ERC20.sol';
+import "contracts/interfaces/ERC20.sol";
 
 interface IAPWToken is ERC20{
 
