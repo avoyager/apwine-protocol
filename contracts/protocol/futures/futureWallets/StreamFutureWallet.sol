@@ -14,7 +14,7 @@ abstract contract StreamFutureWallet is FutureWallet{
     }
 
     function registerExpiredFuture(uint256 _amount) public override{
-        require(hasRole(CAVIST_ROLE, msg.sender), "Caller is not allowed to register a harvest");
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to register a harvest");
 
         uint256 currentTotal = ibt.balanceOf(address(this));
 
@@ -35,8 +35,8 @@ abstract contract StreamFutureWallet is FutureWallet{
        return APWineMaths.getActualOutput(scaledOutput,scaledTotal,ibt.balanceOf(address(this))).div(fyt.totalSupply());
     }
 
-    function _updateYieldBalances(uint256 _periodIndex, uint256 _cavistFYT, uint256 _totalFYT) internal override returns(uint256){
-        uint256 scaledOutput = (_cavistFYT.mul(scaledFutureWallets[_periodIndex])).div(_totalFYT);
+    function _updateYieldBalances(uint256 _periodIndex, uint256 _userFYT, uint256 _totalFYT) internal override returns(uint256){
+        uint256 scaledOutput = (_userFYT.mul(scaledFutureWallets[_periodIndex])).div(_totalFYT);
         uint256 claimableYield =  APWineMaths.getActualOutput(scaledOutput,scaledTotal,ibt.balanceOf(address(this)));
         scaledFutureWallets[_periodIndex] = scaledFutureWallets[_periodIndex].sub(scaledOutput);
         scaledTotal = scaledTotal.sub(scaledOutput);

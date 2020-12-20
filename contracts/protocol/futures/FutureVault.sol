@@ -3,15 +3,14 @@ pragma solidity >=0.7.0 <0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "../interfaces/ERC20.sol";
-import "../interfaces/apwine/IFuture.sol";
+import "contracts/interfaces/ERC20.sol";
+import "contracts/interfaces/apwine/IFuture.sol";
 
 
 
 contract FutureVault is Initializable,AccessControlUpgradeable{
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
-    bytes32 public constant CAVIST_ROLE = keccak256("CAVIST_ROLE");
 
     IFuture private future;
 
@@ -24,7 +23,6 @@ contract FutureVault is Initializable,AccessControlUpgradeable{
         ERC20(future.getIBTAddress()).approve(_futureAddress, uint256(-1));
         _setupRole(DEFAULT_ADMIN_ROLE, _adminAddress);
         _setupRole(ADMIN_ROLE, _adminAddress);
-        _setupRole(CAVIST_ROLE, _futureAddress);
     }
 
     function getFutureAddress() public view returns(address){

@@ -12,7 +12,7 @@ abstract contract RateFutureWallet is FutureWallet{
     }
 
     function registerExpiredFuture(uint256 _amount) public override{
-        require(hasRole(CAVIST_ROLE, msg.sender), "Caller is not allowed to register a harvest");
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to register a harvest");
         futureWallets.push(_amount);
     }
 
@@ -23,8 +23,8 @@ abstract contract RateFutureWallet is FutureWallet{
         return (senderTokenBalance.mul(futureWallets[_periodIndex])).div(fyt.totalSupply());
     }
 
-    function _updateYieldBalances(uint256 _periodIndex, uint256 _cavistFYT, uint256 _totalFYT) internal override returns(uint256){
-        uint256 claimableYield = (_cavistFYT.mul(futureWallets[_periodIndex])).div(_totalFYT);
+    function _updateYieldBalances(uint256 _periodIndex, uint256 _userFYT, uint256 _totalFYT) internal override returns(uint256){
+        uint256 claimableYield = (_userFYT.mul(futureWallets[_periodIndex])).div(_totalFYT);
         futureWallets[_periodIndex] = futureWallets[_periodIndex].sub(claimableYield);
         return claimableYield;
     }

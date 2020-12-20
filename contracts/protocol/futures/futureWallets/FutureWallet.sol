@@ -6,11 +6,11 @@ import '@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol';
 import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
-import "../../interfaces/ERC20.sol";
+import "contracts/interfaces/ERC20.sol";
 import "contracts/interfaces/apwine/tokens/IFutureYieldToken.sol";
 import "contracts/interfaces/apwine/IFuture.sol";
 
-import "../../libraries/APWineMaths.sol";
+import "contracts/libraries/APWineMaths.sol";
 
 
 abstract contract FutureWallet is Initializable, AccessControlUpgradeable{
@@ -19,7 +19,6 @@ abstract contract FutureWallet is Initializable, AccessControlUpgradeable{
 
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
-    bytes32 public constant CAVIST_ROLE = keccak256("CAVIST_ROLE");
 
     IFuture public future;
     ERC20 public ibt;
@@ -34,7 +33,6 @@ abstract contract FutureWallet is Initializable, AccessControlUpgradeable{
         ibt =  ERC20(future.getIBTAddress());     
         _setupRole(DEFAULT_ADMIN_ROLE, _adminAddress);
         _setupRole(ADMIN_ROLE, _adminAddress);
-        _setupRole(CAVIST_ROLE, _futureAddress);
     }
 
     /**

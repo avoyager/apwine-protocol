@@ -1,6 +1,6 @@
 pragma solidity >=0.7.0 <0.8.0;
 
-import "../RateFuture.sol";
+import "contracts/protocol/futures/RateFuture.sol";
 import "contracts/interfaces/platforms/compound/ICErc20.sol";
 
 
