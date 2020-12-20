@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "compile": "npx oz compile",
+    "optimize":"npx oz compile --optimizer on --optimizer-runs 2000",
     "test": "mocha --exit --recursive test",
     "deploy": "npx oz deploy",
     "prettier": "prettier --write 'contracts/**/*.sol'"
