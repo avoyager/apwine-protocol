@@ -6,7 +6,8 @@
   "scripts": {
     "compile": "npx oz compile",
     "test": "mocha --exit --recursive test",
-    "deploy": "npx oz deploy"
+    "deploy": "npx oz deploy",
+    "prettier": "prettier --write 'contracts/**/*.sol'"
   },
   "keywords": [],
   "author": "",
@@ -27,6 +28,8 @@
   },
   "devDependencies": {
     "@openzeppelin/test-environment": "0.1.5",
-    "@truffle/hdwallet-provider": "^1.1.0"
+    "@truffle/hdwallet-provider": "^1.1.0",
+    "prettier": "^2.2.1",
+    "prettier-plugin-solidity": "^1.0.0-beta.2"
   }
 }

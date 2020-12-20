@@ -1,9 +1,8 @@
 pragma solidity >=0.7.0 <0.8.0;
 
-import '../../ERC20.sol';
+import "../../ERC20.sol";
 
-interface IAPWineIBT is ERC20{
-
+interface IAPWineIBT is ERC20 {
     /**
      * @dev Destroys `amount` tokens from the caller.
      *
@@ -21,5 +20,4 @@ interface IAPWineIBT is ERC20{
      * - the caller must have the `MINTER_ROLE`.
      */
     function mint(address to, uint256 amount) external;
-
 }
