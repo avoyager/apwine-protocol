@@ -4,14 +4,6 @@ pragma solidity >=0.7.0 <0.8.0;
 interface IController {
     /* Getters */
 
-    function APWineTreasury() external view returns(address);
-
-    function FutureYieldTokenLogic() external view returns(address);
-
-    function APWineProxyFactory() external view returns(address);
-
-    function APWineIBTLogic() external view returns(address);
-
     function STARTING_DELAY() external view returns(uint256);
 
 
@@ -36,30 +28,6 @@ interface IController {
      * @param _futureAddress the address of the future
      */
     function delFuture(address _futureAddress) external;
-
-    /**
-     * @notice Change the APWine treasury contract address
-     * @param _APWineTreasury the address of the new treasury contract
-     */
-    function setTreasuryAddress(address _APWineTreasury) external;
-
-    /**
-     * @notice Change the APWineProxyFactory contract address
-     * @param _APWineProxyFactory the address of the new APWineProxyFactory contract
-     */
-    function setAPWineProxyFactoryAddress(address _APWineProxyFactory) external;
-
-    /**
-     * @notice Change the APWineProxy contract logic address
-     * @param _FutureYieldTokenLogic the address of the new proxy logic
-     */
-    function setFutureYieldTokenLogic(address _FutureYieldTokenLogic) external;
-
-    /**
-     * @notice Change the APWineIBT contract logic address
-     * @param _APWineIBTLogic the address of the new APWineIBTlogic
-     */
-    function setAPWineIBTLogic(address _APWineIBTLogic) external;
 
     /* Future Settings Setters */
 
@@ -123,6 +91,10 @@ interface IController {
      * @return address the future address at index
      */
     function future(uint256 _index) external view returns (address);
+
+
+    function getRoleMember(bytes32 role, uint256 index) external view returns (address);
+
 
 
 }
