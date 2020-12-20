@@ -59,7 +59,6 @@ abstract contract StreamFuture is Future{
             ibt.transfer(address(futureVault), registrationsTotals[nextPeriodID]); // Send ibt to future for the new period
         }
        
-        nextPeriodTimestamp.push(block.timestamp+PERIOD); // Program next switch
         registrationsTotals.push();
         scaledTotals.push();
 
@@ -84,7 +83,7 @@ abstract contract StreamFuture is Future{
     }
 
     function getUnrealisedYield(address _user) public view override returns(uint256){
-        return ((ibt.balanceOf(address(futureVault)).sub(apwibt.totalSupply())).mul(fyts[getNextPeriodIndex()-1].balanceOf(_cavist))).div(fyts[getNextPeriodIndex()-1].totalSupply());
+        return ((ibt.balanceOf(address(futureVault)).sub(apwibt.totalSupply())).mul(fyts[getNextPeriodIndex()-1].balanceOf(_user))).div(fyts[getNextPeriodIndex()-1].totalSupply());
     }
 
 }

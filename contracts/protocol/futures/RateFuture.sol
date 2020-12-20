@@ -13,7 +13,6 @@ import "../tokens/APWineIBT.sol";
 import "../../libraries/APWineMaths.sol";
 
 import "contracts/interfaces/apwine/IFutureWallet.sol";
-import "contracts/interfaces/apwine/IController.sol";
 import "contracts/interfaces/apwine/IFutureWallet.sol";
 import "./Future.sol";
 
@@ -62,7 +61,6 @@ abstract contract RateFuture is Future{
             ibt.transfer(address(futureVault), registrationsTotals[nextPeriodID]); // Send ibt to future for the new period
         }
 
-        nextPeriodTimestamp.push(block.timestamp+PERIOD); // Program next switch
         registrationsTotals.push();
         IBTRates.push();
 

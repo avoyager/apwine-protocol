@@ -152,7 +152,7 @@ contract Controller is Initializable, AccessControlUpgradeable{
     /* future admin function*/
     function registerNewFuture(address _newFuture) futurePlatformDeployerIsValid(msg.sender) public{
         registry.addFuture(_newFuture);
-        uint256 futureDuration = IFuture(_newFuture).PERIOD();
+        uint256 futureDuration = IFuture(_newFuture).PERIOD_DURATION();
         if(!durations.contains(futureDuration)) durations.add(futureDuration);
         registry.addFuture(_newFuture);
         futuresByDuration[futureDuration].add(_newFuture);
@@ -163,7 +163,7 @@ contract Controller is Initializable, AccessControlUpgradeable{
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         require(registry.removeFuture(_future),"invalid future");
 
-        uint256 futureDuration = IFuture(_future).PERIOD();
+        uint256 futureDuration = IFuture(_future).PERIOD_DURATION();
         if(!durations.contains(futureDuration)) durations.remove(futureDuration);
         futuresByDuration[futureDuration].remove(_future);
         emit FutureUnregistered(_future);

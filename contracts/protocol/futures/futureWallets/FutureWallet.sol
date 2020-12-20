@@ -65,7 +65,7 @@ abstract contract FutureWallet is Initializable, AccessControlUpgradeable{
     */  
     function getRedeemableYield(uint256 _periodIndex, address _tokenHolder) public view virtual returns(uint256);
 
-    function _updateYieldBalances(uint256 _periodIndex, uint256 _cavistFYT, uint256 _totalFYT) internal virtual returns(uint256);
+    function _updateYieldBalances(uint256 _periodIndex, uint256 _userFYT, uint256 _totalFYT) internal virtual returns(uint256);
 
 
     /**

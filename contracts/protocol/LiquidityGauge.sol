@@ -12,7 +12,7 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable{
     bytes32 public constant FUTURE_ROLE = keccak256("FUTURE_ROLE");
     bytes32 public constant GAUGE_CONTROLLER_ROLE = keccak256("GAUGE_CONTROLLER_ROLE");
 
-    IAPWineGaugeController private gaugeController;
+    IGaugeController private gaugeController;
     IFuture private future;
 
     uint256 private epochStart;
@@ -35,7 +35,7 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable{
 
 
     function initialize(address _gaugeController, address _future) public initializer{
-        gaugeController = IAPWineGaugeController(_gaugeController);
+        gaugeController = IGaugeController(_gaugeController);
         future = IFuture(_future);
         _setupRole(GAUGE_CONTROLLER_ROLE, _gaugeController);
         _setupRole(FUTURE_ROLE, _future);
