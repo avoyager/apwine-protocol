@@ -60,11 +60,11 @@ contract Controller is Initializable, AccessControlUpgradeable{
 
     /**
      * @notice Initializer of the Controller contract
-     * @param _adminAddress the address of the admin
+     * @param _admin the address of the admin
     */
-    function initialize(address _adminAddress) initializer public {
-        _setupRole(DEFAULT_ADMIN_ROLE, _adminAddress);
-        _setupRole(ADMIN_ROLE, _adminAddress);
+    function initialize(address _admin) initializer public {
+        _setupRole(DEFAULT_ADMIN_ROLE, _admin);
+        _setupRole(ADMIN_ROLE, _admin);
     }
 
     /**
