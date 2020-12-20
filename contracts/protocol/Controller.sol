@@ -6,7 +6,7 @@ import "@openzeppelin/contracts-upgradeable/utils/EnumerableMapUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "contracts/interfaces/apwine/tokens/IFutureYieldToken.sol";
 import "contracts/interfaces/apwine/IFuture.sol";
-import "contracts/protocol/Registry.sol";
+import "contracts/interfaces/apwine/IRegistry.sol";
 
 import "contracts/libraries/APWineNaming.sol";
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
@@ -22,7 +22,7 @@ contract Controller is Initializable, AccessControlUpgradeable{
 
     /* Attributes */
 
-    Registry public registry;
+    IRegistry public registry;
     mapping(uint256=>uint256) private nextPeriodSwitchByDuration; 
 
     mapping(string=>EnumerableSetUpgradeable.UintSet) private platformNames;
@@ -62,9 +62,10 @@ contract Controller is Initializable, AccessControlUpgradeable{
      * @notice Initializer of the Controller contract
      * @param _admin the address of the admin
     */
-    function initialize(address _admin) initializer public {
+    function initialize(address _admin, address _registry) initializer public {
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
         _setupRole(ADMIN_ROLE, _admin);
+        registry = IRegistry(_registry);
     }
 
     /**
