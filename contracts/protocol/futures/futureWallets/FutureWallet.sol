@@ -19,7 +19,6 @@ abstract contract FutureWallet is Initializable, AccessControlUpgradeable{
 
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
-
     IFuture public future;
     ERC20 public ibt;
 
