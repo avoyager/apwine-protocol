@@ -11,23 +11,12 @@ interface IController {
 
     /**
      * @notice Initializer of the Controller contract
-     * @param _adminAddress the address of the admin
+     * @param _admin the address of the admin
     */
-    function initialize(address _adminAddress) external;
+    function initialize(address _admin) external;
 
     /* Public methods */
 
-    /**
-     * @notice Adds a future for everyone to use
-     * @param _futureAddress the address of the future
-     */
-    function addFuture(address _futureAddress) external;
-
-    /**
-     * @notice Removes a future from the registered futures list
-     * @param _futureAddress the address of the future
-     */
-    function delFuture(address _futureAddress) external;
 
     /* Future Settings Setters */
 
@@ -46,6 +35,34 @@ interface IController {
      */
     function register(address _futureAddress, uint256 _amount) external;
 
+    function unregister(address _future,uint256 _amount) external;
+
+    function withdrawLockFunds(address _future, uint256 _amount) external;
+
+    function claimFYT(address _future) external;
+
+    function getFuturesWithClaimableFYT(address _user) external view returns (address[] memory);
+
+    function getRegistery() external view returns(address);
+
+    function getFutureIBTSymbol(string memory _ibtSymbol, string memory _platfrom, uint256 _periodDuration) external pure returns(string memory);
+
+    function getFYTSymbol(string memory _apwibtSymbol, uint256 _periodDuration) external view returns(string memory);
+
+    function getPeriodIndex(uint256 _periodDuration) external view returns(uint256);
+
+    function getNextPeriodStart(uint256 _periodDuration) external view returns(uint256);
+
+
+    function registerNewFuture(address _newFuture) external;
+
+    function unregisterFuture(address _future) external;
+
+    function startFuturesByPeriodDuration(uint256 _periodDuration) external ;
+
+    function getFuturesWithDuration(uint256 _periodDuration) external view returns(address[] memory) ;
+
+
     /**
      * @notice Register the sender to the corresponding future
      * @param _user the address of the user
@@ -55,45 +72,11 @@ interface IController {
 
     /* Views */
 
-    /**
-     * @notice Checks whether the address is a valid future
-     * @return bool true if the given future is valid
-     */
-    function isRegisteredFuture(address _futureAddress) external view returns (bool);
-
-
-    /**
-     * @notice Checks whether the address is a valid future
-     * @param _user the address of the user
-     * @return array of futures addresses where the user can claim fyt
-     * @dev shouldn't be called in a contract
-     */
-    function getFutureWithClaimableFYT(address _user) external view returns (address[] memory);
-
-
-    /**
-     * @notice Checks whether the address is a valid future
-     * @param _user the address of the user
-     * @return array of futures addresses where the user can claim ibt
-     * @dev shouldn't be called in a contract
-     */
-    function getFutureWithClaimableAPWIBT(address _user) external view returns (address[] memory);
-
-    /**
-     * @notice Number of future
-     * @return uint256 the number of future
-     */
-    function futureCount() external view returns (uint256);
-
-    /**
-     * @notice View available future
-     * @param _index index of the future to retrieve
-     * @return address the future address at index
-     */
-    function future(uint256 _index) external view returns (address);
-
-
     function getRoleMember(bytes32 role, uint256 index) external view returns (address);
+
+    function pauseFuture(address _future) external;
+
+    function resumeFuture(address _future) external;
 
 
 
