@@ -4,19 +4,19 @@ pragma solidity >=0.7.0 <0.8.0;
 import '@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol';
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
+
 import "../../interfaces/ERC20.sol";
 import "../../interfaces/IProxyFactory.sol";
-
-import "../tokens/FutureYieldToken.sol";
+import "contracts/interfaces/apwine/tokens/IFutureYieldToken.sol";
 import "../../libraries/APWineMaths.sol";
 import "../../libraries/APWineNaming.sol";
 
-import "../tokens/APWineIBT.sol";
-
+import "contracts/interfaces/apwine/tokens/IAPWineIBT.sol";
 import "../../interfaces/apwine/IFutureWallet.sol";
-import "contracts/protocol/Controller.sol";
+import "contracts/interfaces/apwine/IController.sol";
 import "../../interfaces/apwine/IFutureVault.sol";
-import "contracts/protocol/LiquidityGauge.sol";
+import "contracts/interfaces/apwine/ILiquidityGauge.sol";
+import "contracts/interfaces/apwine/IRegistry.sol";
 
 
 
@@ -40,16 +40,16 @@ abstract contract Future is Initializable,AccessControlUpgradeable{
     /* State variables */
     mapping(address=>uint256) internal lastPeriodClaimed;
     mapping(address=>Registration) internal registrations;
-    FutureYieldToken[] public fyts;
+    IFutureYieldToken[] public fyts;
 
 
     /* External contracts */
     IFutureVault internal futureVault;
     IFutureWallet internal futureWallet;
-    LiquidityGauge internal liquidityGauge;
+    ILiquidityGauge internal liquidityGauge;
     ERC20 internal ibt;
-    APWineIBT internal apwibt;
-    Controller internal controller;
+    IAPWineIBT internal apwibt;
+    IController internal controller;
 
     /* Settings */
     uint256 public PERIOD_DURATION;
@@ -74,7 +74,7 @@ abstract contract Future is Initializable,AccessControlUpgradeable{
 
     /* Initializer */
     function initialize(address _controller, address _ibt, uint256 _periodDuration, string memory _platformName,address _admin) public initializer virtual{
-        controller =  Controller(_controller);
+        controller =  IController(_controller);
         ibt = ERC20(_ibt);
         PERIOD_DURATION = _periodDuration * (1 days);
         PLATFORM_NAME=_platformName;
@@ -87,10 +87,10 @@ abstract contract Future is Initializable,AccessControlUpgradeable{
         registrationsTotals.push();
         fyts.push();
 
-        Registry registery = Registry(controller.getRegistery());
+        IRegistry registery = IRegistry(controller.getRegistery());
         string memory ibtSymbol = controller.getFutureIBTSymbol(ibt.symbol(),_platformName,_periodDuration);
         bytes memory payload = abi.encodeWithSignature("initialize(string,string,address)", ibtSymbol, ibtSymbol, address(this));
-        apwibt = APWineIBT(IProxyFactory(registery.getProxyFactoryAddress()).deployMinimal(registery.getAPWineIBTLogicAddress(), payload));
+        apwibt = IAPWineIBT(IProxyFactory(registery.getProxyFactoryAddress()).deployMinimal(registery.getAPWineIBTLogicAddress(), payload));
     }
 
     /* Period functions */
@@ -178,15 +178,15 @@ abstract contract Future is Initializable,AccessControlUpgradeable{
         fyts[getNextPeriodIndex()-1].burn(_amount);
 
         ibt.transferFrom(address(futureVault), _user, fundsToBeUnlocked); // only send locked, TODO Send Yield
-        ibt.transferFrom(address(futureVault), Registry(controller.getRegistery()).getTreasuryAddress(),unrealisedYield);
+        ibt.transferFrom(address(futureVault), IRegistry(controller.getRegistery()).getTreasuryAddress(),unrealisedYield);
     }
 
     /* Utilitaries functions */
     function deployFutureYieldToken() internal returns(address){
-        Registry registery = Registry(controller.getRegistery());
+        IRegistry registery = IRegistry(controller.getRegistery());
         string memory tokenDenomination = controller.getFYTSymbol(apwibt.symbol(), PERIOD_DURATION);
         bytes memory payload = abi.encodeWithSignature("initialize(string,string,address)", tokenDenomination, tokenDenomination, address(this));
-        FutureYieldToken newToken = FutureYieldToken(IProxyFactory(registery.getProxyFactoryAddress()).deployMinimal(registery.getFYTLogicAddress(), payload));
+        IFutureYieldToken newToken = IFutureYieldToken(IProxyFactory(registery.getProxyFactoryAddress()).deployMinimal(registery.getFYTLogicAddress(), payload));
         fyts.push(newToken);
         newToken.mint(address(this),apwibt.totalSupply().mul(10**( uint256(18-ibt.decimals()) ))); 
         return address(newToken);
@@ -262,7 +262,7 @@ abstract contract Future is Initializable,AccessControlUpgradeable{
     
     function setLiquidityGauge(address _liquidityGauge) public{ //TODO check if set before start
         require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to set the liquidity gauge address");
-        liquidityGauge = LiquidityGauge(_liquidityGauge);
+        liquidityGauge = ILiquidityGauge(_liquidityGauge);
     }
 
     /* Security functions */

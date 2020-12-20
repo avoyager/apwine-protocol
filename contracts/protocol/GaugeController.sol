@@ -7,7 +7,7 @@ import "@openzeppelin/contracts-upgradeable/utils/EnumerableSetUpgradeable.sol";
 
 import "contracts/interfaces/apwine/ILiquidityGauge.sol";
 import "contracts/interfaces/apwine/tokens/IAPWToken.sol";
-import "contracts/protocol/Registry.sol";
+import "contracts/interfaces/apwine/IRegistry.sol";
 import "contracts/interfaces/IProxyFactory.sol";
 
 contract GaugeController is Initializable, AccessControlUpgradeable{
@@ -29,14 +29,14 @@ contract GaugeController is Initializable, AccessControlUpgradeable{
     /* Addresses */
     EnumerableSetUpgradeable.AddressSet private liquidityGauges;
     IAPWToken private apw;
-    Registry registery;
+    IRegistry registery;
 
     event LiquidityGaugeRegistered(address _future, address _newLiquidityGauge);
 
     function initialize(address _ADMIN, address _APW, address _registry) public initializer{
         _setupRole(DEFAULT_ADMIN_ROLE, _ADMIN);
         _setupRole(ADMIN_ROLE, _ADMIN);
-        registery = Registry(_registry);
+        registery = IRegistry(_registry);
         apw = IAPWToken(_APW);
     }
 

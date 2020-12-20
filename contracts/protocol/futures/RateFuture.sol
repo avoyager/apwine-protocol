@@ -6,14 +6,9 @@ import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
 import "../../interfaces/ERC20.sol";
-
-
-import "../tokens/FutureYieldToken.sol";
-import "../tokens/APWineIBT.sol";
 import "../../libraries/APWineMaths.sol";
-
 import "contracts/interfaces/apwine/IFutureWallet.sol";
-import "contracts/interfaces/apwine/IFutureWallet.sol";
+import "contracts/interfaces/apwine/tokens/IAPWineIBT.sol";
 import "./Future.sol";
 
 abstract contract RateFuture is Future{
