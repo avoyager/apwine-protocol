@@ -38,18 +38,18 @@ interface IRegistry {
 
     function getFYTLogicAddress() external view returns (address);
 
-    function addFuturePlatformDeployer(address _futurePlatformDeployer, string memory _futurePlatformDeployerName) external;
+    function addFutureFactory(address _futureFactory, string memory _futureFactoryName) external;
 
-    function isRegisteredFuturePlatformDeployer(address _futurePlatformDeployer) external view returns (bool);
+    function isRegisteredFutureFactory(address _futureFactory) external view returns (bool);
 
-    function getFuturePlatformDeployerAt(uint256 _index) external view returns (address);
+    function getFutureFactoryAt(uint256 _index) external view returns (address);
 
-    function futurePlatformDeployerCount() external view returns (uint256);
+    function futureFactoryCount() external view returns (uint256);
 
-    function getFuturePlatformDeployerName(address _futurePlatformDeployer) external view returns (string memory);
+    function getFutureFactoryName(address _futureFactory) external view returns (string memory);
 
     function addFuturePlatform(
-        address _futurePlatformDeployer,
+        address _futureFactory,
         string memory _futurePlatformName,
         address _future,
         address _futureWallet,

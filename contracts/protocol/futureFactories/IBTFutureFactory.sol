@@ -15,20 +15,10 @@ import "contracts/interfaces/apwine/IRegistry.sol";
 import "contracts/interfaces/apwine/IController.sol";
 import "contracts/interfaces/apwine/IGaugeController.sol";
 
-abstract contract FuturePlatformDeployer is Initializable, AccessControlUpgradeable {
+import "./FutureFactory.sol";
+
+abstract contract IBTFutureFactory is FutureFactory {
     using SafeMathUpgradeable for uint256;
-
-    /* ACR */
-    bytes32 public constant FUTURE_DEPLOYER = keccak256("FUTURE_DEPLOYER");
-    bytes32 public constant CONTROLLER_ROLE = keccak256("CONTROLLER_ROLE");
-
-    IController private controller;
-
-    function initialize(address _controller, address _admin) public initializer {
-        _setupRole(DEFAULT_ADMIN_ROLE, _admin);
-        _setupRole(CONTROLLER_ROLE, _controller);
-        controller = IController(_controller);
-    }
 
     function deployFutureWithIBT(
         string memory _futurePlatformName,

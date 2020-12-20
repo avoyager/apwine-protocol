@@ -36,8 +36,8 @@ contract Registry is Initializable, AccessControlUpgradeable {
     mapping(address => string) private futureName;
 
     /* Futures Platforms Contracts */
-    EnumerableSetUpgradeable.AddressSet private futurePlatformsDeployer;
-    mapping(address => string) private futurePlatformsDeployerNames;
+    EnumerableSetUpgradeable.AddressSet private futureFactories;
+    mapping(address => string) private futureFactoriesNames;
 
     string[] private futurePlatformsNames;
     mapping(string => address) private futurePlatformToDeployer;
@@ -162,27 +162,27 @@ contract Registry is Initializable, AccessControlUpgradeable {
     }
 
     /* Futures Deployer */
-    function addFuturePlatformDeployer(address _futurePlatformDeployer, string memory _futurePlatformDeployerName) public {
+    function addFutureFactory(address _futurePlatformDeployer, string memory _futurePlatformDeployerName) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        futurePlatformsDeployer.add(_futurePlatformDeployer);
-        futurePlatformsDeployerNames[_futurePlatformDeployer] = _futurePlatformDeployerName;
+        futureFactories.add(_futurePlatformDeployer);
+        futureFactoriesNames[_futurePlatformDeployer] = _futurePlatformDeployerName;
     }
 
-    function isRegisteredFuturePlatformDeployer(address _futurePlatformDeployer) public view returns (bool) {
-        return futurePlatformsDeployer.contains(_futurePlatformDeployer);
+    function isRegisteredFutureFactory(address _futurePlatformDeployer) public view returns (bool) {
+        return futureFactories.contains(_futurePlatformDeployer);
     }
 
-    function getFuturePlatformDeployerAt(uint256 _index) external view returns (address) {
-        return futurePlatformsDeployer.at(_index);
+    function getFutureFactoryAt(uint256 _index) external view returns (address) {
+        return futureFactories.at(_index);
     }
 
     function futurePlatformDeployerCount() external view returns (uint256) {
-        return futurePlatformsDeployer.length();
+        return futureFactories.length();
     }
 
-    function getFuturePlatformDeployerName(address _futurePlatformDeployer) external view returns (string memory) {
-        require(futurePlatformsDeployer.contains(_futurePlatformDeployer), "invalid future platform deployer");
-        return futurePlatformsDeployerNames[_futurePlatformDeployer];
+    function getFutureFactoryName(address _futurePlatformDeployer) external view returns (string memory) {
+        require(futureFactories.contains(_futurePlatformDeployer), "invalid future platform deployer");
+        return futureFactoriesNames[_futurePlatformDeployer];
     }
 
     /* Future Platform */
@@ -194,7 +194,7 @@ contract Registry is Initializable, AccessControlUpgradeable {
         address _futureVault
     ) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        require(futurePlatformsDeployer.contains(_futurePlatformDeployer), "invalid future platfrom deployer address");
+        require(futureFactories.contains(_futurePlatformDeployer), "invalid future platfrom deployer address");
 
         futurePlatform memory newFuturePlaform =
             futurePlatform({futureVault: _futureVault, futureWallet: _futureWallet, future: _future});

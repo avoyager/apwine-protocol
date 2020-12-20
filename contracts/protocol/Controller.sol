@@ -48,9 +48,9 @@ contract Controller is Initializable, AccessControlUpgradeable {
         _;
     }
 
-    modifier futurePlatformDeployerIsValid(address _futurePlatformDeployerAddress) {
+    modifier futureFactoryIsValid(address _futureFactoryAddress) {
         require(
-            registry.isRegisteredFuturePlatformDeployer(_futurePlatformDeployerAddress),
+            registry.isRegisteredFutureFactory(_futureFactoryAddress),
             "incorrect futurePlatform address"
         );
         _;
@@ -153,7 +153,7 @@ contract Controller is Initializable, AccessControlUpgradeable {
     }
 
     /* future admin function*/
-    function registerNewFuture(address _newFuture) public futurePlatformDeployerIsValid(msg.sender) {
+    function registerNewFuture(address _newFuture) public futureFactoryIsValid(msg.sender) {
         registry.addFuture(_newFuture);
         uint256 futureDuration = IFuture(_newFuture).PERIOD_DURATION();
         if (!durations.contains(futureDuration)) durations.add(futureDuration);
