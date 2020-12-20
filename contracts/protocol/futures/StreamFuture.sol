@@ -8,8 +8,8 @@ abstract contract StreamFuture is Future{
 
     uint256[] scaledTotals;
   
-    function initialize(address _controllerAddress, address _ibt, uint256 _periodLength,string memory _periodDenominator, string memory _platform, string memory _tokenName, string memory _tokenSymbol,address _adminAddress) public initializer virtual override{
-        super.initialize(_controllerAddress,_ibt,_periodLength,_periodDenominator,_platform,_tokenName,_tokenSymbol,_adminAddress);
+    function initialize(address _controllerAddress, address _ibt, uint256 _periodLength, string memory _platform,address _adminAddress) public initializer virtual override{
+        super.initialize(_controllerAddress,_ibt,_periodLength,_platform,_adminAddress);
         scaledTotals.push();
         scaledTotals.push();
     }
@@ -20,28 +20,30 @@ abstract contract StreamFuture is Future{
         scaledTotals[getNextPeriodIndex()] = scaledTotals[getNextPeriodIndex()].add(scaledInput);
     }
 
-    function unregister(uint256 _amount) public virtual override{
+    function unregister(address _user,uint256 _amount) public virtual override{
+        require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to unregister");
+
         uint256 nextIndex = getNextPeriodIndex();
-        require(registrations[msg.sender].startIndex == nextIndex, "There is no ongoing registration for the next period");
-        uint256 userScaledBalance = registrations[msg.sender].scaledBalance;
+        require(registrations[_user].startIndex == nextIndex, "There is no ongoing registration for the next period");
+        uint256 userScaledBalance = registrations[_user].scaledBalance;
         uint256 currentRegistered = APWineMaths.getActualOutput(userScaledBalance, scaledTotals[nextIndex], ibt.balanceOf(address(this)));
         uint256 scaledToUnregister;
         if(_amount == 0){
             require(currentRegistered>0,"Invalid amount to unregister");
             scaledToUnregister = userScaledBalance;
-            delete registrations[msg.sender];
-            ibt.transfer(msg.sender, currentRegistered);
+            delete registrations[_user];
+            ibt.transfer(_user, currentRegistered);
         }else{
             require(currentRegistered>=_amount,"Invalid amount to unregister");
-            scaledToUnregister = (registrations[msg.sender].scaledBalance.mul(_amount)).div(currentRegistered);
-            registrations[msg.sender].scaledBalance = registrations[msg.sender].scaledBalance.sub(scaledToUnregister);
-            ibt.transfer(msg.sender, _amount);
+            scaledToUnregister = (registrations[_user].scaledBalance.mul(_amount)).div(currentRegistered);
+            registrations[_user].scaledBalance = registrations[_user].scaledBalance.sub(scaledToUnregister);
+            ibt.transfer(_user, _amount);
         }
         scaledTotals[nextIndex]= scaledTotals[nextIndex].sub(scaledToUnregister);
     }
 
     function startNewPeriod() public virtual override nextPeriodAvailable periodsActive{
-        require(hasRole(CAVIST_ROLE, msg.sender), "Caller is not allowed to register a harvest");
+        require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to register a harvest");
 
         uint256 nextPeriodID = getNextPeriodIndex();
 
@@ -81,7 +83,7 @@ abstract contract StreamFuture is Future{
         return APWineMaths.getActualOutput(registrations[_user].scaledBalance, scaledTotals[registrations[_user].startIndex], registrationsTotals[registrations[_user].startIndex]);
     }
 
-    function getUnrealisedYield(address _cavist) public view override returns(uint256){
+    function getUnrealisedYield(address _user) public view override returns(uint256){
         return ((ibt.balanceOf(address(futureVault)).sub(apwibt.totalSupply())).mul(fyts[getNextPeriodIndex()-1].balanceOf(_cavist))).div(fyts[getNextPeriodIndex()-1].totalSupply());
     }
 

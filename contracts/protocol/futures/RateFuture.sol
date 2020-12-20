@@ -23,27 +23,27 @@ abstract contract RateFuture is Future{
 
     uint256[] IBTRates;
 
-    function initialize(address _controllerAddress, address _ibt, uint256 _periodLength,string memory _periodDenominator,string memory _platform, string memory _tokenName, string memory _tokenSymbol,address _adminAddress) public initializer virtual override{
-        super.initialize(_controllerAddress,_ibt,_periodLength,_periodDenominator,_platform,_tokenName,_tokenSymbol,_adminAddress);
+    function initialize(address _controllerAddress, address _ibt, uint256 _periodLength,string memory _platform,address _adminAddress) public initializer virtual override{
+        super.initialize(_controllerAddress,_ibt,_periodLength,_platform,_adminAddress);
         IBTRates.push();
         IBTRates.push();
     }
 
-    function unregister(uint256 _amount) public virtual override{
+    function unregister(address _user,uint256 _amount) public virtual override{
+        require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to unregister");
+
         uint256 nextIndex = getNextPeriodIndex();
-        require(registrations[msg.sender].startIndex == nextIndex, "The is not ongoing registration for the next period");
-        uint256 currentRegistered = registrations[msg.sender].scaledBalance;
+        require(registrations[_user].startIndex == nextIndex, "The is not ongoing registration for the next period");
+        uint256 currentRegistered = registrations[_user].scaledBalance;
         require(currentRegistered>=_amount,"Invalid amount to unregister");
 
-        registrations[msg.sender].scaledBalance = registrations[msg.sender].scaledBalance.sub(currentRegistered);
-
-        ibt.transfer(msg.sender, _amount);
-
+        registrations[_user].scaledBalance = registrations[_user].scaledBalance.sub(currentRegistered);
+        ibt.transfer(_user, _amount);
     }
 
 
     function startNewPeriod() public virtual override nextPeriodAvailable periodsActive{
-        require(hasRole(CAVIST_ROLE, msg.sender), "Caller is not allowed to register a harvest");
+        require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to register a harvest");
 
         uint256 nextPeriodID = getNextPeriodIndex();
         uint256 currentRate = getIBTRate();
@@ -80,7 +80,7 @@ abstract contract RateFuture is Future{
         }
     }
 
-    function scaleIBTAmount(uint256 _initialAmount, uint256 _initialRate, uint256 _newRate) public view returns(uint256){
+    function scaleIBTAmount(uint256 _initialAmount, uint256 _initialRate, uint256 _newRate) public pure returns(uint256){
         return (_initialAmount.mul(_initialRate)).div(_newRate);
     }
 

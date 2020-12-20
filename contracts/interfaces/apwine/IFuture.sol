@@ -19,61 +19,69 @@ interface IFuture{
     * @notice Getter for the PERIOD future parameter
     * @return returns the period length of the future
     */  
-    function PERIOD() external view returns(uint256);
+    function PERIOD_DURATION() external view returns(uint256);
 
     /**
-    * @notice Getter for the PLATFORM future parameter
+    * @notice Getter for the PLATFORM_NAME future parameter
     * @return returns the platform of the future
     */  
-    function PLATFORM() external view returns(uint256);
+    function PLATFORM_NAME() external view returns(uint256);
 
 
     /**
     * @notice Intializer
-    * @param _controllerAddress the address of the controller
+    * @param _controller the address of the controller
     * @param _ibt the address of the corresponding ibt
-    * @param _periodLength the length of the period (in days)
-    * @param _platform the name of the platform and tools
-    * @param _tokenName the APWineIBT name
-    * @param _tokenSymbol the APWineIBT symbol
-    * @param _adminAddress the address of the ACR admin
+    * @param _periodDuration the length of the period (in days)
+    * @param _platformName the name of the platform and tools
+    * @param _admin the address of the ACR admin
     */  
-    function initialize(address _controllerAddress, address _ibt, uint256 _periodLength,string memory _platform,string memory _tokenName, string memory _tokenSymbol,address _adminAddress) external;
+    function initialize(address _controller, address _ibt, uint256 _periodDuration, string memory _platformName,address _admin) external;
 
     /**
     * @notice Set future wallet address
-    * @param _futureVaultAddress the address of the new future wallet
+    * @param _futureVault the address of the new future wallet
     * @dev needs corresponding permissions for sender
     */
-    function setFutureVault(address _futureVaultAddress) external;
+    function setFutureVault(address _futureVault) external;
 
     /**
     * @notice Set futureWallet address
-    * @param _futureWalletAddress the address of the new futureWallet
+    * @param _futureWallet the address of the new futureWallet
     * @dev needs corresponding permissions for sender
     */
-    function setFutureWallet(address _futureWalletAddress) external;
+    function setFutureWallet(address _futureWallet) external;
+
+    /**
+    * @notice Set liquidity gauge address
+    * @param _liquidityGauge the address of the new liquidity gauge
+    * @dev needs corresponding permissions for sender
+    */
+    function setLiquidityGauge(address _liquidityGauge) external;
+
 
     /**
     * @notice Sender registers an amount of ibt for the next period
-    * @param _winegrower address to register to the future
+    * @param _user address to register to the future
     * @param _amount amount of ibt to be registered
     * @dev called by the controller only
     */
-    function register(address _winegrower ,uint256 _amount) external;
+    function register(address _user ,uint256 _amount) external;
 
     /**
     * @notice Sender unregisters an amount of ibt for the next period
+    * @param _user user addresss
     * @param _amount amount of ibt to be unregistered
     */
-    function unregister(uint256 _amount) external;
+    function unregister(address _user,uint256 _amount) external;
 
     /**
     * @notice Sender unlock the locked funds corresponding to its apwibt holding
+    * @param _user user adress
     * @param _amount amount of funds to unlocked
     * @dev will require transfer of fyt of the oingoing period corresponding to the funds unlocked
     */
-    function withdrawLockFunds(uint _amount) external;
+    function withdrawLockFunds(address _user, uint _amount) external;
 
     /**
     * @notice Send the user its owed fyt (and apwibt if there are some claimable)
@@ -83,19 +91,9 @@ interface IFuture{
 
     /**
     * @notice Start a new period
-    * @param _tokenName name for the new fyt
-    * @param _tokenSymbol name for the new fyt
     * @dev needs corresponding permissions for sender
     */
-    function startNewPeriod(string memory _tokenName, string memory _tokenSymbol) external;
-
-    /**
-    * @notice set the timestamp to start the next period
-    * @param _nextPeriodTimestamp the timestamp to start the next period
-    * @dev needs corresponding permissions for sender
-    */
-    function setNextPeriodTimestamp(uint256 _nextPeriodTimestamp) external;
-
+    function startNewPeriod() external;
 
     /**
     * @notice Check if a user has fyt not claimed
@@ -149,13 +147,6 @@ interface IFuture{
     * @dev index starts at 1
     */
     function getNextPeriodIndex() external view returns(uint256);
-
-    /**
-    * @notice Getter for next period timestamp
-    * @return next period begining timestamp
-    */
-    function getNextPeriodTimestamp() external view returns(uint256);
-
 
     /**
     * @notice Getter for future wallet address
