@@ -22,11 +22,7 @@ abstract contract FutureWallet is Initializable, AccessControlUpgradeable {
      * @param _futureAddress the address of the corresponding future
      * @param _adminAddress the address of the ACR admin
      */
-    function initialize(address _futureAddress, address _adminAddress)
-        public
-        virtual
-        initializer
-    {
+    function initialize(address _futureAddress, address _adminAddress) public virtual initializer {
         future = IFuture(_futureAddress);
         ibt = ERC20(future.getIBTAddress());
         _setupRole(DEFAULT_ADMIN_ROLE, _adminAddress);
@@ -44,28 +40,13 @@ abstract contract FutureWallet is Initializable, AccessControlUpgradeable {
      * @param _periodIndex the index of the period to redeem the yield from
      */
     function redeemYield(uint256 _periodIndex) public virtual {
-        require(
-            _periodIndex < future.getNextPeriodIndex() - 1,
-            "Invalid period index"
-        );
-        IFutureYieldToken fyt =
-            IFutureYieldToken(future.getFYTofPeriod(_periodIndex));
+        require(_periodIndex < future.getNextPeriodIndex() - 1, "Invalid period index");
+        IFutureYieldToken fyt = IFutureYieldToken(future.getFYTofPeriod(_periodIndex));
         uint256 senderTokenBalance = fyt.balanceOf(msg.sender);
-        require(
-            senderTokenBalance > 0,
-            "FYT sender balance should not be null"
-        );
-        require(
-            fyt.transferFrom(msg.sender, address(this), senderTokenBalance),
-            "Failed transfer"
-        );
+        require(senderTokenBalance > 0, "FYT sender balance should not be null");
+        require(fyt.transferFrom(msg.sender, address(this), senderTokenBalance), "Failed transfer");
 
-        uint256 claimableYield =
-            _updateYieldBalances(
-                _periodIndex,
-                senderTokenBalance,
-                fyt.totalSupply()
-            );
+        uint256 claimableYield = _updateYieldBalances(_periodIndex, senderTokenBalance, fyt.totalSupply());
 
         ibt.transfer(msg.sender, claimableYield);
         fyt.burn(senderTokenBalance);
@@ -77,11 +58,7 @@ abstract contract FutureWallet is Initializable, AccessControlUpgradeable {
      * @param _tokenHolder the fyt holder
      * @return the yield that could be redeemed by the token holder for this period
      */
-    function getRedeemableYield(uint256 _periodIndex, address _tokenHolder)
-        public
-        view
-        virtual
-        returns (uint256);
+    function getRedeemableYield(uint256 _periodIndex, address _tokenHolder) public view virtual returns (uint256);
 
     function _updateYieldBalances(
         uint256 _periodIndex,

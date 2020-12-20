@@ -26,17 +26,11 @@ contract FutureYieldToken is ERC20PresetMinterPauserUpgradeable {
         uint256 amount
     ) public virtual override returns (bool) {
         _transfer(sender, recipient, amount);
-        if (
-            recipient != future &&
-            recipient != IFuture(future).getFutureWalletAddress()
-        ) {
+        if (recipient != future && recipient != IFuture(future).getFutureWalletAddress()) {
             _approve(
                 sender,
                 _msgSender(),
-                allowance(sender, _msgSender()).sub(
-                    amount,
-                    "ERC20: transfer amount exceeds allowance"
-                )
+                allowance(sender, _msgSender()).sub(amount, "ERC20: transfer amount exceeds allowance")
             );
         }
         return true;

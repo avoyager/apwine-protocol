@@ -38,10 +38,7 @@ interface IController {
 
     function claimFYT(address _future) external;
 
-    function getFuturesWithClaimableFYT(address _user)
-        external
-        view
-        returns (address[] memory);
+    function getFuturesWithClaimableFYT(address _user) external view returns (address[] memory);
 
     function getRegistery() external view returns (address);
 
@@ -51,20 +48,11 @@ interface IController {
         uint256 _periodDuration
     ) external pure returns (string memory);
 
-    function getFYTSymbol(string memory _apwibtSymbol, uint256 _periodDuration)
-        external
-        view
-        returns (string memory);
+    function getFYTSymbol(string memory _apwibtSymbol, uint256 _periodDuration) external view returns (string memory);
 
-    function getPeriodIndex(uint256 _periodDuration)
-        external
-        view
-        returns (uint256);
+    function getPeriodIndex(uint256 _periodDuration) external view returns (uint256);
 
-    function getNextPeriodStart(uint256 _periodDuration)
-        external
-        view
-        returns (uint256);
+    function getNextPeriodStart(uint256 _periodDuration) external view returns (uint256);
 
     function registerNewFuture(address _newFuture) external;
 
@@ -72,25 +60,18 @@ interface IController {
 
     function startFuturesByPeriodDuration(uint256 _periodDuration) external;
 
-    function getFuturesWithDuration(uint256 _periodDuration)
-        external
-        view
-        returns (address[] memory);
+    function getFuturesWithDuration(uint256 _periodDuration) external view returns (address[] memory);
 
     /**
      * @notice Register the sender to the corresponding future
      * @param _user the address of the user
      * @param _futureAddress the addresses of the futures to claim the fyts from
      */
-    function claimSelectedYield(address _user, address[] memory _futureAddress)
-        external;
+    function claimSelectedYield(address _user, address[] memory _futureAddress) external;
 
     /* Views */
 
-    function getRoleMember(bytes32 role, uint256 index)
-        external
-        view
-        returns (address);
+    function getRoleMember(bytes32 role, uint256 index) external view returns (address);
 
     function pauseFuture(address _future) external;
 

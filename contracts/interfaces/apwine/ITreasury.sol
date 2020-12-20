@@ -9,7 +9,5 @@ interface ITreasury {
         uint256 _amount
     ) external;
 
-    function sendEther(address payable _recipient, uint256 _amount)
-        external
-        payable;
+    function sendEther(address payable _recipient, uint256 _amount) external payable;
 }

@@ -10,8 +10,7 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable {
     using SafeMathUpgradeable for uint256;
 
     bytes32 public constant FUTURE_ROLE = keccak256("FUTURE_ROLE");
-    bytes32 public constant GAUGE_CONTROLLER_ROLE =
-        keccak256("GAUGE_CONTROLLER_ROLE");
+    bytes32 public constant GAUGE_CONTROLLER_ROLE = keccak256("GAUGE_CONTROLLER_ROLE");
 
     IGaugeController private gaugeController;
     IFuture private future;
@@ -34,10 +33,7 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable {
     event LiquidityRemoved(uint256 _amout, uint256 _current);
     event APWRedeemed(address _user, uint256 _amount);
 
-    function initialize(address _gaugeController, address _future)
-        public
-        initializer
-    {
+    function initialize(address _gaugeController, address _future) public initializer {
         gaugeController = IGaugeController(_gaugeController);
         future = IFuture(_future);
         _setupRole(GAUGE_CONTROLLER_ROLE, _gaugeController);
@@ -47,34 +43,22 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable {
 
     function registerNewFutureLiquidity(uint256 _amount) public {
         require(_amount > 0, "Amount must not be zero");
-        require(
-            hasRole(FUTURE_ROLE, msg.sender),
-            "Caller is not the corresponding future"
-        );
+        require(hasRole(FUTURE_ROLE, msg.sender), "Caller is not the corresponding future");
         updateInflatedVolume();
-        totalDepositedSupply[
-            totalDepositedSupply.length - 1
-        ] = totalDepositedSupply[totalDepositedSupply.length - 1].add(_amount);
-        emit LiquidityAdded(
-            _amount,
-            totalDepositedSupply[totalDepositedSupply.length - 1]
+        totalDepositedSupply[totalDepositedSupply.length - 1] = totalDepositedSupply[totalDepositedSupply.length - 1].add(
+            _amount
         );
+        emit LiquidityAdded(_amount, totalDepositedSupply[totalDepositedSupply.length - 1]);
     }
 
     function unregisterFutureLiquidity(uint256 _amount) public {
         require(_amount > 0, "Amount must not be zero");
-        require(
-            hasRole(FUTURE_ROLE, msg.sender),
-            "Caller is not the corresponding future"
-        );
+        require(hasRole(FUTURE_ROLE, msg.sender), "Caller is not the corresponding future");
         updateInflatedVolume();
-        totalDepositedSupply[
-            totalDepositedSupply.length - 1
-        ] = totalDepositedSupply[totalDepositedSupply.length - 1].sub(_amount);
-        emit LiquidityRemoved(
-            _amount,
-            totalDepositedSupply[totalDepositedSupply.length - 1]
+        totalDepositedSupply[totalDepositedSupply.length - 1] = totalDepositedSupply[totalDepositedSupply.length - 1].sub(
+            _amount
         );
+        emit LiquidityRemoved(_amount, totalDepositedSupply[totalDepositedSupply.length - 1]);
     }
 
     function redeemAPW(address _user) public {
@@ -90,20 +74,14 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable {
     function updateInflatedVolume() public {
         newInflatedVolume.push(getLastInflatedAmount());
         updatesTimestamp.push(block.timestamp);
-        totalDepositedSupply.push(
-            totalDepositedSupply[totalDepositedSupply.length - 1]
-        );
+        totalDepositedSupply.push(totalDepositedSupply[totalDepositedSupply.length - 1]);
     }
 
     function getLastInflatedAmount() public view returns (uint256) {
         return
             (
                 (gaugeController.getLastEpochInflationRate().mul(supplyStart))
-                    .mul(
-                    block.timestamp.sub(
-                        updatesTimestamp[updatesTimestamp.length - 1]
-                    )
-                )
+                    .mul(block.timestamp.sub(updatesTimestamp[updatesTimestamp.length - 1]))
                     .mul(gaugeController.getGaugeWeight())
                     .mul(gaugeController.getGaugeTypeWeight())
             )
@@ -112,86 +90,48 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable {
 
     function getUserRedeemable(address _user) external view returns (uint256) {
         return
-            _getRedeemableLiquidityRegistrationOnly(_user)
-                .add(_getUserNewRedeemable(_user))
-                .add(userLiquidityRegistered[_user]);
+            _getRedeemableLiquidityRegistrationOnly(_user).add(_getUserNewRedeemable(_user)).add(
+                userLiquidityRegistered[_user]
+            );
     }
 
-    function _getUserNewRedeemable(address _user)
-        internal
-        view
-        returns (uint256)
-    {
+    function _getUserNewRedeemable(address _user) internal view returns (uint256) {
         if (userRedeemTimestampIndex[_user] == 0) return 0;
         uint256 redeemable;
         uint256 liquidityRegistered = userLiquidityRegistered[_user];
-        for (
-            uint256 i = userRedeemTimestampIndex[_user];
-            i < updatesTimestamp.length;
-            i++
-        ) {
-            redeemable = redeemable.add(
-                (newInflatedVolume[i].mul(liquidityRegistered)).div(
-                    totalDepositedSupply[i]
-                )
-            );
+        for (uint256 i = userRedeemTimestampIndex[_user]; i < updatesTimestamp.length; i++) {
+            redeemable = redeemable.add((newInflatedVolume[i].mul(liquidityRegistered)).div(totalDepositedSupply[i]));
         }
         return redeemable;
     }
 
-    function _getRedeemableLiquidityRegistrationOnly(address _user)
-        internal
-        view
-        returns (uint256)
-    {
+    function _getRedeemableLiquidityRegistrationOnly(address _user) internal view returns (uint256) {
         if (!hasActiveLiquidityRegistraiton(_user)) return 0;
         uint256 redeemable;
         uint256 claimableLiquidity = future.getClaimableAPWIBT(_user);
-        for (
-            uint256 i = periodsSwitchesIndexes[liquidityRegistrations[_user]];
-            i < totalDepositedSupply.length;
-            i++
-        ) {
-            redeemable = redeemable.add(
-                (newInflatedVolume[i].mul(claimableLiquidity)).div(
-                    totalDepositedSupply[i]
-                )
-            );
+        for (uint256 i = periodsSwitchesIndexes[liquidityRegistrations[_user]]; i < totalDepositedSupply.length; i++) {
+            redeemable = redeemable.add((newInflatedVolume[i].mul(claimableLiquidity)).div(totalDepositedSupply[i]));
         }
         return redeemable;
     }
 
     function registerUserLiquidity(address _user) public {
-        require(
-            hasRole(FUTURE_ROLE, msg.sender),
-            "Caller is not the corresponding future"
-        );
-        if (liquidityRegistrations[_user] == future.getNextPeriodIndex())
-            return; // return if registration already done
+        require(hasRole(FUTURE_ROLE, msg.sender), "Caller is not the corresponding future");
+        if (liquidityRegistrations[_user] == future.getNextPeriodIndex()) return; // return if registration already done
         updateUserLiquidity(_user);
         liquidityRegistrations[_user] = future.getNextPeriodIndex(); // append registration for next future
     }
 
     function unregisterUserLiquidity(address _user) public {
-        require(
-            hasRole(FUTURE_ROLE, msg.sender),
-            "Caller is not the corresponding future"
-        );
+        require(hasRole(FUTURE_ROLE, msg.sender), "Caller is not the corresponding future");
         if (liquidityRegistrations[_user] == future.getNextPeriodIndex()) {
             delete liquidityRegistrations[_user];
         } // return if registration already done
         updateUserLiquidity(_user);
     }
 
-    function hasActiveLiquidityRegistraiton(address _user)
-        internal
-        view
-        returns (bool)
-    {
-        if (
-            liquidityRegistrations[_user] < future.getNextPeriodIndex() ||
-            liquidityRegistrations[_user] != 0
-        ) return true;
+    function hasActiveLiquidityRegistraiton(address _user) internal view returns (bool) {
+        if (liquidityRegistrations[_user] < future.getNextPeriodIndex() || liquidityRegistrations[_user] != 0) return true;
         return false;
     }
 

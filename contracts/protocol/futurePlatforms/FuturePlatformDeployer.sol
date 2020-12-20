@@ -15,10 +15,7 @@ import "contracts/interfaces/apwine/IRegistry.sol";
 import "contracts/interfaces/apwine/IController.sol";
 import "contracts/interfaces/apwine/IGaugeController.sol";
 
-abstract contract FuturePlatformDeployer is
-    Initializable,
-    AccessControlUpgradeable
-{
+abstract contract FuturePlatformDeployer is Initializable, AccessControlUpgradeable {
     using SafeMathUpgradeable for uint256;
 
     /* ACR */
@@ -27,10 +24,7 @@ abstract contract FuturePlatformDeployer is
 
     IController private controller;
 
-    function initialize(address _controller, address _admin)
-        public
-        initializer
-    {
+    function initialize(address _controller, address _admin) public initializer {
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
         _setupRole(CONTROLLER_ROLE, _controller);
         controller = IController(_controller);
@@ -41,23 +35,14 @@ abstract contract FuturePlatformDeployer is
         address _ibt,
         uint256 _periodDuration
     ) public returns (address) {
-        require(
-            hasRole(FUTURE_DEPLOYER, msg.sender),
-            "Caller is not an future admin"
-        );
+        require(hasRole(FUTURE_DEPLOYER, msg.sender), "Caller is not an future admin");
         IRegistry registery = IRegistry(controller.getRegistery());
-        require(
-            registery.isRegisteredFuturePlatform(_futurePlatformName),
-            "invalid future platform name"
-        );
+        require(registery.isRegisteredFuturePlatform(_futurePlatformName), "invalid future platform name");
 
-        address[3] memory futurePlatformContracts =
-            registery.getFuturePlatform(_futurePlatformName);
+        address[3] memory futurePlatformContracts = registery.getFuturePlatform(_futurePlatformName);
 
-        IProxyFactory proxyFactory =
-            IProxyFactory(registery.getProxyFactoryAddress());
-        address controller_default_admin =
-            controller.getRoleMember(DEFAULT_ADMIN_ROLE, 0);
+        IProxyFactory proxyFactory = IProxyFactory(registery.getProxyFactoryAddress());
+        address controller_default_admin = controller.getRoleMember(DEFAULT_ADMIN_ROLE, 0);
 
         /* Deploy the new contracts */
         bytes memory payload =
@@ -69,31 +54,21 @@ abstract contract FuturePlatformDeployer is
                 _futurePlatformName,
                 controller_default_admin
             );
-        IFuture newFuture =
-            IFuture(
-                proxyFactory.deployMinimal(futurePlatformContracts[0], payload)
-            );
+        IFuture newFuture = IFuture(proxyFactory.deployMinimal(futurePlatformContracts[0], payload));
 
-        payload = abi.encodeWithSignature(
-            "initialize(address,address)",
-            address(newFuture),
-            controller_default_admin
-        );
-        address newFutureVault =
-            proxyFactory.deployMinimal(futurePlatformContracts[1], payload);
+        payload = abi.encodeWithSignature("initialize(address,address)", address(newFuture), controller_default_admin);
+        address newFutureVault = proxyFactory.deployMinimal(futurePlatformContracts[1], payload);
 
         payload = abi.encodeWithSignature(
             "initialize(address,address,uint256)",
             address(newFuture),
             controller_default_admin
         );
-        address newFutureWallet =
-            proxyFactory.deployMinimal(futurePlatformContracts[2], payload);
+        address newFutureWallet = proxyFactory.deployMinimal(futurePlatformContracts[2], payload);
 
         /* Liquidity Gauge registration */
         address newLiquidityGauge =
-            IGaugeController(registery.getGaugeControllerAddress())
-                .registerNewGauge(address(newFuture));
+            IGaugeController(registery.getGaugeControllerAddress()).registerNewGauge(address(newFuture));
 
         /* Configure the new future */
         newFuture.setFutureVault(newFutureVault);

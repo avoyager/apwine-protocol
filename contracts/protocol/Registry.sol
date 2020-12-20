@@ -78,11 +78,7 @@ contract Registry is Initializable, AccessControlUpgradeable {
 
     function setGaugeController(address _newGaugeController) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        emit RegisteryUpdate(
-            "GaugeController",
-            gaugeController,
-            _newGaugeController
-        );
+        emit RegisteryUpdate("GaugeController", gaugeController, _newGaugeController);
         gaugeController = _newGaugeController;
     }
 
@@ -132,21 +128,13 @@ contract Registry is Initializable, AccessControlUpgradeable {
 
     function setLiquidityGaugeLogic(address _liquidityGaugeLogic) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        emit RegisteryUpdate(
-            "LiquidityGauge logic",
-            liquidityGaugeLogic,
-            _liquidityGaugeLogic
-        );
+        emit RegisteryUpdate("LiquidityGauge logic", liquidityGaugeLogic, _liquidityGaugeLogic);
         liquidityGaugeLogic = _liquidityGaugeLogic;
     }
 
     function setAPWineIBTLogic(address _APWineIBTLogic) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        emit RegisteryUpdate(
-            "APWineIBT logic",
-            APWineIBTLogic,
-            _APWineIBTLogic
-        );
+        emit RegisteryUpdate("APWineIBT logic", APWineIBTLogic, _APWineIBTLogic);
         APWineIBTLogic = _APWineIBTLogic;
     }
 
@@ -174,30 +162,17 @@ contract Registry is Initializable, AccessControlUpgradeable {
     }
 
     /* Futures Deployer */
-    function addFuturePlatformDeployer(
-        address _futurePlatformDeployer,
-        string memory _futurePlatformDeployerName
-    ) public {
+    function addFuturePlatformDeployer(address _futurePlatformDeployer, string memory _futurePlatformDeployerName) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         futurePlatformsDeployer.add(_futurePlatformDeployer);
-        futurePlatformsDeployerNames[
-            _futurePlatformDeployer
-        ] = _futurePlatformDeployerName;
+        futurePlatformsDeployerNames[_futurePlatformDeployer] = _futurePlatformDeployerName;
     }
 
-    function isRegisteredFuturePlatformDeployer(address _futurePlatformDeployer)
-        public
-        view
-        returns (bool)
-    {
+    function isRegisteredFuturePlatformDeployer(address _futurePlatformDeployer) public view returns (bool) {
         return futurePlatformsDeployer.contains(_futurePlatformDeployer);
     }
 
-    function getFuturePlatformDeployerAt(uint256 _index)
-        external
-        view
-        returns (address)
-    {
+    function getFuturePlatformDeployerAt(uint256 _index) external view returns (address) {
         return futurePlatformsDeployer.at(_index);
     }
 
@@ -205,15 +180,8 @@ contract Registry is Initializable, AccessControlUpgradeable {
         return futurePlatformsDeployer.length();
     }
 
-    function getFuturePlatformDeployerName(address _futurePlatformDeployer)
-        external
-        view
-        returns (string memory)
-    {
-        require(
-            futurePlatformsDeployer.contains(_futurePlatformDeployer),
-            "invalid future platform deployer"
-        );
+    function getFuturePlatformDeployerName(address _futurePlatformDeployer) external view returns (string memory) {
+        require(futurePlatformsDeployer.contains(_futurePlatformDeployer), "invalid future platform deployer");
         return futurePlatformsDeployerNames[_futurePlatformDeployer];
     }
 
@@ -226,45 +194,25 @@ contract Registry is Initializable, AccessControlUpgradeable {
         address _futureVault
     ) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        require(
-            futurePlatformsDeployer.contains(_futurePlatformDeployer),
-            "invalid future platfrom deployer address"
-        );
+        require(futurePlatformsDeployer.contains(_futurePlatformDeployer), "invalid future platfrom deployer address");
 
         futurePlatform memory newFuturePlaform =
-            futurePlatform({
-                futureVault: _futureVault,
-                futureWallet: _futureWallet,
-                future: _future
-            });
+            futurePlatform({futureVault: _futureVault, futureWallet: _futureWallet, future: _future});
 
-        if (!isRegisteredFuturePlatform(_futurePlatformName))
-            futurePlatformsNames.push(_futurePlatformName);
+        if (!isRegisteredFuturePlatform(_futurePlatformName)) futurePlatformsNames.push(_futurePlatformName);
 
         futurePlatformsName[_futurePlatformName] = newFuturePlaform;
         futurePlatformToDeployer[_futurePlatformName] = _futurePlatformDeployer;
-        emit FuturePlatformAdded(
-            _futurePlatformDeployer,
-            _futurePlatformName,
-            _future,
-            _futureWallet,
-            _futureVault
-        );
+        emit FuturePlatformAdded(_futurePlatformDeployer, _futurePlatformName, _future, _futureWallet, _futureVault);
     }
 
     function removeFuturePlatform(string memory _futurePlatformName) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        require(
-            isRegisteredFuturePlatform(_futurePlatformName),
-            "invalid future platform name"
-        );
+        require(isRegisteredFuturePlatform(_futurePlatformName), "invalid future platform name");
 
         for (uint256 i = 0; i < futurePlatformsNames.length; i++) {
             // can be optimized
-            if (
-                keccak256(bytes(futurePlatformsNames[i])) ==
-                keccak256(bytes(_futurePlatformName))
-            ) {
+            if (keccak256(bytes(futurePlatformsNames[i])) == keccak256(bytes(_futurePlatformName))) {
                 delete futurePlatformsNames[i];
                 break;
             }
@@ -274,33 +222,17 @@ contract Registry is Initializable, AccessControlUpgradeable {
         delete futurePlatformsName[_futurePlatformName];
     }
 
-    function isRegisteredFuturePlatform(string memory _futurePlatformName)
-        public
-        view
-        returns (bool)
-    {
+    function isRegisteredFuturePlatform(string memory _futurePlatformName) public view returns (bool) {
         for (uint256 i = 0; i < futurePlatformsNames.length; i++) {
-            if (
-                keccak256(bytes(futurePlatformsNames[i])) ==
-                keccak256(bytes(_futurePlatformName))
-            ) return true;
+            if (keccak256(bytes(futurePlatformsNames[i])) == keccak256(bytes(_futurePlatformName))) return true;
         }
         return false;
     }
 
-    function getFuturePlatform(string memory _futurePlatformName)
-        public
-        view
-        returns (address[3] memory)
-    {
-        futurePlatform memory futurePlatformContracts =
-            futurePlatformsName[_futurePlatformName];
+    function getFuturePlatform(string memory _futurePlatformName) public view returns (address[3] memory) {
+        futurePlatform memory futurePlatformContracts = futurePlatformsName[_futurePlatformName];
         address[3] memory addressesArrays =
-            [
-                futurePlatformContracts.future,
-                futurePlatformContracts.futureVault,
-                futurePlatformContracts.futureWallet
-            ];
+            [futurePlatformContracts.future, futurePlatformContracts.futureVault, futurePlatformContracts.futureWallet];
         return addressesArrays;
     }
 
@@ -336,11 +268,7 @@ contract Registry is Initializable, AccessControlUpgradeable {
     }
 
     /* Future Wallets Logic */
-    function isRegisteredFutureWallet(address _futureWallet)
-        external
-        view
-        returns (bool)
-    {
+    function isRegisteredFutureWallet(address _futureWallet) external view returns (bool) {
         return futureWalletsLogic.contains(_futureWallet);
     }
 
@@ -352,24 +280,13 @@ contract Registry is Initializable, AccessControlUpgradeable {
         return futureWalletsLogic.length();
     }
 
-    function getFutureWalletName(address _futureWalletAddress)
-        external
-        view
-        returns (string memory)
-    {
-        require(
-            futureWalletsLogic.contains(_futureWalletAddress),
-            "invalid address"
-        );
+    function getFutureWalletName(address _futureWalletAddress) external view returns (string memory) {
+        require(futureWalletsLogic.contains(_futureWalletAddress), "invalid address");
         return futureWalletName[_futureWalletAddress];
     }
 
     /* Future Vault Logic*/
-    function isRegisteredFutureVault(address _futureVault)
-        public
-        view
-        returns (bool)
-    {
+    function isRegisteredFutureVault(address _futureVault) public view returns (bool) {
         return futureWalletsLogic.contains(_futureVault);
     }
 
@@ -381,21 +298,13 @@ contract Registry is Initializable, AccessControlUpgradeable {
         return futureWalletsLogic.length();
     }
 
-    function getFutureVaultName(address _futureVault)
-        external
-        view
-        returns (string memory)
-    {
+    function getFutureVaultName(address _futureVault) external view returns (string memory) {
         require(futureWalletsLogic.contains(_futureVault), "invalid address");
         return futureWalletName[_futureVault];
     }
 
     /* Future Logic*/
-    function isRegisteredFutureLogic(address _futureLogic)
-        external
-        view
-        returns (bool)
-    {
+    function isRegisteredFutureLogic(address _futureLogic) external view returns (bool) {
         return futuresLogic.contains(_futureLogic);
     }
 
@@ -407,11 +316,7 @@ contract Registry is Initializable, AccessControlUpgradeable {
         return futuresLogic.length();
     }
 
-    function getFutureLogicName(address _futureLogicAddress)
-        external
-        view
-        returns (string memory)
-    {
+    function getFutureLogicName(address _futureLogicAddress) external view returns (string memory) {
         require(futuresLogic.contains(_futureLogicAddress), "invalid address");
         return futureWalletName[_futureLogicAddress];
     }

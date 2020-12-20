@@ -14,11 +14,7 @@ contract FutureVault is Initializable, AccessControlUpgradeable {
      * @notice Intializer
      * @param _futureAddress the address of the corresponding future
      */
-    function initialize(address _futureAddress, address _adminAddress)
-        public
-        virtual
-        initializer
-    {
+    function initialize(address _futureAddress, address _adminAddress) public virtual initializer {
         future = IFuture(_futureAddress);
         ERC20(future.getIBTAddress()).approve(_futureAddress, uint256(-1));
         _setupRole(DEFAULT_ADMIN_ROLE, _adminAddress);
@@ -30,10 +26,7 @@ contract FutureVault is Initializable, AccessControlUpgradeable {
     }
 
     function approveAdditionalToken(address _tokenAddress) public {
-        require(
-            hasRole(ADMIN_ROLE, msg.sender),
-            "Caller is not allowed to register approve another token"
-        );
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to register approve another token");
         ERC20(_tokenAddress).approve(address(future), uint256(-1));
     }
 }

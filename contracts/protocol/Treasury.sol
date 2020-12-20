@@ -24,10 +24,7 @@ contract Treasury is Initializable, AccessControlUpgradeable {
         IERC20Upgradeable(_erc20).transfer(_recipient, _amount);
     }
 
-    function sendEther(address payable _recipient, uint256 _amount)
-        public
-        payable
-    {
+    function sendEther(address payable _recipient, uint256 _amount) public payable {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         _recipient.transfer(_amount);
     }

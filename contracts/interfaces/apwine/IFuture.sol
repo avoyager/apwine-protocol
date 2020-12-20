@@ -175,10 +175,7 @@ interface IFuture {
      * @param _periodIndex period index
      * @return fyt address
      */
-    function getFYTofPeriod(uint256 _periodIndex)
-        external
-        view
-        returns (address);
+    function getFYTofPeriod(uint256 _periodIndex) external view returns (address);
 
     /* Admin functions*/
 

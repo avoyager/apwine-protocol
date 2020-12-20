@@ -38,27 +38,15 @@ interface IRegistry {
 
     function getFYTLogicAddress() external view returns (address);
 
-    function addFuturePlatformDeployer(
-        address _futurePlatformDeployer,
-        string memory _futurePlatformDeployerName
-    ) external;
+    function addFuturePlatformDeployer(address _futurePlatformDeployer, string memory _futurePlatformDeployerName) external;
 
-    function isRegisteredFuturePlatformDeployer(address _futurePlatformDeployer)
-        external
-        view
-        returns (bool);
+    function isRegisteredFuturePlatformDeployer(address _futurePlatformDeployer) external view returns (bool);
 
-    function getFuturePlatformDeployerAt(uint256 _index)
-        external
-        view
-        returns (address);
+    function getFuturePlatformDeployerAt(uint256 _index) external view returns (address);
 
     function futurePlatformDeployerCount() external view returns (uint256);
 
-    function getFuturePlatformDeployerName(address _futurePlatformDeployer)
-        external
-        view
-        returns (string memory);
+    function getFuturePlatformDeployerName(address _futurePlatformDeployer) external view returns (string memory);
 
     function addFuturePlatform(
         address _futurePlatformDeployer,
@@ -68,15 +56,9 @@ interface IRegistry {
         address _futureVault
     ) external;
 
-    function isRegisteredFuturePlatform(string memory _futurePlatformName)
-        external
-        view
-        returns (bool);
+    function isRegisteredFuturePlatform(string memory _futurePlatformName) external view returns (bool);
 
-    function getFuturePlatform(string memory _futurePlatformName)
-        external
-        view
-        returns (address[3] memory);
+    function getFuturePlatform(string memory _futurePlatformName) external view returns (address[3] memory);
 
     function futurePlatformsCount() external view returns (uint256);
 
@@ -94,45 +76,27 @@ interface IRegistry {
 
     function futureCount() external view returns (uint256);
 
-    function isRegisteredFutureWallet(address _futureWallet)
-        external
-        view
-        returns (bool);
+    function isRegisteredFutureWallet(address _futureWallet) external view returns (bool);
 
     function getFuturWalletAt(uint256 _index) external view returns (address);
 
     function futureWalletCount() external view returns (uint256);
 
-    function getFutureWalletName(address _futureWalletAddress)
-        external
-        view
-        returns (string memory);
+    function getFutureWalletName(address _futureWalletAddress) external view returns (string memory);
 
-    function isRegisteredFutureVault(address _futureVault)
-        external
-        view
-        returns (bool);
+    function isRegisteredFutureVault(address _futureVault) external view returns (bool);
 
     function getFutureVaultAt(uint256 _index) external view returns (address);
 
     function futureVaultCount() external view returns (uint256);
 
-    function getFutureVaultName(address _futureVault)
-        external
-        view
-        returns (string memory);
+    function getFutureVaultName(address _futureVault) external view returns (string memory);
 
-    function isRegisteredFutureLogic(address _futureLogic)
-        external
-        view
-        returns (bool);
+    function isRegisteredFutureLogic(address _futureLogic) external view returns (bool);
 
     function getFutureLogicAt(uint256 _index) external view returns (address);
 
     function futureLogicCount() external view returns (uint256);
 
-    function getFutureLogicName(address _futureLogicAddress)
-        external
-        view
-        returns (string memory);
+    function getFutureLogicName(address _futureLogicAddress) external view returns (string memory);
 }

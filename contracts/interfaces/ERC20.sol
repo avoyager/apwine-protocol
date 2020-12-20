@@ -42,9 +42,7 @@ interface ERC20 is IERC20Upgradeable {
      *
      * - `spender` cannot be the zero address.
      */
-    function increaseAllowance(address spender, uint256 addedValue)
-        external
-        returns (bool);
+    function increaseAllowance(address spender, uint256 addedValue) external returns (bool);
 
     /**
      * @dev Atomically decreases the allowance granted to `spender` by the caller.
@@ -60,7 +58,5 @@ interface ERC20 is IERC20Upgradeable {
      * - `spender` must have allowance for the caller of at least
      * `subtractedValue`.
      */
-    function decreaseAllowance(address spender, uint256 subtractedValue)
-        external
-        returns (bool);
+    function decreaseAllowance(address spender, uint256 subtractedValue) external returns (bool);
 }

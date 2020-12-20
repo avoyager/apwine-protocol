@@ -22,52 +22,25 @@ abstract contract RateFuture is Future {
         string memory _platform,
         address _adminAddress
     ) public virtual override initializer {
-        super.initialize(
-            _controllerAddress,
-            _ibt,
-            _periodLength,
-            _platform,
-            _adminAddress
-        );
+        super.initialize(_controllerAddress, _ibt, _periodLength, _platform, _adminAddress);
         IBTRates.push();
         IBTRates.push();
     }
 
-    function unregister(address _user, uint256 _amount)
-        public
-        virtual
-        override
-    {
-        require(
-            hasRole(CONTROLLER_ROLE, msg.sender),
-            "Caller is not allowed to unregister"
-        );
+    function unregister(address _user, uint256 _amount) public virtual override {
+        require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to unregister");
 
         uint256 nextIndex = getNextPeriodIndex();
-        require(
-            registrations[_user].startIndex == nextIndex,
-            "The is not ongoing registration for the next period"
-        );
+        require(registrations[_user].startIndex == nextIndex, "The is not ongoing registration for the next period");
         uint256 currentRegistered = registrations[_user].scaledBalance;
         require(currentRegistered >= _amount, "Invalid amount to unregister");
 
-        registrations[_user].scaledBalance = registrations[_user]
-            .scaledBalance
-            .sub(currentRegistered);
+        registrations[_user].scaledBalance = registrations[_user].scaledBalance.sub(currentRegistered);
         ibt.transfer(_user, _amount);
     }
 
-    function startNewPeriod()
-        public
-        virtual
-        override
-        nextPeriodAvailable
-        periodsActive
-    {
-        require(
-            hasRole(CONTROLLER_ROLE, msg.sender),
-            "Caller is not allowed to register a harvest"
-        );
+    function startNewPeriod() public virtual override nextPeriodAvailable periodsActive {
+        require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to register a harvest");
 
         uint256 nextPeriodID = getNextPeriodIndex();
         uint256 currentRate = getIBTRate();
@@ -77,32 +50,14 @@ abstract contract RateFuture is Future {
 
         /* Yield */
         uint256 yield =
-            (
-                ibt.balanceOf(address(futureVault)).mul(
-                    currentRate.sub(IBTRates[nextPeriodID - 1])
-                )
-            )
-                .div(currentRate);
-        if (yield > 0)
-            assert(
-                ibt.transferFrom(
-                    address(futureVault),
-                    address(futureWallet),
-                    yield
-                )
-            );
+            (ibt.balanceOf(address(futureVault)).mul(currentRate.sub(IBTRates[nextPeriodID - 1]))).div(currentRate);
+        if (yield > 0) assert(ibt.transferFrom(address(futureVault), address(futureWallet), yield));
         futureWallet.registerExpiredFuture(yield); // Yield deposit in the futureWallet contract
 
         /* Period Switch*/
         if (registrationsTotals[nextPeriodID] > 0) {
-            apwibt.mint(
-                address(this),
-                registrationsTotals[nextPeriodID].mul(IBTRates[nextPeriodID])
-            ); // Mint new APWIBTs
-            ibt.transfer(
-                address(futureVault),
-                registrationsTotals[nextPeriodID]
-            ); // Send ibt to future for the new period
+            apwibt.mint(address(this), registrationsTotals[nextPeriodID].mul(IBTRates[nextPeriodID])); // Mint new APWIBTs
+            ibt.transfer(address(futureVault), registrationsTotals[nextPeriodID]); // Send ibt to future for the new period
         }
 
         registrationsTotals.push();
@@ -113,12 +68,7 @@ abstract contract RateFuture is Future {
         emit NewPeriodStarted(nextPeriodID, fytAddress);
     }
 
-    function getRegisteredAmount(address _user)
-        public
-        view
-        override
-        returns (uint256)
-    {
+    function getRegisteredAmount(address _user) public view override returns (uint256) {
         uint256 periodID = registrations[_user].startIndex;
         if (periodID == getNextPeriodIndex()) {
             return registrations[_user].scaledBalance;
@@ -135,12 +85,7 @@ abstract contract RateFuture is Future {
         return (_initialAmount.mul(_initialRate)).div(_newRate);
     }
 
-    function getClaimableAPWIBT(address _user)
-        public
-        view
-        override
-        returns (uint256)
-    {
+    function getClaimableAPWIBT(address _user) public view override returns (uint256) {
         if (!hasClaimableAPWIBT(_user)) return 0;
         return
             scaleIBTAmount(
@@ -150,33 +95,14 @@ abstract contract RateFuture is Future {
             );
     }
 
-    function getUnlockableFunds(address _user)
-        public
-        view
-        override
-        returns (uint256)
-    {
-        return
-            scaleIBTAmount(
-                super.getUnlockableFunds(_user),
-                IBTRates[getNextPeriodIndex() - 1],
-                getIBTRate()
-            );
+    function getUnlockableFunds(address _user) public view override returns (uint256) {
+        return scaleIBTAmount(super.getUnlockableFunds(_user), IBTRates[getNextPeriodIndex() - 1], getIBTRate());
     }
 
-    function getUnrealisedYield(address _user)
-        public
-        view
-        override
-        returns (uint256)
-    {
+    function getUnrealisedYield(address _user) public view override returns (uint256) {
         return
             apwibt.balanceOf(_user).sub(
-                scaleIBTAmount(
-                    apwibt.balanceOf(_user),
-                    IBTRates[getNextPeriodIndex() - 1],
-                    getIBTRate()
-                )
+                scaleIBTAmount(apwibt.balanceOf(_user), IBTRates[getNextPeriodIndex() - 1], getIBTRate())
             );
     }
 

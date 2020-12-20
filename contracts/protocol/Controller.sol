@@ -27,18 +27,14 @@ contract Controller is Initializable, AccessControlUpgradeable {
     mapping(string => EnumerableSetUpgradeable.UintSet) private platformNames;
 
     EnumerableSetUpgradeable.UintSet private durations;
-    mapping(uint256 => EnumerableSetUpgradeable.AddressSet)
-        private futuresByDuration;
+    mapping(uint256 => EnumerableSetUpgradeable.AddressSet) private futuresByDuration;
     mapping(uint256 => uint256) private periodIndexByDurations;
 
     /* Events */
 
     event PlatformRegistered(address _platformControllerAddress);
     event PlatformUnregistered(address _platformControllerAddress);
-    event NextPeriodSwitchSet(
-        uint256 _periodDuration,
-        uint256 _nextSwitchTimestamp
-    );
+    event NextPeriodSwitchSet(uint256 _periodDuration, uint256 _nextSwitchTimestamp);
     event FutureRegistered(address _newFutureAddress);
     event FutureUnregistered(address _future);
 
@@ -48,20 +44,13 @@ contract Controller is Initializable, AccessControlUpgradeable {
     /* Modifiers */
 
     modifier futureIsValid(address _future) {
-        require(
-            registry.isRegisteredFuture(_future),
-            "incorrect future address"
-        );
+        require(registry.isRegisteredFuture(_future), "incorrect future address");
         _;
     }
 
-    modifier futurePlatformDeployerIsValid(
-        address _futurePlatformDeployerAddress
-    ) {
+    modifier futurePlatformDeployerIsValid(address _futurePlatformDeployerAddress) {
         require(
-            registry.isRegisteredFuturePlatformDeployer(
-                _futurePlatformDeployerAddress
-            ),
+            registry.isRegisteredFuturePlatformDeployer(_futurePlatformDeployerAddress),
             "incorrect futurePlatform address"
         );
         _;
@@ -88,38 +77,23 @@ contract Controller is Initializable, AccessControlUpgradeable {
         STARTING_DELAY = _startingDelay;
     }
 
-    function setNextPeriodSwitchTimestamp(
-        uint256 _periodDuration,
-        uint256 _nextPeriodTimestamp
-    ) public {
-        require(
-            hasRole(ADMIN_ROLE, msg.sender),
-            "Caller is not allowed to set next period timestamp"
-        );
+    function setNextPeriodSwitchTimestamp(uint256 _periodDuration, uint256 _nextPeriodTimestamp) public {
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to set next period timestamp");
         nextPeriodSwitchByDuration[_periodDuration] = _nextPeriodTimestamp;
         emit NextPeriodSwitchSet(_periodDuration, _nextPeriodTimestamp);
     }
 
     /* User Methods */
 
-    function register(address _future, uint256 _amount)
-        public
-        futureIsValid(_future)
-    {
+    function register(address _future, uint256 _amount) public futureIsValid(_future) {
         IFuture(_future).register(msg.sender, _amount);
     }
 
-    function unregister(address _future, uint256 _amount)
-        public
-        futureIsValid(_future)
-    {
+    function unregister(address _future, uint256 _amount) public futureIsValid(_future) {
         IFuture(_future).unregister(msg.sender, _amount);
     }
 
-    function withdrawLockFunds(address _future, uint256 _amount)
-        public
-        futureIsValid(_future)
-    {
+    function withdrawLockFunds(address _future, uint256 _amount) public futureIsValid(_future) {
         IFuture(_future).withdrawLockFunds(msg.sender, _amount);
     }
 
@@ -132,27 +106,16 @@ contract Controller is Initializable, AccessControlUpgradeable {
      * @param _user the address of the user
      * @param futuresAddresses the addresses of the futures to claim the fyts from
      */
-    function claimSelectedYield(
-        address _user,
-        address[] memory futuresAddresses
-    ) public {
+    function claimSelectedYield(address _user, address[] memory futuresAddresses) public {
         for (uint256 i = 0; i < futuresAddresses.length; i++) {
-            require(
-                registry.isRegisteredFuture(futuresAddresses[i]),
-                "Incorrect future address"
-            );
+            require(registry.isRegisteredFuture(futuresAddresses[i]), "Incorrect future address");
             IFuture(futuresAddresses[i]).claimFYT(_user);
         }
     }
 
     /* User Getter */
-    function getFuturesWithClaimableFYT(address _user)
-        external
-        view
-        returns (address[] memory)
-    {
-        address[] memory selectedFutures =
-            new address[](registry.futureCount());
+    function getFuturesWithClaimableFYT(address _user) external view returns (address[] memory) {
+        address[] memory selectedFutures = new address[](registry.futureCount());
         uint8 index = 0;
         for (uint256 i = 0; i < registry.futureCount(); i++) {
             if (IFuture(registry.getFutureAt(i)).hasClaimableFYT(_user)) {
@@ -174,43 +137,23 @@ contract Controller is Initializable, AccessControlUpgradeable {
         string memory _platfrom,
         uint256 _periodDuration
     ) public pure returns (string memory) {
-        return
-            APWineNaming.genIBTSymbol(_ibtSymbol, _platfrom, _periodDuration);
+        return APWineNaming.genIBTSymbol(_ibtSymbol, _platfrom, _periodDuration);
     }
 
-    function getFYTSymbol(string memory _apwibtSymbol, uint256 _periodDuration)
-        public
-        view
-        returns (string memory)
-    {
-        return
-            APWineNaming.genFYTSymbolFromIBT(
-                uint8(periodIndexByDurations[_periodDuration]),
-                _apwibtSymbol
-            );
+    function getFYTSymbol(string memory _apwibtSymbol, uint256 _periodDuration) public view returns (string memory) {
+        return APWineNaming.genFYTSymbolFromIBT(uint8(periodIndexByDurations[_periodDuration]), _apwibtSymbol);
     }
 
-    function getPeriodIndex(uint256 _periodDuration)
-        public
-        view
-        returns (uint256)
-    {
+    function getPeriodIndex(uint256 _periodDuration) public view returns (uint256) {
         return periodIndexByDurations[_periodDuration];
     }
 
-    function getNextPeriodStart(uint256 _periodDuration)
-        public
-        view
-        returns (uint256)
-    {
+    function getNextPeriodStart(uint256 _periodDuration) public view returns (uint256) {
         return nextPeriodSwitchByDuration[_periodDuration];
     }
 
     /* future admin function*/
-    function registerNewFuture(address _newFuture)
-        public
-        futurePlatformDeployerIsValid(msg.sender)
-    {
+    function registerNewFuture(address _newFuture) public futurePlatformDeployerIsValid(msg.sender) {
         registry.addFuture(_newFuture);
         uint256 futureDuration = IFuture(_newFuture).PERIOD_DURATION();
         if (!durations.contains(futureDuration)) durations.add(futureDuration);
@@ -224,36 +167,21 @@ contract Controller is Initializable, AccessControlUpgradeable {
         require(registry.removeFuture(_future), "invalid future");
 
         uint256 futureDuration = IFuture(_future).PERIOD_DURATION();
-        if (!durations.contains(futureDuration))
-            durations.remove(futureDuration);
+        if (!durations.contains(futureDuration)) durations.remove(futureDuration);
         futuresByDuration[futureDuration].remove(_future);
         emit FutureUnregistered(_future);
     }
 
     function startFuturesByPeriodDuration(uint256 _periodDuration) public {
-        for (
-            uint256 i = 0;
-            i < futuresByDuration[_periodDuration].length();
-            i++
-        ) {
+        for (uint256 i = 0; i < futuresByDuration[_periodDuration].length(); i++) {
             IFuture(registry.getFutureAt(i)).startNewPeriod();
         }
-        nextPeriodSwitchByDuration[
-            _periodDuration
-        ] = nextPeriodSwitchByDuration[_periodDuration].add(_periodDuration);
-        periodIndexByDurations[_periodDuration] = periodIndexByDurations[
-            _periodDuration
-        ]
-            .add(1);
+        nextPeriodSwitchByDuration[_periodDuration] = nextPeriodSwitchByDuration[_periodDuration].add(_periodDuration);
+        periodIndexByDurations[_periodDuration] = periodIndexByDurations[_periodDuration].add(1);
     }
 
-    function getFuturesWithDuration(uint256 _periodDuration)
-        public
-        view
-        returns (address[] memory)
-    {
-        address[] memory filteredFutures =
-            new address[](futuresByDuration[_periodDuration].length());
+    function getFuturesWithDuration(uint256 _periodDuration) public view returns (address[] memory) {
+        address[] memory filteredFutures = new address[](futuresByDuration[_periodDuration].length());
         for (uint256 i = 0; i < filteredFutures.length; i++) {
             filteredFutures[i] = futuresByDuration[_periodDuration].at(i);
         }

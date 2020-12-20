@@ -12,18 +12,10 @@ library APWineNaming {
         string memory _platfrom,
         uint256 _periodDuration
     ) public pure returns (string memory) {
-        return
-            concatenate(
-                genIBTSymbol(_ibtSymbol, _platfrom, _periodDuration),
-                concatenate("-", uintToString(_index))
-            );
+        return concatenate(genIBTSymbol(_ibtSymbol, _platfrom, _periodDuration), concatenate("-", uintToString(_index)));
     }
 
-    function genFYTSymbolFromIBT(uint8 _index, string memory _ibtSymbol)
-        public
-        pure
-        returns (string memory)
-    {
+    function genFYTSymbolFromIBT(uint8 _index, string memory _ibtSymbol) public pure returns (string memory) {
         return concatenate(_ibtSymbol, concatenate("-", uintToString(_index)));
     }
 
@@ -35,18 +27,11 @@ library APWineNaming {
         return
             concatenate(
                 getPeriodDurationDenominator(_periodDuration),
-                concatenate(
-                    "-",
-                    concatenate(_platfrom, concatenate("-", _ibtSymbol))
-                )
+                concatenate("-", concatenate(_platfrom, concatenate("-", _ibtSymbol)))
             );
     }
 
-    function getPeriodDurationDenominator(uint256 _periodDuration)
-        public
-        pure
-        returns (string memory)
-    {
+    function getPeriodDurationDenominator(uint256 _periodDuration) public pure returns (string memory) {
         if (_periodDuration >= 1 days) {
             uint256 numberOfdays = _periodDuration.div(1 days);
             return string(concatenate(uintToString(uint8(numberOfdays)), "D"));
@@ -70,11 +55,7 @@ library APWineNaming {
         return string(s);
     }
 
-    function concatenate(string memory a, string memory b)
-        public
-        pure
-        returns (string memory)
-    {
+    function concatenate(string memory a, string memory b) public pure returns (string memory) {
         return string(abi.encodePacked(a, b));
     }
 }

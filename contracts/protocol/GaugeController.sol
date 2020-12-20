@@ -53,12 +53,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
     }
 
     function deployLiquidityGauge(address _future) internal returns (address) {
-        bytes memory payload =
-            abi.encodeWithSignature(
-                "initialize(address,address)",
-                address(this),
-                _future
-            );
+        bytes memory payload = abi.encodeWithSignature("initialize(address,address)", address(this), _future);
         ILiquidityGauge newLiquidityGauge =
             ILiquidityGauge(
                 IProxyFactory(registery.getProxyFactoryAddress()).deployMinimal(
@@ -72,19 +67,13 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
     function claimAPW(address _future) public {
         // last fyt claimed -now,
         address liquidityGauge = futureGauges[_future];
-        require(
-            liquidityGauges.contains(liquidityGauge),
-            "Incorrect future address"
-        );
+        require(liquidityGauges.contains(liquidityGauge), "Incorrect future address");
         ILiquidityGauge(liquidityGauge).redeemAPW(msg.sender);
     }
 
     function mint(address _user, uint256 _amount) external {
         address liquidityGauge = futureGauges[msg.sender];
-        require(
-            liquidityGauges.contains(liquidityGauge),
-            "Incorrect future address"
-        );
+        require(liquidityGauges.contains(liquidityGauge), "Incorrect future address");
         apw.mint(_user, _amount);
     }
 
@@ -93,19 +82,11 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
         return inflationRate;
     }
 
-    function getGaugeWeight(address _liquidityGauge)
-        external
-        view
-        returns (uint256)
-    {
+    function getGaugeWeight(address _liquidityGauge) external view returns (uint256) {
         return gaugesWeights[_liquidityGauge];
     }
 
-    function getGaugeTypeWeight(address _liquidityGauge)
-        external
-        view
-        returns (uint256)
-    {
+    function getGaugeTypeWeight(address _liquidityGauge) external view returns (uint256) {
         return gaugeTypesWeights[_liquidityGauge]; // TODO Change with enum etc
     }
 

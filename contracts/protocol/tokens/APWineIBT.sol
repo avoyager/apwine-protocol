@@ -56,10 +56,7 @@ contract APWineIBT is
         future = _futureAddress;
     }
 
-    function __ERC20PresetMinterPauser_init(
-        string memory name,
-        string memory symbol
-    ) internal initializer {
+    function __ERC20PresetMinterPauser_init(string memory name, string memory symbol) internal initializer {
         __Context_init_unchained();
         __AccessControl_init_unchained();
         __ERC20_init_unchained(name, symbol);
@@ -69,10 +66,7 @@ contract APWineIBT is
         __ERC20PresetMinterPauser_init_unchained(name, symbol);
     }
 
-    function __ERC20PresetMinterPauser_init_unchained(
-        string memory name,
-        string memory symbol
-    ) internal initializer {
+    function __ERC20PresetMinterPauser_init_unchained(string memory name, string memory symbol) internal initializer {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
 
         _setupRole(MINTER_ROLE, _msgSender());
@@ -89,10 +83,7 @@ contract APWineIBT is
      * - the caller must have the `MINTER_ROLE`.
      */
     function mint(address to, uint256 amount) public {
-        require(
-            hasRole(MINTER_ROLE, _msgSender()),
-            "ERC20PresetMinterPauser: must have minter role to mint"
-        );
+        require(hasRole(MINTER_ROLE, _msgSender()), "ERC20PresetMinterPauser: must have minter role to mint");
         _mint(to, amount);
     }
 
@@ -106,10 +97,7 @@ contract APWineIBT is
      * - the caller must have the `PAUSER_ROLE`.
      */
     function pause() public {
-        require(
-            hasRole(PAUSER_ROLE, _msgSender()),
-            "ERC20PresetMinterPauser: must have pauser role to pause"
-        );
+        require(hasRole(PAUSER_ROLE, _msgSender()), "ERC20PresetMinterPauser: must have pauser role to pause");
         _pause();
     }
 
@@ -123,10 +111,7 @@ contract APWineIBT is
      * - the caller must have the `PAUSER_ROLE`.
      */
     function unpause() public {
-        require(
-            hasRole(PAUSER_ROLE, _msgSender()),
-            "ERC20PresetMinterPauser: must have pauser role to unpause"
-        );
+        require(hasRole(PAUSER_ROLE, _msgSender()), "ERC20PresetMinterPauser: must have pauser role to unpause");
         _unpause();
     }
 
@@ -158,10 +143,7 @@ contract APWineIBT is
             _approve(
                 sender,
                 _msgSender(),
-                allowance(sender, _msgSender()).sub(
-                    amount,
-                    "ERC20: transfer amount exceeds allowance"
-                )
+                allowance(sender, _msgSender()).sub(amount, "ERC20: transfer amount exceeds allowance")
             );
         }
         return true;

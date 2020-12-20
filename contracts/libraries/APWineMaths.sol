@@ -11,17 +11,9 @@ library APWineMaths {
         uint256 _actualSum
     ) public pure returns (uint256) {
         if (_initialSum == 0) return _actualValue;
-        require(
-            _actualSum > 0,
-            "The actual value of the sum should not be zero"
-        );
+        require(_actualSum > 0, "The actual value of the sum should not be zero");
         return
-            (
-                (_actualValue.mul(_actualValue).mul(_initialSum)).add(
-                    _actualValue.mul(_initialSum).mul(_actualSum)
-                )
-            )
-                .div(
+            ((_actualValue.mul(_actualValue).mul(_initialSum)).add(_actualValue.mul(_initialSum).mul(_actualSum))).div(
                 (_actualValue.mul(_actualSum)).add(_actualSum.mul(_actualSum))
             );
     }

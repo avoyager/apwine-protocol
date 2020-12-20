@@ -51,19 +51,14 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
     bool public PAUSED;
 
     /* Events */
-    event UserRegistered(
-        address _userAddress,
-        uint256 _amount,
-        uint256 _periodIndex
-    );
+    event UserRegistered(address _userAddress, uint256 _amount, uint256 _periodIndex);
     event NewPeriodStarted(uint256 _newPeriodIndex, address _fytAddress);
 
     /* Modifiers */
     modifier nextPeriodAvailable() {
         uint256 controllerDelay = controller.STARTING_DELAY();
         require(
-            controller.getNextPeriodStart(PERIOD_DURATION) <
-                block.timestamp.add(controllerDelay),
+            controller.getNextPeriodStart(PERIOD_DURATION) < block.timestamp.add(controllerDelay),
             "Next period start range not reached yet"
         );
         _;
@@ -95,39 +90,19 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
         fyts.push();
 
         IRegistry registery = IRegistry(controller.getRegistery());
-        string memory ibtSymbol =
-            controller.getFutureIBTSymbol(
-                ibt.symbol(),
-                _platformName,
-                _periodDuration
-            );
+        string memory ibtSymbol = controller.getFutureIBTSymbol(ibt.symbol(), _platformName, _periodDuration);
         bytes memory payload =
-            abi.encodeWithSignature(
-                "initialize(string,string,address)",
-                ibtSymbol,
-                ibtSymbol,
-                address(this)
-            );
+            abi.encodeWithSignature("initialize(string,string,address)", ibtSymbol, ibtSymbol, address(this));
         apwibt = IAPWineIBT(
-            IProxyFactory(registery.getProxyFactoryAddress()).deployMinimal(
-                registery.getAPWineIBTLogicAddress(),
-                payload
-            )
+            IProxyFactory(registery.getProxyFactoryAddress()).deployMinimal(registery.getAPWineIBTLogicAddress(), payload)
         );
     }
 
     /* Period functions */
     function startNewPeriod() public virtual;
 
-    function register(address _user, uint256 _amount)
-        public
-        virtual
-        periodsActive
-    {
-        require(
-            hasRole(CONTROLLER_ROLE, msg.sender),
-            "Caller is not allowed to register"
-        );
+    function register(address _user, uint256 _amount) public virtual periodsActive {
+        require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to register");
         uint256 nextIndex = getNextPeriodIndex();
         if (registrations[_user].scaledBalance == 0) {
             // User has no record
@@ -135,9 +110,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
         } else {
             if (registrations[_user].startIndex == nextIndex) {
                 // User has already an existing registration for the next period
-                registrations[_user].scaledBalance = registrations[_user]
-                    .scaledBalance
-                    .add(_amount);
+                registrations[_user].scaledBalance = registrations[_user].scaledBalance.add(_amount);
             } else {
                 // User had an unclaimed registation from a previous period
                 claimAPWIBT(_user);
@@ -147,24 +120,15 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
         emit UserRegistered(_user, _amount, nextIndex);
     }
 
-    function _register(address _user, uint256 _initialScaledBalance)
-        internal
-        virtual
-    {
-        registrations[_user] = Registration({
-            startIndex: getNextPeriodIndex(),
-            scaledBalance: _initialScaledBalance
-        });
+    function _register(address _user, uint256 _initialScaledBalance) internal virtual {
+        registrations[_user] = Registration({startIndex: getNextPeriodIndex(), scaledBalance: _initialScaledBalance});
     }
 
     function unregister(address _user, uint256 _amount) public virtual;
 
     /* Claim functions */
     function claimFYT(address _user) public virtual {
-        require(
-            hasClaimableFYT(_user),
-            "The is not fyt claimable for this address"
-        );
+        require(hasClaimableFYT(_user), "The is not fyt claimable for this address");
         if (hasClaimableAPWIBT(_user)) claimAPWIBT(_user);
         else _claimFYT(_user);
     }
@@ -176,10 +140,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
         }
     }
 
-    function claimFYTforPeriod(address _user, uint256 _periodIndex)
-        internal
-        virtual
-    {
+    function claimFYTforPeriod(address _user, uint256 _periodIndex) internal virtual {
         assert((lastPeriodClaimed[_user] + 1) == _periodIndex);
         assert(_periodIndex < getNextPeriodIndex());
         assert(_periodIndex != 0);
@@ -205,10 +166,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
     }
 
     function withdrawLockFunds(address _user, uint256 _amount) public virtual {
-        require(
-            hasRole(CONTROLLER_ROLE, msg.sender),
-            "Caller is not allowed to whithdraw locked funds"
-        );
+        require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to whithdraw locked funds");
         require(_amount > 0, "Amount to withdraw must be positive");
         if (hasClaimableAPWIBT(_user)) {
             claimAPWIBT(_user);
@@ -218,16 +176,9 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
 
         uint256 fundsToBeUnlocked = getUnlockableFunds(_user);
         uint256 unrealisedYield = getUnrealisedYield(_user);
+        require(apwibt.transferFrom(_user, address(this), _amount), "Invalid amount of APWIBT");
         require(
-            apwibt.transferFrom(_user, address(this), _amount),
-            "Invalid amount of APWIBT"
-        );
-        require(
-            fyts[getNextPeriodIndex() - 1].transferFrom(
-                _user,
-                address(this),
-                _amount
-            ),
+            fyts[getNextPeriodIndex() - 1].transferFrom(_user, address(this), _amount),
             "Invalid amount of FYT of last period"
         );
 
@@ -235,18 +186,13 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
         fyts[getNextPeriodIndex() - 1].burn(_amount);
 
         ibt.transferFrom(address(futureVault), _user, fundsToBeUnlocked); // only send locked, TODO Send Yield
-        ibt.transferFrom(
-            address(futureVault),
-            IRegistry(controller.getRegistery()).getTreasuryAddress(),
-            unrealisedYield
-        );
+        ibt.transferFrom(address(futureVault), IRegistry(controller.getRegistery()).getTreasuryAddress(), unrealisedYield);
     }
 
     /* Utilitaries functions */
     function deployFutureYieldToken() internal returns (address) {
         IRegistry registery = IRegistry(controller.getRegistery());
-        string memory tokenDenomination =
-            controller.getFYTSymbol(apwibt.symbol(), PERIOD_DURATION);
+        string memory tokenDenomination = controller.getFYTSymbol(apwibt.symbol(), PERIOD_DURATION);
         bytes memory payload =
             abi.encodeWithSignature(
                 "initialize(string,string,address)",
@@ -256,16 +202,10 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
             );
         IFutureYieldToken newToken =
             IFutureYieldToken(
-                IProxyFactory(registery.getProxyFactoryAddress()).deployMinimal(
-                    registery.getFYTLogicAddress(),
-                    payload
-                )
+                IProxyFactory(registery.getProxyFactoryAddress()).deployMinimal(registery.getFYTLogicAddress(), payload)
             );
         fyts.push(newToken);
-        newToken.mint(
-            address(this),
-            apwibt.totalSupply().mul(10**(uint256(18 - ibt.decimals())))
-        );
+        newToken.mint(address(this), apwibt.totalSupply().mul(10**(uint256(18 - ibt.decimals()))));
         return address(newToken);
     }
 
@@ -275,47 +215,26 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
     }
 
     function _hasOnlyClaimableFYT(address _user) internal view returns (bool) {
-        return
-            lastPeriodClaimed[_user] != 0 &&
-            lastPeriodClaimed[_user] < getNextPeriodIndex() - 1;
+        return lastPeriodClaimed[_user] != 0 && lastPeriodClaimed[_user] < getNextPeriodIndex() - 1;
     }
 
     function hasClaimableAPWIBT(address _user) public view returns (bool) {
-        return
-            (registrations[_user].startIndex < getNextPeriodIndex()) &&
-            (registrations[_user].scaledBalance > 0);
+        return (registrations[_user].startIndex < getNextPeriodIndex()) && (registrations[_user].scaledBalance > 0);
     }
 
     function getNextPeriodIndex() public view virtual returns (uint256) {
         return registrationsTotals.length - 1;
     }
 
-    function getClaimableAPWIBT(address _user)
-        public
-        view
-        virtual
-        returns (uint256);
+    function getClaimableAPWIBT(address _user) public view virtual returns (uint256);
 
-    function getUnlockableFunds(address _user)
-        public
-        view
-        virtual
-        returns (uint256)
-    {
+    function getUnlockableFunds(address _user) public view virtual returns (uint256) {
         return getClaimableAPWIBT(_user).add(apwibt.balanceOf(_user));
     }
 
-    function getRegisteredAmount(address _user)
-        public
-        view
-        virtual
-        returns (uint256);
+    function getRegisteredAmount(address _user) public view virtual returns (uint256);
 
-    function getUnrealisedYield(address _user)
-        public
-        view
-        virtual
-        returns (uint256);
+    function getUnrealisedYield(address _user) public view virtual returns (uint256);
 
     function getFutureVaultAddress() public view returns (address) {
         return address(futureVault);
@@ -333,59 +252,37 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
         return address(apwibt);
     }
 
-    function getFYTofPeriod(uint256 _periodIndex)
-        public
-        view
-        returns (address)
-    {
-        require(
-            _periodIndex < getNextPeriodIndex(),
-            "The isnt any fyt for this period yet"
-        );
+    function getFYTofPeriod(uint256 _periodIndex) public view returns (address) {
+        require(_periodIndex < getNextPeriodIndex(), "The isnt any fyt for this period yet");
         return address(fyts[_periodIndex]);
     }
 
     /* Admin function */
     function pausePeriods() public {
-        require(
-            hasRole(FUTURE_PAUSER, msg.sender),
-            "Caller is not allowed to pause future"
-        );
+        require(hasRole(FUTURE_PAUSER, msg.sender), "Caller is not allowed to pause future");
         PAUSED = true;
     }
 
     function resumePeriods() public {
-        require(
-            hasRole(FUTURE_PAUSER, msg.sender),
-            "Caller is not allowed to resume future"
-        );
+        require(hasRole(FUTURE_PAUSER, msg.sender), "Caller is not allowed to resume future");
         PAUSED = false;
     }
 
     function setFutureVault(address _futureVault) public {
         //TODO check if set before start
-        require(
-            hasRole(CONTROLLER_ROLE, msg.sender),
-            "Caller is not allowed to set the future vault address"
-        );
+        require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to set the future vault address");
         futureVault = IFutureVault(_futureVault);
     }
 
     function setFutureWallet(address _futureWallet) public {
         //TODO check if set before start
-        require(
-            hasRole(CONTROLLER_ROLE, msg.sender),
-            "Caller is not allowed to set the future wallet address"
-        );
+        require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to set the future wallet address");
         futureWallet = IFutureWallet(_futureWallet);
     }
 
     function setLiquidityGauge(address _liquidityGauge) public {
         //TODO check if set before start
-        require(
-            hasRole(CONTROLLER_ROLE, msg.sender),
-            "Caller is not allowed to set the liquidity gauge address"
-        );
+        require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to set the liquidity gauge address");
         liquidityGauge = ILiquidityGauge(_liquidityGauge);
     }
 

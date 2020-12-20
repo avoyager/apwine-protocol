@@ -26,10 +26,7 @@ interface IFutureWallet {
      * @param _tokenHolder the fyt holder
      * @return the yield that could be redeemed by the token holder for this period
      */
-    function getRedeemableYield(uint256 _periodIndex, address _tokenHolder)
-        external
-        view
-        returns (uint256);
+    function getRedeemableYield(uint256 _periodIndex, address _tokenHolder) external view returns (uint256);
 
     /**
      * @notice getter for the address of the future corresponding to this future wallet

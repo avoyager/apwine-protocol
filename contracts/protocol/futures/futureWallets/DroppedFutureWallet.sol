@@ -12,11 +12,7 @@ abstract contract DroppedFutureWallet is Initializable {
 
     ERC20 public droppedToken;
 
-    function _tokenDroppedinitialize(address _droppedToken)
-        internal
-        virtual
-        initializer
-    {
+    function _tokenDroppedinitialize(address _droppedToken) internal virtual initializer {
         droppedToken = ERC20(_droppedToken);
     }
 
@@ -34,13 +30,8 @@ abstract contract DroppedFutureWallet is Initializable {
         uint256 _periodTotalSupply
     ) internal {
         _updateDroppedTokenBalances();
-        uint256 redeemable =
-            (droppedTokenBalance[_index].mul(_senderAmount)).div(
-                _periodTotalSupply
-            );
-        droppedTokenBalance[_index] = droppedTokenBalance[_index].sub(
-            redeemable
-        );
+        uint256 redeemable = (droppedTokenBalance[_index].mul(_senderAmount)).div(_periodTotalSupply);
+        droppedTokenBalance[_index] = droppedTokenBalance[_index].sub(redeemable);
         totalTokensAccounted = totalTokensAccounted.sub(redeemable);
         if (redeemable > 0) droppedToken.transfer(msg.sender, redeemable);
     }
