@@ -67,6 +67,7 @@ contract Registry is Initializable, AccessControlUpgradeable {
 
     function initialize(address _admin) public initializer {
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
+        _setupRole(ADMIN_ROLE, _admin);
     }
 
     /* Setters */
