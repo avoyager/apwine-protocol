@@ -14,7 +14,7 @@ import "contracts/interfaces/apwine/IRegistry.sol";
 import "contracts/interfaces/apwine/IController.sol";
 import "contracts/interfaces/apwine/IGaugeController.sol";
 
-abstract contract FutureFactory is Initializable, AccessControlUpgradeable{
+abstract contract FutureFactory is Initializable, AccessControlUpgradeable {
     using SafeMathUpgradeable for uint256;
 
     /* ACR */
@@ -28,5 +28,4 @@ abstract contract FutureFactory is Initializable, AccessControlUpgradeable{
         _setupRole(CONTROLLER_ROLE, _controller);
         controller = IController(_controller);
     }
-
 }

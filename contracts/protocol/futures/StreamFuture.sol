@@ -52,6 +52,7 @@ abstract contract StreamFuture is Future {
         require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to register a harvest");
 
         uint256 nextPeriodID = getNextPeriodIndex();
+        registrationsTotals[nextPeriodID] = ibt.balanceOf(address(this));
 
         /* Yield */
         uint256 yield = ibt.balanceOf(address(futureVault)).sub(apwibt.totalSupply());
@@ -59,11 +60,11 @@ abstract contract StreamFuture is Future {
         futureWallet.registerExpiredFuture(yield); // Yield deposit in the futureWallet contract
 
         /* Period Switch*/
-        registrationsTotals[nextPeriodID] = ibt.balanceOf(address(this));
         if (registrationsTotals[nextPeriodID] > 0) {
             apwibt.mint(address(this), registrationsTotals[nextPeriodID]); // Mint new APWIBTs
             ibt.transfer(address(futureVault), registrationsTotals[nextPeriodID]); // Send ibt to future for the new period
         }
+        liquidityGauge.registerNewFutureLiquidity(registrationsTotals[nextPeriodID]);
 
         registrationsTotals.push();
         scaledTotals.push();

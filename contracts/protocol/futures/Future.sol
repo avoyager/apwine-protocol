@@ -187,6 +187,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
 
         ibt.transferFrom(address(futureVault), _user, fundsToBeUnlocked); // only send locked, TODO Send Yield
         ibt.transferFrom(address(futureVault), IRegistry(controller.getRegistery()).getTreasuryAddress(), unrealisedYield);
+        liquidityGauge.unregisterFutureLiquidity(fundsToBeUnlocked);
     }
 
     /* Utilitaries functions */

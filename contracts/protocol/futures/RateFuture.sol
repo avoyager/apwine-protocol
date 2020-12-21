@@ -59,6 +59,7 @@ abstract contract RateFuture is Future {
             apwibt.mint(address(this), registrationsTotals[nextPeriodID].mul(IBTRates[nextPeriodID])); // Mint new APWIBTs
             ibt.transfer(address(futureVault), registrationsTotals[nextPeriodID]); // Send ibt to future for the new period
         }
+        liquidityGauge.registerNewFutureLiquidity(registrationsTotals[nextPeriodID]);
 
         registrationsTotals.push();
         IBTRates.push();

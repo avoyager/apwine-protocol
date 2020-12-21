@@ -49,10 +49,7 @@ contract Controller is Initializable, AccessControlUpgradeable {
     }
 
     modifier futureFactoryIsValid(address _futureFactoryAddress) {
-        require(
-            registry.isRegisteredFutureFactory(_futureFactoryAddress),
-            "incorrect futurePlatform address"
-        );
+        require(registry.isRegisteredFutureFactory(_futureFactoryAddress), "incorrect futurePlatform address");
         _;
     }
 
