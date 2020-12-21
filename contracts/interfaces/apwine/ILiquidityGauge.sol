@@ -23,10 +23,10 @@ interface ILiquidityGauge {
     function unregisterFutureLiquidity(uint256 _amount) external;
 
     /**
-     * @notice Redeem the APW rewards for the user
-     * @param _user the user to who send the reward
+     * @notice update gauge and user liquidity state then return the new redeemable
+     * @param _user the user to who update and return the redeemable of
      */
-    function redeemAPW(address _user) external;
+    function updateAndGetRedeemable(address _user) external returns(uint256);
 
     /**
      * @notice Log an update of the inflated volume

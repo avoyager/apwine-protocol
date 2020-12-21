@@ -11,9 +11,14 @@ interface IGaugeController {
 
     function registerNewGauge(address _future) external returns (address);
 
-    function claimAPW(address _future) external;
+    function claimAPW() external;
 
     function mint(address _user, uint256 _amount) external;
+
+    function registerUserToGauge(address _user) external;
+
+    function unregisterUserToGauge(address _user) external;
+
 
     /* Getters */
     function getLastEpochInflationRate() external view returns (uint256);
@@ -23,4 +28,6 @@ interface IGaugeController {
     function getGaugeTypeWeight() external view returns (uint256);
 
     function getEpochLength() external view returns (uint256);
+
+    function getUserRedeemableAPW(address _user) external view returns(uint256);
 }

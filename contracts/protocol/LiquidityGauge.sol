@@ -25,13 +25,13 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable {
     mapping(address => uint256) private userRedeemTimestampIndex;
     mapping(address => uint256) private userLiquidityRegistered;
     mapping(address => uint256) internal liquidityRegistrations;
-    mapping(address => uint256) internal userRedeemable;
 
     uint256[] internal periodsSwitchesIndexes;
+    mapping(address => uint256) internal userRedeemable;
+
 
     event LiquidityAdded(uint256 _amout, uint256 _current);
     event LiquidityRemoved(uint256 _amout, uint256 _current);
-    event APWRedeemed(address _user, uint256 _amount);
 
     function initialize(address _gaugeController, address _future) public initializer {
         gaugeController = IGaugeController(_gaugeController);
@@ -61,14 +61,10 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable {
         emit LiquidityRemoved(_amount, totalDepositedSupply[totalDepositedSupply.length - 1]);
     }
 
-    function redeemAPW(address _user) public {
+    function updateAndGetRedeemable(address _user) public returns(uint256) {
         updateInflatedVolume();
         updateUserLiquidity(_user);
-        uint256 redeemable = userRedeemable[_user];
-        require(redeemable != 0, "User doesnt have any withdrawable APW atm");
-        gaugeController.mint(_user, redeemable);
-        userRedeemable[_user] = 0;
-        emit APWRedeemed(_user, redeemable);
+        return userRedeemable[_user];
     }
 
     function updateInflatedVolume() public {
