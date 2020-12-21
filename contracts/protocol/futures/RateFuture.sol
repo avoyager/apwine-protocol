@@ -13,7 +13,7 @@ import "./Future.sol";
 abstract contract RateFuture is Future {
     using SafeMathUpgradeable for uint256;
 
-    uint256[] IBTRates;
+    uint256[] private IBTRates;
 
     function initialize(
         address _controllerAddress,
