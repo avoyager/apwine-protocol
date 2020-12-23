@@ -20,4 +20,7 @@ interface IAPWineIBT is ERC20 {
      * - the caller must have the `MINTER_ROLE`.
      */
     function mint(address to, uint256 amount) external;
+
+    function burnFrom(address account, uint256 amount) external;
+
 }
