@@ -27,25 +27,30 @@ abstract contract StreamFuture is Future {
 
     function unregister(address _user, uint256 _amount) public virtual override {
         require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to unregister");
-
         uint256 nextIndex = getNextPeriodIndex();
         require(registrations[_user].startIndex == nextIndex, "There is no ongoing registration for the next period");
         uint256 userScaledBalance = registrations[_user].scaledBalance;
         uint256 currentRegistered =
             APWineMaths.getActualOutput(userScaledBalance, scaledTotals[nextIndex], ibt.balanceOf(address(this)));
         uint256 scaledToUnregister;
+        uint256 toRefund;
         if (_amount == 0) {
             require(currentRegistered > 0, "Invalid amount to unregister");
             scaledToUnregister = userScaledBalance;
             delete registrations[_user];
-            ibt.transfer(_user, currentRegistered);
+            toRefund = currentRegistered;
         } else {
             require(currentRegistered >= _amount, "Invalid amount to unregister");
             scaledToUnregister = (registrations[_user].scaledBalance.mul(_amount)).div(currentRegistered);
             registrations[_user].scaledBalance = registrations[_user].scaledBalance.sub(scaledToUnregister);
-            ibt.transfer(_user, _amount);
+            toRefund = _amount;
         }
         scaledTotals[nextIndex] = scaledTotals[nextIndex].sub(scaledToUnregister);
+        
+        ibt.transfer(_user, toRefund);
+        if (toRefund==currentRegistered){
+            liquidityGauge.deleteUserLiquidityRegistration(_user);
+        }
     }
 
     function startNewPeriod() public virtual override nextPeriodAvailable periodsActive {

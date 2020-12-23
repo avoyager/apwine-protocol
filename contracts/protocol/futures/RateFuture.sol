@@ -32,11 +32,24 @@ abstract contract RateFuture is Future {
 
         uint256 nextIndex = getNextPeriodIndex();
         require(registrations[_user].startIndex == nextIndex, "The is not ongoing registration for the next period");
-        uint256 currentRegistered = registrations[_user].scaledBalance;
-        require(currentRegistered >= _amount, "Invalid amount to unregister");
 
-        registrations[_user].scaledBalance = registrations[_user].scaledBalance.sub(currentRegistered);
-        ibt.transfer(_user, _amount);
+        uint256 currentRegistered = registrations[_user].scaledBalance;
+        uint256 toRefund;
+
+        if (_amount == 0){
+            delete registrations[_user];
+            toRefund = currentRegistered;
+        }else{
+            require(currentRegistered >= _amount, "Invalid amount to unregister");
+            registrations[_user].scaledBalance = registrations[_user].scaledBalance.sub(currentRegistered);
+            toRefund = _amount;
+        }
+
+        ibt.transfer(_user, toRefund);
+        if (toRefund==currentRegistered){
+            liquidityGauge.deleteUserLiquidityRegistration(_user);
+        }
+
     }
 
     function startNewPeriod() public virtual override nextPeriodAvailable periodsActive {

@@ -122,9 +122,10 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
 
     function _register(address _user, uint256 _initialScaledBalance) internal virtual {
         registrations[_user] = Registration({startIndex: getNextPeriodIndex(), scaledBalance: _initialScaledBalance});
+        liquidityGauge.registerUserLiquidity(_user);
     }
 
-    function unregister(address _user, uint256 _amount) public virtual;
+    function unregister(address _user, uint256 _amount) public virtual; // todo need to unregister liquidity if no registration left
 
     /* Claim functions */
     function claimFYT(address _user) public virtual {
@@ -155,6 +156,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
 
         if (_hasOnlyClaimableFYT(_user)) _claimFYT(_user);
         apwibt.transfer(_user, claimableAPWIBT);
+        // TODO register liquidity
 
         for (uint256 i = registrations[_user].startIndex; i < nextIndex; i++) {
             // get not claimed fyt
@@ -181,13 +183,12 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
             fyts[getNextPeriodIndex() - 1].transferFrom(_user, address(this), _amount),
             "Invalid amount of FYT of last period"
         );
-
         apwibt.burn(_amount);
         fyts[getNextPeriodIndex() - 1].burn(_amount);
 
         ibt.transferFrom(address(futureVault), _user, fundsToBeUnlocked); // only send locked, TODO Send Yield
         ibt.transferFrom(address(futureVault), IRegistry(controller.getRegistery()).getTreasuryAddress(), unrealisedYield);
-        liquidityGauge.unregisterFutureLiquidity(fundsToBeUnlocked);
+        liquidityGauge.removeUserLiquidity(_user, fundsToBeUnlocked);
     }
 
     /* Utilitaries functions */
