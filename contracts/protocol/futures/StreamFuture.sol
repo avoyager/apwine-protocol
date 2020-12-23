@@ -19,6 +19,7 @@ abstract contract StreamFuture is Future {
     }
 
     function register(address _winegrower, uint256 _amount) public virtual override periodsActive {
+        require(_amount>0,"invalid amount to register");
         uint256 scaledInput =
             APWineMaths.getScaledInput(_amount, scaledTotals[getNextPeriodIndex()], ibt.balanceOf(address(this)));
         super.register(_winegrower, scaledInput);

@@ -37,6 +37,7 @@ abstract contract RateFuture is Future {
         uint256 toRefund;
 
         if (_amount == 0){
+            require(currentRegistered >= 0, "Invalid amount to unregister");
             delete registrations[_user];
             toRefund = currentRegistered;
         }else{
