@@ -31,8 +31,9 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
     IAPWToken private apw;
     IRegistry registery;
 
-    mapping(address => EnumerableSetUpgradeable.AddressSet) internal userRegisteredGauge;
     mapping(address => uint256) internal redeemedByUser;
+    mapping(address => uint256) internal userLiquidity;
+
 
     event LiquidityGaugeRegistered(address _future, address _newLiquidityGauge);
     event APWRedeemed(address _user, uint256 _amount);
@@ -76,12 +77,9 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
 
     function claimAPW() public {
         uint256 totalRedeemable;
-        EnumerableSetUpgradeable.AddressSet storage userGauge = userRegisteredGauge[msg.sender];
-
-        for(uint256 i=0; i<userGauge.length();i++){
-            totalRedeemable = totalRedeemable.add(ILiquidityGauge(userGauge.at(i)).updateAndGetRedeemable(msg.sender));
+        for(uint256 i=0; i<liquidityGauges.length();i++){
+            totalRedeemable = totalRedeemable.add(ILiquidityGauge(liquidityGauges.at(i)).updateAndGetRedeemable(msg.sender));
         }
-
         uint256 actualRedeemable = totalRedeemable.sub(redeemedByUser[msg.sender]);
         require(actualRedeemable != 0, "User doesnt have any withdrawable APW");
         redeemedByUser[msg.sender] = redeemedByUser[msg.sender].add(actualRedeemable);
@@ -89,12 +87,21 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
         emit APWRedeemed(msg.sender, actualRedeemable);
     }
 
-    function registerUserToGauge(address _user) public isValidLiquidyGauge {
-        userRegisteredGauge[_user].add(msg.sender);
+    function claimAPW(address[] memory _liquidityGauges) public {
+        uint256 totalRedeemable;
+        for(uint256 i=0; i<_liquidityGauges.length;i++){
+            require(liquidityGauges.contains(_liquidityGauges[i]), "invalid liquidity gauge addess");
+            totalRedeemable = totalRedeemable.add(ILiquidityGauge(_liquidityGauges[i]).updateAndGetRedeemable(msg.sender));
+        }
+        uint256 actualRedeemable = totalRedeemable.sub(redeemedByUser[msg.sender]);
+        require(actualRedeemable != 0, "User doesnt have any withdrawable APW");
+        redeemedByUser[msg.sender] = redeemedByUser[msg.sender].add(actualRedeemable);
+        apw.mint(msg.sender, actualRedeemable);
+        emit APWRedeemed(msg.sender, actualRedeemable);
     }
 
-    function unregisterUserToGauge(address _user) public isValidLiquidyGauge {
-        userRegisteredGauge[_user].remove(msg.sender);
+    function addUserRedeemable(address _user, uint256 _amount) public isValidLiquidyGauge{
+        userLiquidity[_user] = userLiquidity[_user].add(_amount);
     }
 
 
@@ -117,10 +124,8 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
 
     function getUserRedeemableAPW(address _user) external view returns(uint256) {
         uint256 totalRedeemable;
-        EnumerableSetUpgradeable.AddressSet storage userGauge = userRegisteredGauge[_user];
-
-        for(uint256 i=0; i<userGauge.length();i++){
-            totalRedeemable = totalRedeemable.add(ILiquidityGauge(userGauge.at(i)).getUserRedeemable(_user));
+        for(uint256 i=0; i<liquidityGauges.length();i++){
+            totalRedeemable = totalRedeemable.add(ILiquidityGauge(liquidityGauges.at(i)).getUserRedeemable(_user));
         }
        return totalRedeemable.sub(redeemedByUser[_user]);
     }

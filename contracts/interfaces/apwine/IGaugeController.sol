@@ -13,11 +13,13 @@ interface IGaugeController {
 
     function claimAPW() external;
 
+    function claimAPW(address[] memory _liquidityGauges) external;
+
     function mint(address _user, uint256 _amount) external;
 
-    function registerUserToGauge(address _user) external;
+    function addUserRedeemable(address _user, uint256 _amount) external;
 
-    function unregisterUserToGauge(address _user) external;
+
 
 
     /* Getters */

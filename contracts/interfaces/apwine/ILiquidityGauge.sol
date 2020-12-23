@@ -52,9 +52,16 @@ interface ILiquidityGauge {
      */
     function registerUserLiquidity(address _user) external;
 
-    /**
-     * @notice Unregister the user liquidity addon
-     * @param _user the user to unregister the liquidity of
-     */
-    function unregisterUserLiquidity(address _user) external;
+
+    function deleteUserLiquidityRegistration(address _user) external;
+
+
+    function transferUserLiquidty(address _sender, address _receiver, uint256 _amount) external;
+
+    function updateUserLiquidity(address _user) external;
+
+    function removeUserLiquidity(address _user, uint256 _amount) external;
+
+
+
 }
