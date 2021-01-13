@@ -4,7 +4,6 @@ import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 
-// import "../../interfaces/ERC20.sol";
 import "../../interfaces/IProxyFactory.sol";
 import "contracts/interfaces/apwine/tokens/IFutureYieldToken.sol";
 import "../../libraries/APWineMaths.sol";
