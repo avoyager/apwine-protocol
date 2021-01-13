@@ -17,7 +17,7 @@ import "contracts/interfaces/apwine/IGaugeController.sol";
 
 import "./FutureFactory.sol";
 
-abstract contract IBTFutureFactory is FutureFactory {
+contract IBTFutureFactory is FutureFactory {
     using SafeMathUpgradeable for uint256;
 
     function deployFutureWithIBT(
@@ -37,32 +37,35 @@ abstract contract IBTFutureFactory is FutureFactory {
         /* Deploy the new contracts */
         bytes memory payload =
             abi.encodeWithSignature(
-                "initialize(address,address,uint256,string,address)",
-                address(this),
+                "initialize(address,address,uint256,string,address,address)",
+                address(controller),
                 _ibt,
                 _periodDuration,
                 _futurePlatformName,
+                address(this),
                 controller_default_admin
             );
         IFuture newFuture = IFuture(proxyFactory.deployMinimal(futurePlatformContracts[0], payload));
 
-        payload = abi.encodeWithSignature("initialize(address,address)", address(newFuture), controller_default_admin);
-        address newFutureVault = proxyFactory.deployMinimal(futurePlatformContracts[1], payload);
-
         payload = abi.encodeWithSignature(
-            "initialize(address,address,uint256)",
+            "initialize(address,address)",
             address(newFuture),
             controller_default_admin
         );
-        address newFutureWallet = proxyFactory.deployMinimal(futurePlatformContracts[2], payload);
+        address newFutureWallet = proxyFactory.deployMinimal(futurePlatformContracts[1], payload);
+
+        payload = abi.encodeWithSignature("initialize(address,address)", address(newFuture), controller_default_admin);
+        address newFutureVault = proxyFactory.deployMinimal(futurePlatformContracts[2], payload);
+
+
 
         /* Liquidity Gauge registration */
         address newLiquidityGauge =
             IGaugeController(registery.getGaugeControllerAddress()).registerNewGauge(address(newFuture));
 
         /* Configure the new future */
-        newFuture.setFutureVault(newFutureVault);
         newFuture.setFutureWallet(newFutureWallet);
+        newFuture.setFutureVault(newFutureVault);
         newFuture.setLiquidityGauge(newLiquidityGauge);
 
         /* Register the newly deployed future */
