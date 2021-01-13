@@ -154,7 +154,6 @@ contract Controller is Initializable, AccessControlUpgradeable {
         registry.addFuture(_newFuture);
         uint256 futureDuration = IFuture(_newFuture).PERIOD_DURATION();
         if (!durations.contains(futureDuration)) durations.add(futureDuration);
-        registry.addFuture(_newFuture);
         futuresByDuration[futureDuration].add(_newFuture);
         emit FutureRegistered(_newFuture);
     }

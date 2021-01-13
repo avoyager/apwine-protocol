@@ -29,7 +29,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
     /* Addresses */
     EnumerableSetUpgradeable.AddressSet private liquidityGauges;
     IAPWToken private apw;
-    IRegistry registery;
+    IRegistry registry;
 
     mapping(address => uint256) internal redeemedByUser;
     mapping(address => uint256) internal userLiquidity;
@@ -50,11 +50,11 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
     ) public initializer {
         _setupRole(DEFAULT_ADMIN_ROLE, _ADMIN);
         _setupRole(ADMIN_ROLE, _ADMIN);
-        registery = IRegistry(_registry);
+        registry = IRegistry(_registry);
     }
 
     function registerNewGauge(address _future) public returns (address) {
-        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not the DAO");
+        require(registry.isRegisteredFutureFactory(msg.sender), "incorrect future factory address");
         address newLiquidityGauge = deployLiquidityGauge(_future);
         futureGauges[_future] = newLiquidityGauge;
         emit LiquidityGaugeRegistered(_future, newLiquidityGauge);
@@ -65,8 +65,8 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
         bytes memory payload = abi.encodeWithSignature("initialize(address,address)", address(this), _future);
         ILiquidityGauge newLiquidityGauge =
             ILiquidityGauge(
-                IProxyFactory(registery.getProxyFactoryAddress()).deployMinimal(
-                    registery.getLiquidityGaugeLogicAddress(),
+                IProxyFactory(registry.getProxyFactoryAddress()).deployMinimal(
+                    registry.getLiquidityGaugeLogicAddress(),
                     payload
                 )
             );

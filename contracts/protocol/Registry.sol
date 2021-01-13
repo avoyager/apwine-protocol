@@ -86,6 +86,8 @@ contract Registry is Initializable, AccessControlUpgradeable {
     function setController(address _newController) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         emit RegisteryUpdate("Controller", controller, _newController);
+        _setupRole(CONTROLLER_ROLE, _newController);
+        revokeRole(CONTROLLER_ROLE, controller);
         controller = _newController;
     }
 
@@ -233,7 +235,7 @@ contract Registry is Initializable, AccessControlUpgradeable {
     function getFuturePlatform(string memory _futurePlatformName) public view returns (address[3] memory) {
         futurePlatform memory futurePlatformContracts = futurePlatformsName[_futurePlatformName];
         address[3] memory addressesArrays =
-            [futurePlatformContracts.future, futurePlatformContracts.futureVault, futurePlatformContracts.futureWallet];
+            [futurePlatformContracts.future, futurePlatformContracts.futureWallet,futurePlatformContracts.futureVault];
         return addressesArrays;
     }
 
