@@ -16,9 +16,10 @@ abstract contract RateFuture is Future {
         address _ibt,
         uint256 _periodLength,
         string memory _platform,
+        address _deployerAddress,
         address _adminAddress
     ) public virtual override initializer {
-        super.initialize(_controllerAddress, _ibt, _periodLength, _platform, _adminAddress);
+        super.initialize(_controllerAddress, _ibt, _periodLength, _platform, _deployerAddress, _adminAddress);
         IBTRates.push();
         IBTRates.push();
     }

@@ -30,6 +30,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
     /* ACR ROLE */
     bytes32 public constant CONTROLLER_ROLE = keccak256("CONTROLLER_ROLE");
     bytes32 public constant FUTURE_PAUSER = keccak256("FUTURE_PAUSER");
+    bytes32 public constant FUTURE_DEPLOYER = keccak256("FUTURE_DEPLOYER");
 
     /* State variables */
     mapping(address => uint256) internal lastPeriodClaimed;
@@ -74,6 +75,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
         address _ibt,
         uint256 _periodDuration,
         string memory _platformName,
+        address _deployerAddress,
         address _admin
     ) public virtual initializer {
         controller = IController(_controller);
@@ -83,6 +85,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
         _setupRole(CONTROLLER_ROLE, _controller);
         _setupRole(FUTURE_PAUSER, _controller);
+        _setupRole(FUTURE_DEPLOYER, _deployerAddress);
 
         registrationsTotals.push();
         registrationsTotals.push();
@@ -271,19 +274,19 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
 
     function setFutureVault(address _futureVault) public {
         //TODO check if set before start
-        require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to set the future vault address");
+        require(hasRole(FUTURE_DEPLOYER, msg.sender), "Caller is not allowed to set the future vault address");
         futureVault = IFutureVault(_futureVault);
     }
 
     function setFutureWallet(address _futureWallet) public {
         //TODO check if set before start
-        require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to set the future wallet address");
+        require(hasRole(FUTURE_DEPLOYER, msg.sender), "Caller is not allowed to set the future wallet address");
         futureWallet = IFutureWallet(_futureWallet);
     }
 
     function setLiquidityGauge(address _liquidityGauge) public {
         //TODO check if set before start
-        require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to set the liquidity gauge address");
+        require(hasRole(FUTURE_DEPLOYER, msg.sender), "Caller is not allowed to set the liquidity gauge address");
         liquidityGauge = ILiquidityGauge(_liquidityGauge);
     }
 
