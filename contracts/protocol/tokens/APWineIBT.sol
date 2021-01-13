@@ -2,9 +2,7 @@ pragma solidity >=0.7.0 <0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/GSN/ContextUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20BurnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20PausableUpgradeable.sol";
+import "./ClaimableERC20.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "contracts/interfaces/apwine/IFuture.sol";
 
@@ -27,15 +25,15 @@ contract APWineIBT is
     Initializable,
     ContextUpgradeable,
     AccessControlUpgradeable,
-    ERC20BurnableUpgradeable,
-    ERC20PausableUpgradeable
+    ClaimableERC20
 {
     using SafeMathUpgradeable for uint256;
 
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
-    address public future;
+    IFuture public future;
+
 
     /**
      * @dev Grants `DEFAULT_ADMIN_ROLE`, `MINTER_ROLE` and `PAUSER_ROLE` to the
@@ -53,7 +51,7 @@ contract APWineIBT is
         _setupRole(DEFAULT_ADMIN_ROLE, _futureAddress);
         _setupRole(MINTER_ROLE, _futureAddress);
         _setupRole(PAUSER_ROLE, _futureAddress);
-        future = _futureAddress;
+        future = IFuture(_futureAddress);
     }
 
     function __ERC20PresetMinterPauser_init(string memory name, string memory symbol) internal initializer {
@@ -119,16 +117,16 @@ contract APWineIBT is
         address from,
         address to,
         uint256 amount
-    ) internal override(ERC20Upgradeable, ERC20PausableUpgradeable) {
+    ) internal override{
         super._beforeTokenTransfer(from, to, amount);
 
         // sender and receiver state update
-        if (from != future && to != future) {
-            if (IFuture(future).hasClaimableFYT(from)) {
-                IFuture(future).claimFYT(from);
+        if (from != address(future) && to != address(future)) {
+            if (future.hasClaimableFYT(from)) {
+                future.claimFYT(from);
             }
-            if (IFuture(future).hasClaimableFYT(to)) {
-                IFuture(future).claimFYT(to);
+            if (future.hasClaimableFYT(to)) {
+                future.claimFYT(to);
             }
         }
     }
@@ -139,7 +137,7 @@ contract APWineIBT is
         uint256 amount
     ) public virtual override returns (bool) {
         _transfer(sender, recipient, amount);
-        if (recipient != future) {
+        if (recipient != address(future)) {
             _approve(
                 sender,
                 _msgSender(),
@@ -148,6 +146,17 @@ contract APWineIBT is
         }
         return true;
     }
+
+    function _transfer(address sender, address recipient, uint256 amount) internal override {
+        if (future.hasClaimableFYT(sender)) future.claimFYT(sender);
+        super._transfer(sender,recipient,amount);
+    }
+
+
+    function balanceOf(address account) public view override returns (uint256) {
+        return super.balanceOf(account).add(future.getClaimableAPWIBT(account));
+    }
+
 
     uint256[50] private __gap;
 }
