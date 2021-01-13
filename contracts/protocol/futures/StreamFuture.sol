@@ -1,5 +1,5 @@
 pragma solidity >=0.7.0 <0.8.0;
-import "./Future.sol";
+import "contracts/protocol/futures/Future.sol";
 
 abstract contract StreamFuture is Future {
     using SafeMathUpgradeable for uint256;

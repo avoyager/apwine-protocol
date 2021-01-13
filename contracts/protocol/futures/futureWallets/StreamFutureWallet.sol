@@ -1,6 +1,6 @@
 pragma solidity >=0.7.0 <0.8.0;
 
-import "./FutureWallet.sol";
+import "contracts/protocol/futures/futureWallets/FutureWallet.sol";
 
 abstract contract StreamFutureWallet is FutureWallet {
     using SafeMathUpgradeable for uint256;
