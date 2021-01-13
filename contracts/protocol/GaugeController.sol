@@ -46,13 +46,11 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
 
     function initialize(
         address _ADMIN,
-        address _APW,
         address _registry
     ) public initializer {
         _setupRole(DEFAULT_ADMIN_ROLE, _ADMIN);
         _setupRole(ADMIN_ROLE, _ADMIN);
         registery = IRegistry(_registry);
-        apw = IAPWToken(_APW);
     }
 
     function registerNewGauge(address _future) public returns (address) {
@@ -130,6 +128,11 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
        return totalRedeemable.sub(redeemedByUser[_user]);
     }
 
-
     /* Setters */
+
+    function setAPW(address _APW) public{
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
+        require(address(apw)!=address(0), "Token already set");
+        apw = IAPWToken(_APW);
+    }
 }
