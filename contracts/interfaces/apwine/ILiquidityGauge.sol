@@ -26,7 +26,7 @@ interface ILiquidityGauge {
      * @notice update gauge and user liquidity state then return the new redeemable
      * @param _user the user to who update and return the redeemable of
      */
-    function updateAndGetRedeemable(address _user) external returns(uint256);
+    function updateAndGetRedeemable(address _user) external returns (uint256);
 
     /**
      * @notice Log an update of the inflated volume
@@ -52,16 +52,15 @@ interface ILiquidityGauge {
      */
     function registerUserLiquidity(address _user) external;
 
-
     function deleteUserLiquidityRegistration(address _user) external;
 
-
-    function transferUserLiquidty(address _sender, address _receiver, uint256 _amount) external;
+    function transferUserLiquidty(
+        address _sender,
+        address _receiver,
+        uint256 _amount
+    ) external;
 
     function updateUserLiquidity(address _user) external;
 
     function removeUserLiquidity(address _user, uint256 _amount) external;
-
-
-
 }

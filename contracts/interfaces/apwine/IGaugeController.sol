@@ -19,9 +19,6 @@ interface IGaugeController {
 
     function addUserRedeemable(address _user, uint256 _amount) external;
 
-
-
-
     /* Getters */
     function getLastEpochInflationRate() external view returns (uint256);
 
@@ -31,5 +28,5 @@ interface IGaugeController {
 
     function getEpochLength() external view returns (uint256);
 
-    function getUserRedeemableAPW(address _user) external view returns(uint256);
+    function getUserRedeemableAPW(address _user) external view returns (uint256);
 }

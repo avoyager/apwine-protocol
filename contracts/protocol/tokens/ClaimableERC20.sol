@@ -8,13 +8,12 @@ import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 
-
 contract ClaimableERC20 is Initializable, ContextUpgradeable, IERC20Upgradeable, PausableUpgradeable {
     using SafeMathUpgradeable for uint256;
 
-    mapping (address => uint256) private _balances;
+    mapping(address => uint256) private _balances;
 
-    mapping (address => mapping (address => uint256)) private _allowances;
+    mapping(address => mapping(address => uint256)) private _allowances;
 
     uint256 private _totalSupply;
 
@@ -133,9 +132,17 @@ contract ClaimableERC20 is Initializable, ContextUpgradeable, IERC20Upgradeable,
      * - the caller must have allowance for ``sender``'s tokens of at least
      * `amount`.
      */
-    function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
+    function transferFrom(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) public virtual override returns (bool) {
         _transfer(sender, recipient, amount);
-        _approve(sender, _msgSender(), _allowances[sender][_msgSender()].sub(amount, "ERC20: transfer amount exceeds allowance"));
+        _approve(
+            sender,
+            _msgSender(),
+            _allowances[sender][_msgSender()].sub(amount, "ERC20: transfer amount exceeds allowance")
+        );
         return true;
     }
 
@@ -171,7 +178,11 @@ contract ClaimableERC20 is Initializable, ContextUpgradeable, IERC20Upgradeable,
      * `subtractedValue`.
      */
     function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
-        _approve(_msgSender(), spender, _allowances[_msgSender()][spender].sub(subtractedValue, "ERC20: decreased allowance below zero"));
+        _approve(
+            _msgSender(),
+            spender,
+            _allowances[_msgSender()][spender].sub(subtractedValue, "ERC20: decreased allowance below zero")
+        );
         return true;
     }
 
@@ -189,7 +200,11 @@ contract ClaimableERC20 is Initializable, ContextUpgradeable, IERC20Upgradeable,
      * - `recipient` cannot be the zero address.
      * - `sender` must have a balance of at least `amount`.
      */
-    function _transfer(address sender, address recipient, uint256 amount) internal virtual {
+    function _transfer(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) internal virtual {
         require(sender != address(0), "ERC20: transfer from the zero address");
         require(recipient != address(0), "ERC20: transfer to the zero address");
 
@@ -253,7 +268,11 @@ contract ClaimableERC20 is Initializable, ContextUpgradeable, IERC20Upgradeable,
      * - `owner` cannot be the zero address.
      * - `spender` cannot be the zero address.
      */
-    function _approve(address owner, address spender, uint256 amount) internal virtual {
+    function _approve(
+        address owner,
+        address spender,
+        uint256 amount
+    ) internal virtual {
         require(owner != address(0), "ERC20: approve from the zero address");
         require(spender != address(0), "ERC20: approve to the zero address");
 
@@ -292,11 +311,9 @@ contract ClaimableERC20 is Initializable, ContextUpgradeable, IERC20Upgradeable,
         __ERC20Burnable_init_unchained();
     }
 
-
     /* Burnable */
 
-    function __ERC20Burnable_init_unchained() internal initializer {
-    }
+    function __ERC20Burnable_init_unchained() internal initializer {}
 
     /**
      * @dev Destroys `amount` tokens from the caller.
@@ -332,8 +349,8 @@ contract ClaimableERC20 is Initializable, ContextUpgradeable, IERC20Upgradeable,
         __ERC20Pausable_init_unchained();
     }
 
-    function __ERC20Pausable_init_unchained() internal initializer {
-    }
+    function __ERC20Pausable_init_unchained() internal initializer {}
+
     /**
      * @dev See {ERC20-_beforeTokenTransfer}.
      *
@@ -341,8 +358,13 @@ contract ClaimableERC20 is Initializable, ContextUpgradeable, IERC20Upgradeable,
      *
      * - the contract must not be paused.
      */
-    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual {
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal virtual {
         require(!paused(), "ERC20Pausable: token transfer while paused");
     }
+
     uint256[44] private __gap;
 }

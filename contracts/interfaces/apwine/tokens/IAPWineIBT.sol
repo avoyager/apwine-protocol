@@ -1,6 +1,6 @@
 pragma solidity >=0.7.0 <0.8.0;
 
-import "../../ERC20.sol";
+import "contracts/interfaces/ERC20.sol";
 
 interface IAPWineIBT is ERC20 {
     /**
@@ -22,5 +22,4 @@ interface IAPWineIBT is ERC20 {
     function mint(address to, uint256 amount) external;
 
     function burnFrom(address account, uint256 amount) external;
-
 }

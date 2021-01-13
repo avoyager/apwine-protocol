@@ -235,7 +235,7 @@ contract Registry is Initializable, AccessControlUpgradeable {
     function getFuturePlatform(string memory _futurePlatformName) public view returns (address[3] memory) {
         futurePlatform memory futurePlatformContracts = futurePlatformsName[_futurePlatformName];
         address[3] memory addressesArrays =
-            [futurePlatformContracts.future, futurePlatformContracts.futureWallet,futurePlatformContracts.futureVault];
+            [futurePlatformContracts.future, futurePlatformContracts.futureWallet, futurePlatformContracts.futureVault];
         return addressesArrays;
     }
 

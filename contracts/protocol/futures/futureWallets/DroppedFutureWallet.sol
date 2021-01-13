@@ -1,6 +1,6 @@
 pragma solidity >=0.7.0 <0.8.0;
 
-import "./RateFutureWallet.sol";
+import "contracts/protocol/futures/futureWallets/RateFutureWallet.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 

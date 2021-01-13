@@ -2,7 +2,7 @@ pragma solidity >=0.7.0 <0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/GSN/ContextUpgradeable.sol";
-import "./ClaimableERC20.sol";
+import "contracts/protocol/tokens/ClaimableERC20.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "contracts/interfaces/apwine/IFuture.sol";
 
@@ -21,19 +21,13 @@ import "contracts/interfaces/apwine/IFuture.sol";
  * roles, as well as the default admin role, which will let it grant both minter
  * and pauser roles to aother accounts
  */
-contract APWineIBT is
-    Initializable,
-    ContextUpgradeable,
-    AccessControlUpgradeable,
-    ClaimableERC20
-{
+contract APWineIBT is Initializable, ContextUpgradeable, AccessControlUpgradeable, ClaimableERC20 {
     using SafeMathUpgradeable for uint256;
 
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
     IFuture public future;
-
 
     /**
      * @dev Grants `DEFAULT_ADMIN_ROLE`, `MINTER_ROLE` and `PAUSER_ROLE` to the
@@ -117,7 +111,7 @@ contract APWineIBT is
         address from,
         address to,
         uint256 amount
-    ) internal override{
+    ) internal override {
         super._beforeTokenTransfer(from, to, amount);
 
         // sender and receiver state update
@@ -147,16 +141,18 @@ contract APWineIBT is
         return true;
     }
 
-    function _transfer(address sender, address recipient, uint256 amount) internal override {
+    function _transfer(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) internal override {
         if (future.hasClaimableFYT(sender)) future.claimFYT(sender);
-        super._transfer(sender,recipient,amount);
+        super._transfer(sender, recipient, amount);
     }
-
 
     function balanceOf(address account) public view override returns (uint256) {
         return super.balanceOf(account).add(future.getClaimableAPWIBT(account));
     }
-
 
     uint256[50] private __gap;
 }

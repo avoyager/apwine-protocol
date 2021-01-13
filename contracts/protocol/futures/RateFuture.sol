@@ -33,21 +33,20 @@ abstract contract RateFuture is Future {
         uint256 currentRegistered = registrations[_user].scaledBalance;
         uint256 toRefund;
 
-        if (_amount == 0){
+        if (_amount == 0) {
             require(currentRegistered >= 0, "Invalid amount to unregister");
             delete registrations[_user];
             toRefund = currentRegistered;
-        }else{
+        } else {
             require(currentRegistered >= _amount, "Invalid amount to unregister");
             registrations[_user].scaledBalance = registrations[_user].scaledBalance.sub(currentRegistered);
             toRefund = _amount;
         }
 
         ibt.transfer(_user, toRefund);
-        if (toRefund==currentRegistered){
+        if (toRefund == currentRegistered) {
             liquidityGauge.deleteUserLiquidityRegistration(_user);
         }
-
     }
 
     function startNewPeriod() public virtual override nextPeriodAvailable periodsActive {

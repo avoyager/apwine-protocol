@@ -1,7 +1,7 @@
 pragma solidity >=0.7.0 <0.8.0;
 
-import "./RateFutureWallet.sol";
-import "./DroppedFutureWallet.sol";
+import "contracts/protocol/futures/futureWallets/RateFutureWallet.sol";
+import "contracts/protocol/futures/futureWallets/DroppedFutureWallet.sol";
 
 abstract contract RateDroppedFutureWallet is RateFutureWallet, DroppedFutureWallet {
     using SafeMathUpgradeable for uint256;

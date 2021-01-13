@@ -47,17 +47,11 @@ contract IBTFutureFactory is FutureFactory {
             );
         IFuture newFuture = IFuture(proxyFactory.deployMinimal(futurePlatformContracts[0], payload));
 
-        payload = abi.encodeWithSignature(
-            "initialize(address,address)",
-            address(newFuture),
-            controller_default_admin
-        );
+        payload = abi.encodeWithSignature("initialize(address,address)", address(newFuture), controller_default_admin);
         address newFutureWallet = proxyFactory.deployMinimal(futurePlatformContracts[1], payload);
 
         payload = abi.encodeWithSignature("initialize(address,address)", address(newFuture), controller_default_admin);
         address newFutureVault = proxyFactory.deployMinimal(futurePlatformContracts[2], payload);
-
-
 
         /* Liquidity Gauge registration */
         address newLiquidityGauge =

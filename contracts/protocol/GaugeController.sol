@@ -34,20 +34,15 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
     mapping(address => uint256) internal redeemedByUser;
     mapping(address => uint256) internal userLiquidity;
 
-
     event LiquidityGaugeRegistered(address _future, address _newLiquidityGauge);
     event APWRedeemed(address _user, uint256 _amount);
 
-
-    modifier isValidLiquidyGauge(){
+    modifier isValidLiquidyGauge() {
         require(liquidityGauges.contains(msg.sender), "Incorrect liqudity gauge");
         _;
     }
 
-    function initialize(
-        address _ADMIN,
-        address _registry
-    ) public initializer {
+    function initialize(address _ADMIN, address _registry) public initializer {
         _setupRole(DEFAULT_ADMIN_ROLE, _ADMIN);
         _setupRole(ADMIN_ROLE, _ADMIN);
         registry = IRegistry(_registry);
@@ -75,7 +70,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
 
     function claimAPW() public {
         uint256 totalRedeemable;
-        for(uint256 i=0; i<liquidityGauges.length();i++){
+        for (uint256 i = 0; i < liquidityGauges.length(); i++) {
             totalRedeemable = totalRedeemable.add(ILiquidityGauge(liquidityGauges.at(i)).updateAndGetRedeemable(msg.sender));
         }
         uint256 actualRedeemable = totalRedeemable.sub(redeemedByUser[msg.sender]);
@@ -87,7 +82,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
 
     function claimAPW(address[] memory _liquidityGauges) public {
         uint256 totalRedeemable;
-        for(uint256 i=0; i<_liquidityGauges.length;i++){
+        for (uint256 i = 0; i < _liquidityGauges.length; i++) {
             require(liquidityGauges.contains(_liquidityGauges[i]), "invalid liquidity gauge addess");
             totalRedeemable = totalRedeemable.add(ILiquidityGauge(_liquidityGauges[i]).updateAndGetRedeemable(msg.sender));
         }
@@ -98,10 +93,9 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
         emit APWRedeemed(msg.sender, actualRedeemable);
     }
 
-    function addUserRedeemable(address _user, uint256 _amount) public isValidLiquidyGauge{
+    function addUserRedeemable(address _user, uint256 _amount) public isValidLiquidyGauge {
         userLiquidity[_user] = userLiquidity[_user].add(_amount);
     }
-
 
     /* Getters */
     function getLastEpochInflationRate() external view returns (uint256) {
@@ -120,19 +114,19 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
         return epochLength;
     }
 
-    function getUserRedeemableAPW(address _user) external view returns(uint256) {
+    function getUserRedeemableAPW(address _user) external view returns (uint256) {
         uint256 totalRedeemable;
-        for(uint256 i=0; i<liquidityGauges.length();i++){
+        for (uint256 i = 0; i < liquidityGauges.length(); i++) {
             totalRedeemable = totalRedeemable.add(ILiquidityGauge(liquidityGauges.at(i)).getUserRedeemable(_user));
         }
-       return totalRedeemable.sub(redeemedByUser[_user]);
+        return totalRedeemable.sub(redeemedByUser[_user]);
     }
 
     /* Setters */
 
-    function setAPW(address _APW) public{
+    function setAPW(address _APW) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        require(address(apw)!=address(0), "Token already set");
+        require(address(apw) != address(0), "Token already set");
         apw = IAPWToken(_APW);
     }
 }

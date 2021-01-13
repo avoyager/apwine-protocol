@@ -14,13 +14,13 @@ abstract contract StreamFuture is Future {
         address _deployerAddress,
         address _adminAddress
     ) public virtual override initializer {
-        super.initialize(_controllerAddress, _ibt, _periodLength, _platform,_deployerAddress, _adminAddress);
+        super.initialize(_controllerAddress, _ibt, _periodLength, _platform, _deployerAddress, _adminAddress);
         scaledTotals.push();
         scaledTotals.push();
     }
 
     function register(address _winegrower, uint256 _amount) public virtual override periodsActive {
-        require(_amount>0,"invalid amount to register");
+        require(_amount > 0, "invalid amount to register");
         uint256 scaledInput =
             APWineMaths.getScaledInput(_amount, scaledTotals[getNextPeriodIndex()], ibt.balanceOf(address(this)));
         super.register(_winegrower, scaledInput);
@@ -48,9 +48,9 @@ abstract contract StreamFuture is Future {
             toRefund = _amount;
         }
         scaledTotals[nextIndex] = scaledTotals[nextIndex].sub(scaledToUnregister);
-        
+
         ibt.transfer(_user, toRefund);
-        if (toRefund==currentRegistered){
+        if (toRefund == currentRegistered) {
             liquidityGauge.deleteUserLiquidityRegistration(_user);
         }
     }

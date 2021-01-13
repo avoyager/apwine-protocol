@@ -4,15 +4,15 @@ import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 
-import "../../interfaces/IProxyFactory.sol";
+import "contracts/interfaces/IProxyFactory.sol";
 import "contracts/interfaces/apwine/tokens/IFutureYieldToken.sol";
-import "../../libraries/APWineMaths.sol";
-import "../../libraries/APWineNaming.sol";
+import "contracts/libraries/APWineMaths.sol";
+import "contracts/libraries/APWineNaming.sol";
 
 import "contracts/interfaces/apwine/tokens/IAPWineIBT.sol";
-import "../../interfaces/apwine/IFutureWallet.sol";
+import "contracts/interfaces/apwine/IFutureWallet.sol";
 import "contracts/interfaces/apwine/IController.sol";
-import "../../interfaces/apwine/IFutureVault.sol";
+import "contracts/interfaces/apwine/IFutureVault.sol";
 import "contracts/interfaces/apwine/ILiquidityGauge.sol";
 import "contracts/interfaces/apwine/IRegistry.sol";
 
