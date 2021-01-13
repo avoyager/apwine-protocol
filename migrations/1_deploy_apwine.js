@@ -54,7 +54,7 @@ module.exports = async function (deployer) {
   const liquidityGaugeLogic = await deployer.deploy(LiquidityGauge);
 
   /* Set addresses in registery */
-  await registery.setTreasuryAddress(treasury.address);
+  await registery.setTreasury(treasury.address);
   await registery.setGaugeController(gaugeController.address);
   await registery.setController(controller.address);
   //await registery.setAPW(apw.address);
