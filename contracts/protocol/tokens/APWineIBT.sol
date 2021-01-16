@@ -5,6 +5,7 @@ import "@openzeppelin/contracts-upgradeable/GSN/ContextUpgradeable.sol";
 import "contracts/protocol/tokens/ClaimableERC20.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "contracts/interfaces/apwine/IFuture.sol";
+import "contracts/interfaces/apwine/ILiquidityGauge.sol";
 
 /**
  * @dev {ERC20} token, including:
@@ -122,6 +123,7 @@ contract APWineIBT is Initializable, ContextUpgradeable, AccessControlUpgradeabl
             if (future.hasClaimableFYT(to)) {
                 future.claimFYT(to);
             }
+            ILiquidityGauge(future.getLiquidityGaugeAddress()).transferUserLiquidty(from,to,amount);
         }
     }
 
