@@ -52,15 +52,35 @@ interface ILiquidityGauge {
      */
     function registerUserLiquidity(address _user) external;
 
+
+    /**
+     * @notice Register new user liquidity
+     * @param _user the user to register the liquidity of
+     */
     function deleteUserLiquidityRegistration(address _user) external;
 
+    /**
+     * @notice Register new user liquidity
+     * @param _sender the user to transfer the liquidity from
+     * @param _receiver the user to transfer the liquidity to
+     * @param _amount the amount of liquditiy to transfer
+     */
     function transferUserLiquidty(
         address _sender,
         address _receiver,
         uint256 _amount
     ) external;
 
+    /**
+     * @notice Update the current stored liquidity of one user
+     * @param _user the user to update the liquidity of
+     */
     function updateUserLiquidity(address _user) external;
 
+    /**
+     * @notice Remove liquidity from on user address
+     * @param _user the user to remove the liquidity from
+     * @param _amount the amount of liquidity to remove
+     */
     function removeUserLiquidity(address _user, uint256 _amount) external;
 }
