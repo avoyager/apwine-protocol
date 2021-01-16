@@ -91,12 +91,12 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
         registrationsTotals.push();
         fyts.push();
 
-        IRegistry registery = IRegistry(controller.getRegistery());
+        IRegistry registry = IRegistry(controller.getRegistryAddress());
         string memory ibtSymbol = controller.getFutureIBTSymbol(ibt.symbol(), _platformName, _periodDuration);
         bytes memory payload =
             abi.encodeWithSignature("initialize(string,string,address)", ibtSymbol, ibtSymbol, address(this));
         apwibt = IAPWineIBT(
-            IProxyFactory(registery.getProxyFactoryAddress()).deployMinimal(registery.getAPWineIBTLogicAddress(), payload)
+            IProxyFactory(registry.getProxyFactoryAddress()).deployMinimal(registry.getAPWineIBTLogicAddress(), payload)
         );
     }
 
@@ -189,13 +189,13 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
         fyts[getNextPeriodIndex() - 1].burn(_amount);
 
         ibt.transferFrom(address(futureVault), _user, fundsToBeUnlocked); // only send locked, TODO Send Yield
-        ibt.transferFrom(address(futureVault), IRegistry(controller.getRegistery()).getTreasuryAddress(), unrealisedYield);
+        ibt.transferFrom(address(futureVault), IRegistry(controller.getRegistryAddress()).getTreasuryAddress(), unrealisedYield);
         liquidityGauge.removeUserLiquidity(_user, fundsToBeUnlocked);
     }
 
     /* Utilitaries functions */
     function deployFutureYieldToken() internal returns (address) {
-        IRegistry registery = IRegistry(controller.getRegistery());
+        IRegistry registry = IRegistry(controller.getRegistryAddress());
         string memory tokenDenomination = controller.getFYTSymbol(apwibt.symbol(), PERIOD_DURATION);
         bytes memory payload =
             abi.encodeWithSignature(
@@ -206,7 +206,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
             );
         IFutureYieldToken newToken =
             IFutureYieldToken(
-                IProxyFactory(registery.getProxyFactoryAddress()).deployMinimal(registery.getFYTLogicAddress(), payload)
+                IProxyFactory(registry.getProxyFactoryAddress()).deployMinimal(registry.getFYTLogicAddress(), payload)
             );
         fyts.push(newToken);
         newToken.mint(address(this), apwibt.totalSupply().mul(10**(uint256(18 - ibt.decimals()))));
@@ -246,6 +246,10 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
 
     function getFutureWalletAddress() public view returns (address) {
         return address(futureWallet);
+    }
+
+    function getLiquidityGaugeAddress() public view returns (address) {
+        return address(liquidityGauge);
     }
 
     function getIBTAddress() public view returns (address) {

@@ -13,8 +13,6 @@ interface IController {
      */
     function initialize(address _admin) external;
 
-    /* Public methods */
-
     /* Future Settings Setters */
 
     /**
@@ -26,40 +24,102 @@ interface IController {
     /* User Methods */
 
     /**
-     * @notice Register the sender to the corresponding future
-     * @param _futureAddress the address of the future to be registered to
+     * @notice Register an amount of ibt from the sender to the corresponding future
+     * @param _future the address of the future to be registered to
      * @param _amount the amount to register
      */
-    function register(address _futureAddress, uint256 _amount) external;
+    function register(address _future, uint256 _amount) external;
 
+    /**
+     * @notice Unregister an amount of ibt from the sender to the corresponding future
+     * @param _future the address of the future to be unregistered from
+     * @param _amount the amount to unregister
+     */
     function unregister(address _future, uint256 _amount) external;
 
+    /**
+     * @notice Withdraw deposited funds from apwine
+     * @param _future the address of the future to be withdraw the ibt from
+     * @param _amount the amount to withdraw
+     */
     function withdrawLockFunds(address _future, uint256 _amount) external;
 
+    /**
+     * @notice Claim fyt of the msg.sender
+     * @param _future the future from which to claim the ibts
+     */
     function claimFYT(address _future) external;
 
+    /**
+     * @notice Get the list of future from which on user can claim FYT
+     * @param _user the user to claim de FYT from
+     */
     function getFuturesWithClaimableFYT(address _user) external view returns (address[] memory);
 
-    function getRegistery() external view returns (address);
+    /**
+     * @notice Getter for the registry address of the protocol
+     * @return the address of the protocol registry
+     */
+    function getRegistryAddress() external view returns (address);
 
+    /**
+     * @notice Getter for the symbol of the apwine ibt of one future
+     * @param _ibtSymbol the ibt of the external protocol
+     * @param _platfrom the external protocol name 
+     * @param _periodDuration the duration of the periods for the future
+     * @return the generated symbol of the apwine ibt
+     */
     function getFutureIBTSymbol(
         string memory _ibtSymbol,
         string memory _platfrom,
         uint256 _periodDuration
     ) external pure returns (string memory);
 
+    /**
+     * @notice Getter for the symbol of the fyt of one future
+     * @param _apwibtSymbol the apwine ibt symbole  for this future
+     * @param _periodDuration the duration of the periods for this future
+     * @return the generated symbol of the fyt
+     */
     function getFYTSymbol(string memory _apwibtSymbol, uint256 _periodDuration) external view returns (string memory);
 
+    /**
+     * @notice Getter for the period index depending on the period duration of the future
+     * @param _periodDuration the periods duration
+     * @return the period index
+     */
     function getPeriodIndex(uint256 _periodDuration) external view returns (uint256);
 
+    /**
+     * @notice Getter for beginning timestamp of the next period for the futures with a defined periods duration
+     * @param _periodDuration the periods duration
+     * @return the timestamp of the beginning of the next period
+     */
     function getNextPeriodStart(uint256 _periodDuration) external view returns (uint256);
 
+    /**
+     * @notice Register a newly created future in the registry
+     * @param _newFuture the address of the new future
+     */
     function registerNewFuture(address _newFuture) external;
 
+
+    /**
+     * @notice Unregister a future from the registry
+     * @param _future the address of the future to unregister
+     */
     function unregisterFuture(address _future) external;
 
+    /**
+     * @notice Start all the future that have a defined periods duration to synchronize them
+     * @param _periodDuration the periods duration of the future to start
+     */
     function startFuturesByPeriodDuration(uint256 _periodDuration) external;
 
+    /**
+     * @notice Getter for the futures by periods duration
+     * @param _periodDuration the periods duration of the futures to returns
+     */
     function getFuturesWithDuration(uint256 _periodDuration) external view returns (address[] memory);
 
     /**
@@ -69,11 +129,21 @@ interface IController {
      */
     function claimSelectedYield(address _user, address[] memory _futureAddress) external;
 
-    /* Views */
 
-    function getRoleMember(bytes32 role, uint256 index) external view returns (address);
+    function getRoleMember(bytes32 role, uint256 index) external view returns (address); // OZ ACL getter
 
+
+    /**
+     * @notice Interrupt a future avoiding news registrations
+     * @param _future the address of the future to pause
+     * @dev should only be called in extraordinary situations by the admin of the contract
+     */
     function pauseFuture(address _future) external;
 
+    /**
+     * @notice Resume a future that has been paused
+     * @param _future the address of the future to resume
+     * @dev should only be called in extraordinary situations by the admin of the contract
+     */
     function resumeFuture(address _future) external;
 }

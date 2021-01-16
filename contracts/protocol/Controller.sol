@@ -125,7 +125,7 @@ contract Controller is Initializable, AccessControlUpgradeable {
 
     /* Getter */
 
-    function getRegistery() external view returns (address) {
+    function getRegistryAddress() external view returns (address) {
         return address(registry);
     }
 
