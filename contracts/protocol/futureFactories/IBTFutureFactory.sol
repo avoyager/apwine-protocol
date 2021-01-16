@@ -26,12 +26,12 @@ contract IBTFutureFactory is FutureFactory {
         uint256 _periodDuration
     ) public returns (address) {
         require(hasRole(FUTURE_DEPLOYER, msg.sender), "Caller is not an future admin");
-        IRegistry registery = IRegistry(controller.getRegistery());
-        require(registery.isRegisteredFuturePlatform(_futurePlatformName), "invalid future platform name");
+        IRegistry registry = IRegistry(controller.getRegistryAddress());
+        require(registry.isRegisteredFuturePlatform(_futurePlatformName), "invalid future platform name");
 
-        address[3] memory futurePlatformContracts = registery.getFuturePlatform(_futurePlatformName);
+        address[3] memory futurePlatformContracts = registry.getFuturePlatform(_futurePlatformName);
 
-        IProxyFactory proxyFactory = IProxyFactory(registery.getProxyFactoryAddress());
+        IProxyFactory proxyFactory = IProxyFactory(registry.getProxyFactoryAddress());
         address controller_default_admin = controller.getRoleMember(DEFAULT_ADMIN_ROLE, 0);
 
         /* Deploy the new contracts */
@@ -55,7 +55,7 @@ contract IBTFutureFactory is FutureFactory {
 
         /* Liquidity Gauge registration */
         address newLiquidityGauge =
-            IGaugeController(registery.getGaugeControllerAddress()).registerNewGauge(address(newFuture));
+            IGaugeController(registry.getGaugeControllerAddress()).registerNewGauge(address(newFuture));
 
         /* Configure the new future */
         newFuture.setFutureWallet(newFutureWallet);
