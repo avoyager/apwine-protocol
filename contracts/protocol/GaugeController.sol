@@ -20,8 +20,9 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
     uint256 private initialSupply;
     uint256 private epochLength;
 
+    bool private isAPWClaimable;
+
     mapping(address => uint256) private gaugesWeights;
-    mapping(address => uint256) private gaugeTypesWeights;
     mapping(address => address) private futureGauges;
 
     uint256[] private totalsFactors;
@@ -69,6 +70,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
     }
 
     function claimAPW() public {
+        require(isAPWClaimable, "apw rewards not claimable atm");
         uint256 totalRedeemable;
         for (uint256 i = 0; i < liquidityGauges.length(); i++) {
             totalRedeemable = totalRedeemable.add(ILiquidityGauge(liquidityGauges.at(i)).updateAndGetRedeemable(msg.sender));
@@ -81,6 +83,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
     }
 
     function claimAPW(address[] memory _liquidityGauges) public {
+        require(isAPWClaimable, "apw rewards not claimable atm");
         uint256 totalRedeemable;
         for (uint256 i = 0; i < _liquidityGauges.length; i++) {
             require(liquidityGauges.contains(_liquidityGauges[i]), "invalid liquidity gauge addess");
@@ -93,10 +96,6 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
         emit APWRedeemed(msg.sender, actualRedeemable);
     }
 
-    function addUserRedeemable(address _user, uint256 _amount) public isValidLiquidyGauge {
-        userLiquidity[_user] = userLiquidity[_user].add(_amount);
-    }
-
     /* Getters */
     function getLastEpochInflationRate() external view returns (uint256) {
         return inflationRate;
@@ -104,10 +103,6 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
 
     function getGaugeWeight(address _liquidityGauge) external view returns (uint256) {
         return gaugesWeights[_liquidityGauge];
-    }
-
-    function getGaugeTypeWeight(address _liquidityGauge) external view returns (uint256) {
-        return gaugeTypesWeights[_liquidityGauge]; // TODO Change with enum etc
     }
 
     function getEpochLength() external view returns (uint256) {
@@ -122,11 +117,27 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
         return totalRedeemable.sub(redeemedByUser[_user]);
     }
 
+    function getWithdrawableState() external view returns(bool){
+        return isAPWClaimable;
+    }
+
     /* Setters */
 
     function setAPW(address _APW) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         require(address(apw) != address(0), "Token already set");
         apw = IAPWToken(_APW);
+    }
+
+    function pauseAPWWithdraw() public{
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
+        require(isAPWClaimable, "apw rewards already paused");
+        isAPWClaimable = false;
+    }
+
+    function resumeAPWWithdraw() public{
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
+        require(!isAPWClaimable, "apw rewards already resumed");
+        isAPWClaimable = true;
     }
 }
