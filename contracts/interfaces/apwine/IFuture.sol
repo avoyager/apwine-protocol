@@ -159,6 +159,12 @@ interface IFuture {
     function getFutureWalletAddress() external view returns (address);
 
     /**
+     * @notice Getter for liquidityGauge address
+     * @return liquidity gauge address
+     */
+    function getLiquidityGaugeAddress() external view returns (address);
+
+    /**
      * @notice Getter for the ibt address
      * @return ibt address
      */
