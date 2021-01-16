@@ -56,7 +56,7 @@ contract Registry is Initializable, AccessControlUpgradeable {
     address private APWineIBTLogic;
     address private FYTLogic;
 
-    event RegisteryUpdate(string _contractName, address _old, address _new);
+    event RegistryUpdate(string _contractName, address _old, address _new);
     event FuturePlatformAdded(
         address _futureFactory,
         string _futurePlatformName,
@@ -73,19 +73,19 @@ contract Registry is Initializable, AccessControlUpgradeable {
     /* Setters */
     function setTreasury(address _newTreasury) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        emit RegisteryUpdate("Treasury", treasury, _newTreasury);
+        emit RegistryUpdate("Treasury", treasury, _newTreasury);
         treasury = _newTreasury;
     }
 
     function setGaugeController(address _newGaugeController) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        emit RegisteryUpdate("GaugeController", gaugeController, _newGaugeController);
+        emit RegistryUpdate("GaugeController", gaugeController, _newGaugeController);
         gaugeController = _newGaugeController;
     }
 
     function setController(address _newController) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        emit RegisteryUpdate("Controller", controller, _newController);
+        emit RegistryUpdate("Controller", controller, _newController);
         _setupRole(CONTROLLER_ROLE, _newController);
         revokeRole(CONTROLLER_ROLE, controller);
         controller = _newController;
@@ -93,7 +93,7 @@ contract Registry is Initializable, AccessControlUpgradeable {
 
     function setAPW(address _newAPW) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        emit RegisteryUpdate("APW", apw, _newAPW);
+        emit RegistryUpdate("APW", apw, _newAPW);
         apw = _newAPW;
     }
 
@@ -125,25 +125,25 @@ contract Registry is Initializable, AccessControlUpgradeable {
     /* Logic setters*/
     function setProxyFactory(address _proxyFactory) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        emit RegisteryUpdate("Proxy Factory", proxyFactory, _proxyFactory);
+        emit RegistryUpdate("Proxy Factory", proxyFactory, _proxyFactory);
         proxyFactory = _proxyFactory;
     }
 
     function setLiquidityGaugeLogic(address _liquidityGaugeLogic) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        emit RegisteryUpdate("LiquidityGauge logic", liquidityGaugeLogic, _liquidityGaugeLogic);
+        emit RegistryUpdate("LiquidityGauge logic", liquidityGaugeLogic, _liquidityGaugeLogic);
         liquidityGaugeLogic = _liquidityGaugeLogic;
     }
 
     function setAPWineIBTLogic(address _APWineIBTLogic) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        emit RegisteryUpdate("APWineIBT logic", APWineIBTLogic, _APWineIBTLogic);
+        emit RegistryUpdate("APWineIBT logic", APWineIBTLogic, _APWineIBTLogic);
         APWineIBTLogic = _APWineIBTLogic;
     }
 
     function setFYTLogic(address _FYTLogic) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        emit RegisteryUpdate("FYT  Logic", _FYTLogic, _FYTLogic);
+        emit RegistryUpdate("FYT  Logic", _FYTLogic, _FYTLogic);
         FYTLogic = _FYTLogic;
     }
 
