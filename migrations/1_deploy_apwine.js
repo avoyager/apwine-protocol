@@ -43,26 +43,26 @@ module.exports = async function (deployer) {
   await AaveFuture.link('APWineNaming',apwineNaming.address);
 
   /* Deploy and initialize core contracts */
-  const registery = await deployProxy(Registry, [admin_address], { deployer,unsafeAllowCustomTypes:true, unsafeAllowLinkedLibraries:true});
-  const controller = await deployProxy(Controller, [admin_address, registery.address], { deployer,unsafeAllowCustomTypes:true ,unsafeAllowLinkedLibraries:true});
+  const registry = await deployProxy(Registry, [admin_address], { deployer,unsafeAllowCustomTypes:true, unsafeAllowLinkedLibraries:true});
+  const controller = await deployProxy(Controller, [admin_address, registry.address], { deployer,unsafeAllowCustomTypes:true ,unsafeAllowLinkedLibraries:true});
   const treasury = await deployProxy(Treasury, [admin_address], { deployer,unsafeAllowCustomTypes:true ,unsafeAllowLinkedLibraries:true});
-  const gaugeController = await deployProxy(GaugeController, [admin_address, registery.address], { deployer,unsafeAllowCustomTypes:true,unsafeAllowLinkedLibraries:true });
+  const gaugeController = await deployProxy(GaugeController, [admin_address, registry.address], { deployer,unsafeAllowCustomTypes:true,unsafeAllowLinkedLibraries:true });
 
   /* Deploy main logic contracts */  
   const apwineIBTLogic = await deployer.deploy(APWineIBT);
   const fytLogic = await deployer.deploy(FutureYieldToken);
   const liquidityGaugeLogic = await deployer.deploy(LiquidityGauge);
 
-  /* Set addresses in registery */
-  await registery.setTreasury(treasury.address);
-  await registery.setGaugeController(gaugeController.address);
-  await registery.setController(controller.address);
-  //await registery.setAPW(apw.address);
+  /* Set addresses in registry */
+  await registry.setTreasury(treasury.address);
+  await registry.setGaugeController(gaugeController.address);
+  await registry.setController(controller.address);
+  //await registry.setAPW(apw.address);
 
-  await registery.setProxyFactory("0xb738Ae1B8ae3a41a51Dc9EA471f4d15803a33fB3"); // Set manually
-  await registery.setLiquidityGaugeLogic(liquidityGaugeLogic.address);
-  await registery.setAPWineIBTLogic(apwineIBTLogic.address);
-  await registery.setFYTLogic(fytLogic.address);
+  await registry.setProxyFactory("0xb738Ae1B8ae3a41a51Dc9EA471f4d15803a33fB3"); // Set manually
+  await registry.setLiquidityGaugeLogic(liquidityGaugeLogic.address);
+  await registry.setAPWineIBTLogic(apwineIBTLogic.address);
+  await registry.setFYTLogic(fytLogic.address);
 
   // const proxyFactory = await deployer.deploy(ProxyFactory);
 
@@ -70,13 +70,13 @@ module.exports = async function (deployer) {
   await APWineAaveFutureWallet.link('APWineMaths',apwineMaths.address);
 
   const ibtFutureFactory =  await deployProxy(IBTFutureFactory,[controller.address, admin_address], { deployer,unsafeAllowCustomTypes:true,unsafeAllowLinkedLibraries:true });
-  await registery.addFutureFactory(ibtFutureFactory.address, "AAVE");
+  await registry.addFutureFactory(ibtFutureFactory.address, "AAVE");
 
   /* Deploy and register future logic contracts*/
   const aaveFuture = await deployer.deploy(AaveFuture);
   const aaveFutureWallet = await deployer.deploy(AaveFutureWallet);
   const futureVault = await deployer.deploy(FutureVault);
 
-  await registery.addFuturePlatform(ibtFutureFactory.address,"AAVE",aaveFuture.address,aaveFutureWallet.address,futureVault.address);
+  await registry.addFuturePlatform(ibtFutureFactory.address,"AAVE",aaveFuture.address,aaveFutureWallet.address,futureVault.address);
   await ibtFutureFactory.deployFutureWithIBT("AAVE",IBTAddress,60*60*24*7);
 };

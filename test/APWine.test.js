@@ -124,7 +124,7 @@ describe("APWine Contracts", function () {
     })
 
     it("Controller is correctly initialized", async function () {
-        expect(await this.controller.getRegistery()).to.equal(this.registry.address)
+        expect(await this.controller.getRegistryAddress()).to.equal(this.registry.address)
     })
 
     describe("With Futures", function (){
