@@ -82,8 +82,7 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable {
             (
                 (gaugeController.getLastEpochInflationRate().mul(supplyStart))
                     .mul(block.timestamp.sub(updatesTimestamp[updatesTimestamp.length - 1]))
-                    .mul(gaugeController.getGaugeWeight())
-                    .mul(gaugeController.getGaugeTypeWeight())
+                    .mul(gaugeController.getGaugeWeight(address(this)))
             )
                 .div(gaugeController.getEpochLength());
     }
