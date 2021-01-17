@@ -92,3 +92,5 @@ build/
 coverage
 coverage.json
 coverageEnv
+.coverage_contracts
+
