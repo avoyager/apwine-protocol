@@ -18,7 +18,7 @@ abstract contract StreamFutureWallet is FutureWallet {
         uint256 currentTotal = ibt.balanceOf(address(this));
 
         if (scaledFutureWallets.length > 1) {
-            uint256 scaledInput = APWineMaths.getScaledInput(_amount, scaledTotal, currentTotal);
+            uint256 scaledInput = IAPWineMaths(IRegistry(IController(future.getControllerAddress()).getRegistryAddress()).getMathsUtils()).getScaledInput(_amount, scaledTotal, currentTotal);
             scaledFutureWallets.push(scaledInput);
             scaledTotal = scaledTotal.add(scaledInput);
         } else {
@@ -31,7 +31,7 @@ abstract contract StreamFutureWallet is FutureWallet {
         IFutureYieldToken fyt = IFutureYieldToken(future.getFYTofPeriod(_periodIndex));
         uint256 senderTokenBalance = fyt.balanceOf(_tokenHolder);
         uint256 scaledOutput = (senderTokenBalance.mul(scaledFutureWallets[_periodIndex]));
-        return APWineMaths.getActualOutput(scaledOutput, scaledTotal, ibt.balanceOf(address(this))).div(fyt.totalSupply());
+        return IAPWineMaths(IRegistry(IController(future.getControllerAddress()).getRegistryAddress()).getMathsUtils()).getActualOutput(scaledOutput, scaledTotal, ibt.balanceOf(address(this))).div(fyt.totalSupply());
     }
 
     function _updateYieldBalances(
@@ -40,7 +40,7 @@ abstract contract StreamFutureWallet is FutureWallet {
         uint256 _totalFYT
     ) internal override returns (uint256) {
         uint256 scaledOutput = (_userFYT.mul(scaledFutureWallets[_periodIndex])).div(_totalFYT);
-        uint256 claimableYield = APWineMaths.getActualOutput(scaledOutput, scaledTotal, ibt.balanceOf(address(this)));
+        uint256 claimableYield = IAPWineMaths(IRegistry(IController(future.getControllerAddress()).getRegistryAddress()).getMathsUtils()).getActualOutput(scaledOutput, scaledTotal, ibt.balanceOf(address(this)));
         scaledFutureWallets[_periodIndex] = scaledFutureWallets[_periodIndex].sub(scaledOutput);
         scaledTotal = scaledTotal.sub(scaledOutput);
         return claimableYield;

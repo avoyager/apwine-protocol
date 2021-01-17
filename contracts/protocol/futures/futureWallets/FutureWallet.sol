@@ -7,8 +7,11 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol"
 import "contracts/interfaces/ERC20.sol";
 import "contracts/interfaces/apwine/tokens/IFutureYieldToken.sol";
 import "contracts/interfaces/apwine/IFuture.sol";
+import "contracts/interfaces/apwine/IController.sol";
+import "contracts/interfaces/apwine/IRegistry.sol";
 
-import "contracts/libraries/APWineMaths.sol";
+
+import "contracts/interfaces/apwine/utils/IAPWineMath.sol";
 
 abstract contract FutureWallet is Initializable, AccessControlUpgradeable {
     using SafeMathUpgradeable for uint256;

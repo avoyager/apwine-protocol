@@ -21,8 +21,9 @@ abstract contract StreamFuture is Future {
 
     function register(address _winegrower, uint256 _amount) public virtual override periodsActive {
         require(_amount > 0, "invalid amount to register");
+        IRegistry registry = IRegistry(controller.getRegistryAddress());
         uint256 scaledInput =
-            APWineMaths.getScaledInput(_amount, scaledTotals[getNextPeriodIndex()], ibt.balanceOf(address(this)));
+            IAPWineMaths(registry.getMathsUtils()).getScaledInput(_amount, scaledTotals[getNextPeriodIndex()], ibt.balanceOf(address(this)));
         super.register(_winegrower, scaledInput);
         scaledTotals[getNextPeriodIndex()] = scaledTotals[getNextPeriodIndex()].add(scaledInput);
     }
@@ -32,8 +33,9 @@ abstract contract StreamFuture is Future {
         uint256 nextIndex = getNextPeriodIndex();
         require(registrations[_user].startIndex == nextIndex, "There is no ongoing registration for the next period");
         uint256 userScaledBalance = registrations[_user].scaledBalance;
+        IRegistry registry = IRegistry(controller.getRegistryAddress());
         uint256 currentRegistered =
-            APWineMaths.getActualOutput(userScaledBalance, scaledTotals[nextIndex], ibt.balanceOf(address(this)));
+            IAPWineMaths(registry.getMathsUtils()).getActualOutput(userScaledBalance, scaledTotals[nextIndex], ibt.balanceOf(address(this)));
         uint256 scaledToUnregister;
         uint256 toRefund;
         if (_amount == 0) {
@@ -83,9 +85,10 @@ abstract contract StreamFuture is Future {
 
     function getRegisteredAmount(address _user) public view virtual override returns (uint256) {
         uint256 periodID = registrations[_user].startIndex;
+        IRegistry registry = IRegistry(controller.getRegistryAddress());
         if (periodID == getNextPeriodIndex()) {
             return
-                APWineMaths.getActualOutput(
+                IAPWineMaths(registry.getMathsUtils()).getActualOutput(
                     registrations[_user].scaledBalance,
                     scaledTotals[periodID],
                     ibt.balanceOf(address(this))
@@ -97,8 +100,10 @@ abstract contract StreamFuture is Future {
 
     function getClaimableAPWIBT(address _user) public view override returns (uint256) {
         if (!hasClaimableAPWIBT(_user)) return 0;
+        IRegistry registry = IRegistry(controller.getRegistryAddress());
+
         return
-            APWineMaths.getActualOutput(
+            IAPWineMaths(registry.getMathsUtils()).getActualOutput(
                 registrations[_user].scaledBalance,
                 scaledTotals[registrations[_user].startIndex],
                 registrationsTotals[registrations[_user].startIndex]

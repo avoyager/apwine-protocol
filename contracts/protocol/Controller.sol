@@ -8,7 +8,7 @@ import "contracts/interfaces/apwine/tokens/IFutureYieldToken.sol";
 import "contracts/interfaces/apwine/IFuture.sol";
 import "contracts/interfaces/apwine/IRegistry.sol";
 
-import "contracts/libraries/APWineNaming.sol";
+import "contracts/interfaces/apwine/utils/IAPWineNaming.sol";
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 
 contract Controller is Initializable, AccessControlUpgradeable {
@@ -134,12 +134,12 @@ contract Controller is Initializable, AccessControlUpgradeable {
         string memory _ibtSymbol,
         string memory _platfrom,
         uint256 _periodDuration
-    ) public pure returns (string memory) {
-        return APWineNaming.genIBTSymbol(_ibtSymbol, _platfrom, _periodDuration);
+    ) public view returns (string memory) {
+        return IAPWineNaming(registry.getNamingUtils()).genIBTSymbol(_ibtSymbol, _platfrom, _periodDuration);
     }
 
     function getFYTSymbol(string memory _apwibtSymbol, uint256 _periodDuration) public view returns (string memory) {
-        return APWineNaming.genFYTSymbolFromIBT(uint8(periodIndexByDurations[_periodDuration]), _apwibtSymbol);
+        return IAPWineNaming(registry.getNamingUtils()).genFYTSymbolFromIBT(uint8(periodIndexByDurations[_periodDuration]), _apwibtSymbol);
     }
 
     function getPeriodIndex(uint256 _periodDuration) public view returns (uint256) {

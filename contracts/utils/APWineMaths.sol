@@ -2,7 +2,7 @@ pragma solidity >=0.7.0 <0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 
-library APWineMaths {
+contract APWineMaths {
     using SafeMathUpgradeable for uint256;
 
     function getScaledInput(

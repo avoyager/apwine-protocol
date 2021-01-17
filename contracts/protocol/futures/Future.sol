@@ -6,8 +6,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 
 import "contracts/interfaces/IProxyFactory.sol";
 import "contracts/interfaces/apwine/tokens/IFutureYieldToken.sol";
-import "contracts/libraries/APWineMaths.sol";
-import "contracts/libraries/APWineNaming.sol";
+import "contracts/interfaces/apwine/utils/IAPWineMath.sol";
 
 import "contracts/interfaces/apwine/tokens/IAPWineIBT.sol";
 import "contracts/interfaces/apwine/IFutureWallet.sol";
@@ -239,6 +238,10 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
     function getRegisteredAmount(address _user) public view virtual returns (uint256);
 
     function getUnrealisedYield(address _user) public view virtual returns (uint256);
+
+    function getControllerAddress() public view returns (address) {
+        return address(controller);
+    }
 
     function getFutureVaultAddress() public view returns (address) {
         return address(futureVault);

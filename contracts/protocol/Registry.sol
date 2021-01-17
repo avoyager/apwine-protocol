@@ -50,6 +50,11 @@ contract Registry is Initializable, AccessControlUpgradeable {
         address futureWallet;
     }
 
+
+    /* Utils*/
+    address private mathsUtils;
+    address private namingUtils;
+
     /* Proxy */
     address private proxyFactory;
     address private liquidityGaugeLogic;
@@ -147,6 +152,20 @@ contract Registry is Initializable, AccessControlUpgradeable {
         FYTLogic = _FYTLogic;
     }
 
+
+    function setMathsUtils(address _mathsUtils) public {
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
+        emit RegistryUpdate("Maths utils", mathsUtils, _mathsUtils);
+        mathsUtils = _mathsUtils;
+    }
+
+    function setNamingUtils(address _namingUtils) public {
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
+        emit RegistryUpdate("Naming utils", namingUtils, _namingUtils);
+        namingUtils = _namingUtils;
+    }
+
+
     /* Logic getters */
     function getProxyFactoryAddress() public view returns (address) {
         return proxyFactory;
@@ -162,6 +181,15 @@ contract Registry is Initializable, AccessControlUpgradeable {
 
     function getFYTLogicAddress() public view returns (address) {
         return FYTLogic;
+    }
+
+    /* Utils getters */
+    function getMathsUtils() public view returns (address) {
+        return mathsUtils;
+    }
+
+    function getNamingUtils() public view returns (address) {
+        return namingUtils;
     }
 
     /* Futures Deployer */

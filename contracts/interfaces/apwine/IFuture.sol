@@ -147,6 +147,12 @@ interface IFuture {
     function getNextPeriodIndex() external view returns (uint256);
 
     /**
+     * @notice Getter for controller  address
+     * @return the controller  address
+     */
+    function getControllerAddress() external view returns (address);
+
+    /**
      * @notice Getter for future wallet address
      * @return future wallet address
      */

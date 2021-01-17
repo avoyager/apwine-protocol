@@ -2,7 +2,7 @@ pragma solidity >=0.7.0 <0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 
-library APWineNaming {
+contract APWineNaming {
     using SafeMathUpgradeable for uint256;
 
     // i.e. 30D-AAVE-ADAI-2
