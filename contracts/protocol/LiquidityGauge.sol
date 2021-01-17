@@ -44,6 +44,9 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable {
         _setupRole(GAUGE_CONTROLLER_ROLE, _gaugeController);
         _setupRole(FUTURE_ROLE, _future);
         epochStart = block.timestamp;
+        newInflatedVolume.push(0);
+        updatesTimestamp.push(epochStart);
+        totalDepositedSupply.push(0);
     }
 
     function registerNewFutureLiquidity(uint256 _amount) public {
@@ -151,7 +154,7 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable {
 
     function hasActiveLiquidityRegistraiton(address _user) internal view returns (bool) {
         if (
-            liquidityRegistrationsPeriodIndex[_user] < future.getNextPeriodIndex() ||
+            liquidityRegistrationsPeriodIndex[_user] < future.getNextPeriodIndex() &&
             liquidityRegistrationsPeriodIndex[_user] != 0
         ) return true;
         return false;
