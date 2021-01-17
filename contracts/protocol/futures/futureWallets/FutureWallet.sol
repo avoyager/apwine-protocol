@@ -14,6 +14,8 @@ abstract contract FutureWallet is Initializable, AccessControlUpgradeable {
     using SafeMathUpgradeable for uint256;
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+    bytes32 public constant FUTURE_ROLE = keccak256("FUTURE_ROLE");
+
     IFuture public future;
     ERC20 public ibt;
 
@@ -27,6 +29,7 @@ abstract contract FutureWallet is Initializable, AccessControlUpgradeable {
         ibt = ERC20(future.getIBTAddress());
         _setupRole(DEFAULT_ADMIN_ROLE, _adminAddress);
         _setupRole(ADMIN_ROLE, _adminAddress);
+        _setupRole(FUTURE_ROLE, _futureAddress);
     }
 
     /**

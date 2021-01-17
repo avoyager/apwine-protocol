@@ -12,7 +12,7 @@ abstract contract RateFutureWallet is FutureWallet {
     }
 
     function registerExpiredFuture(uint256 _amount) public override {
-        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to register a harvest");
+        require(hasRole(FUTURE_ROLE, msg.sender), "Caller is not allowed to register an expired future");
         futureWallets.push(_amount);
     }
 

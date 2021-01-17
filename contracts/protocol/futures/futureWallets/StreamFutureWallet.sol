@@ -13,7 +13,7 @@ abstract contract StreamFutureWallet is FutureWallet {
     }
 
     function registerExpiredFuture(uint256 _amount) public override {
-        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to register a harvest");
+        require(hasRole(FUTURE_ROLE, msg.sender), "Caller is not allowed to register an expired future");
 
         uint256 currentTotal = ibt.balanceOf(address(this));
 
