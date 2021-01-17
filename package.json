@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "compile": "npx oz compile",
-    "optimize":"npx oz compile --optimizer on --optimizer-runs 2000",
+    "optimize": "npx oz compile --optimizer on --optimizer-runs 2000",
     "test": "mocha --exit --recursive test",
     "deploy": "npx oz deploy",
     "prettier": "prettier --write 'contracts/**/*.sol'"
@@ -30,7 +30,9 @@
   "devDependencies": {
     "@openzeppelin/test-environment": "0.1.5",
     "@truffle/hdwallet-provider": "^1.1.0",
+    "eth-gas-reporter": "^0.2.20",
     "prettier": "^2.2.1",
-    "prettier-plugin-solidity": "^1.0.0-beta.2"
+    "prettier-plugin-solidity": "^1.0.0-beta.2",
+    "solidity-coverage": "^0.7.14"
   }
 }
