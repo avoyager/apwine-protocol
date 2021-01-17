@@ -123,7 +123,7 @@ contract APWineIBT is Initializable, ContextUpgradeable, AccessControlUpgradeabl
             if (future.hasClaimableFYT(to)) {
                 future.claimFYT(to);
             }
-            ILiquidityGauge(future.getLiquidityGaugeAddress()).transferUserLiquidty(from,to,amount);
+            ILiquidityGauge(future.getLiquidityGaugeAddress()).transferUserLiquidty(from, to, amount);
         }
     }
 

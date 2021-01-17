@@ -52,7 +52,6 @@ interface ILiquidityGauge {
      */
     function registerUserLiquidity(address _user) external;
 
-
     /**
      * @notice Register new user liquidity
      * @param _user the user to register the liquidity of

@@ -109,7 +109,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
         return epochLength;
     }
 
-    function getLiquidityGaugeOfFuture(address _future) public view returns(address){
+    function getLiquidityGaugeOfFuture(address _future) public view returns (address) {
         return futureGauges[_future];
     }
 
@@ -121,7 +121,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
         return totalRedeemable.sub(redeemedByUser[_user]);
     }
 
-    function getWithdrawableState() external view returns(bool){
+    function getWithdrawableState() external view returns (bool) {
         return isAPWClaimable;
     }
 
@@ -148,18 +148,15 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
         apw = IAPWToken(_APW);
     }
 
-    function pauseAPWWithdraw() public{
+    function pauseAPWWithdraw() public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         require(isAPWClaimable, "apw rewards already paused");
         isAPWClaimable = false;
     }
 
-    function resumeAPWWithdraw() public{
+    function resumeAPWWithdraw() public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         require(!isAPWClaimable, "apw rewards already resumed");
         isAPWClaimable = true;
     }
-
-
-    
 }

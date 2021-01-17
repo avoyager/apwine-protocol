@@ -10,7 +10,6 @@ import "contracts/interfaces/apwine/IFuture.sol";
 import "contracts/interfaces/apwine/IController.sol";
 import "contracts/interfaces/apwine/IRegistry.sol";
 
-
 import "contracts/interfaces/apwine/utils/IAPWineMath.sol";
 
 abstract contract FutureWallet is Initializable, AccessControlUpgradeable {

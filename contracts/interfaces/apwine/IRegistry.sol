@@ -34,8 +34,6 @@ interface IRegistry {
 
     function setNamingUtils(address _namingUtils) external;
 
-
-
     function getProxyFactoryAddress() external view returns (address);
 
     function getLiquidityGaugeLogicAddress() external view returns (address);
@@ -45,8 +43,8 @@ interface IRegistry {
     function getFYTLogicAddress() external view returns (address);
 
     function getMathsUtils() external view returns (address);
-    function getNamingUtils() external view returns (address);
 
+    function getNamingUtils() external view returns (address);
 
     function addFutureFactory(address _futureFactory, string memory _futureFactoryName) external;
 

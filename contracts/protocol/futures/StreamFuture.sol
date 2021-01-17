@@ -23,7 +23,11 @@ abstract contract StreamFuture is Future {
         require(_amount > 0, "invalid amount to register");
         IRegistry registry = IRegistry(controller.getRegistryAddress());
         uint256 scaledInput =
-            IAPWineMaths(registry.getMathsUtils()).getScaledInput(_amount, scaledTotals[getNextPeriodIndex()], ibt.balanceOf(address(this)));
+            IAPWineMaths(registry.getMathsUtils()).getScaledInput(
+                _amount,
+                scaledTotals[getNextPeriodIndex()],
+                ibt.balanceOf(address(this))
+            );
         super.register(_winegrower, scaledInput);
         scaledTotals[getNextPeriodIndex()] = scaledTotals[getNextPeriodIndex()].add(scaledInput);
     }
@@ -35,7 +39,11 @@ abstract contract StreamFuture is Future {
         uint256 userScaledBalance = registrations[_user].scaledBalance;
         IRegistry registry = IRegistry(controller.getRegistryAddress());
         uint256 currentRegistered =
-            IAPWineMaths(registry.getMathsUtils()).getActualOutput(userScaledBalance, scaledTotals[nextIndex], ibt.balanceOf(address(this)));
+            IAPWineMaths(registry.getMathsUtils()).getActualOutput(
+                userScaledBalance,
+                scaledTotals[nextIndex],
+                ibt.balanceOf(address(this))
+            );
         uint256 scaledToUnregister;
         uint256 toRefund;
         if (_amount == 0) {

@@ -83,7 +83,7 @@ contract Controller is Initializable, AccessControlUpgradeable {
     /* User Methods */
 
     function register(address _future, uint256 _amount) public futureIsValid(_future) {
-        require(ERC20(IFuture(_future).getIBTAddress()).transferFrom(msg.sender,_future,_amount), "invalid amount");
+        require(ERC20(IFuture(_future).getIBTAddress()).transferFrom(msg.sender, _future, _amount), "invalid amount");
         IFuture(_future).register(msg.sender, _amount);
     }
 
@@ -139,7 +139,11 @@ contract Controller is Initializable, AccessControlUpgradeable {
     }
 
     function getFYTSymbol(string memory _apwibtSymbol, uint256 _periodDuration) public view returns (string memory) {
-        return IAPWineNaming(registry.getNamingUtils()).genFYTSymbolFromIBT(uint8(periodIndexByDurations[_periodDuration]), _apwibtSymbol);
+        return
+            IAPWineNaming(registry.getNamingUtils()).genFYTSymbolFromIBT(
+                uint8(periodIndexByDurations[_periodDuration]),
+                _apwibtSymbol
+            );
     }
 
     function getPeriodIndex(uint256 _periodDuration) public view returns (uint256) {
@@ -150,7 +154,7 @@ contract Controller is Initializable, AccessControlUpgradeable {
         return nextPeriodSwitchByDuration[_periodDuration];
     }
 
-    function getDurations() public view returns(uint256[] memory){
+    function getDurations() public view returns (uint256[] memory) {
         uint256[] memory durationsList = new uint256[](durations.length());
         for (uint256 i = 0; i < durations.length(); i++) {
             durationsList[i] = durations.at(i);
@@ -193,8 +197,6 @@ contract Controller is Initializable, AccessControlUpgradeable {
         nextPeriodSwitchByDuration[_periodDuration] = nextPeriodSwitchByDuration[_periodDuration].add(_periodDuration);
         periodIndexByDurations[_periodDuration] = periodIndexByDurations[_periodDuration].add(1);
     }
-
-
 
     /* Security functions */
     function pauseFuture(address _future) public {
