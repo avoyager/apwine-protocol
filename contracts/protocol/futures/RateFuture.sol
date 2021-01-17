@@ -50,7 +50,7 @@ abstract contract RateFuture is Future {
     }
 
     function startNewPeriod() public virtual override nextPeriodAvailable periodsActive {
-        require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to register a harvest");
+        require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to start the next period");
 
         uint256 nextPeriodID = getNextPeriodIndex();
         uint256 currentRate = getIBTRate();
