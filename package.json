@@ -7,6 +7,7 @@
     "compile": "npx truffle compile",
     "optimize":"npx truffle compile --optimizer on --optimizer-runs 2000",
     "test": "mocha --exit --recursive test",
+    "coverage": "npx truffle run coverage",
     "deploy": "npx oz deploy",
     "prettier": "prettier --write 'contracts/**/*.sol'"
   },
