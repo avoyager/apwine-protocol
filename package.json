@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "compile": "npx truffle compile",
-    "optimize":"npx truffle compile --optimizer on --optimizer-runs 2000",
+    "optimize": "npx truffle compile --optimizer on --optimizer-runs 2000",
     "test": "mocha --exit --recursive test",
     "coverage": "npx truffle run coverage",
     "deploy": "npx oz deploy",
@@ -31,6 +31,7 @@
   "devDependencies": {
     "@openzeppelin/test-environment": "0.1.5",
     "@truffle/hdwallet-provider": "^1.1.0",
+    "coveralls": "^3.1.0",
     "eth-gas-reporter": "^0.2.20",
     "prettier": "^2.2.1",
     "prettier-plugin-solidity": "^1.0.0-beta.2",
