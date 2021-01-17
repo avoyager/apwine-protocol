@@ -109,6 +109,10 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
         return epochLength;
     }
 
+    function getLiquidityGaugeOfFuture(address _future) public view returns(address){
+        return futureGauges[_future];
+    }
+
     function getUserRedeemableAPW(address _user) external view returns (uint256) {
         uint256 totalRedeemable;
         for (uint256 i = 0; i < liquidityGauges.length(); i++) {
@@ -122,6 +126,21 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
     }
 
     /* Setters */
+
+    function setEpochInflationRate(uint256 _inflationRate) public {
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
+        inflationRate = _inflationRate;
+    }
+
+    function setGaugeWeight(address _liquidityGauge, uint256 _gaugeWeight) public {
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
+        gaugesWeights[_liquidityGauge] = _gaugeWeight;
+    }
+
+    function setEpochLength(uint256 _epochLength) public {
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
+        epochLength = _epochLength;
+    }
 
     function setAPW(address _APW) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
@@ -140,4 +159,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
         require(!isAPWClaimable, "apw rewards already resumed");
         isAPWClaimable = true;
     }
+
+
+    
 }

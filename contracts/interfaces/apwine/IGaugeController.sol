@@ -60,6 +60,14 @@ interface IGaugeController {
     function getEpochLength() external view returns (uint256);
 
 
+    /**
+     * @notice Getter for duration of one epoch
+     * @param _future the address of the future to check the liquidity gauge of
+     * @return the address of the liquidity gauge of the future
+     */
+    function getLiquidityGaugeOfFuture(address _future) external view returns(address);
+
+
    /**
      * @notice Getter for the total redeemable APW of one user
      * @param _user the address of the user to get the redeemable APW of
@@ -73,5 +81,24 @@ interface IGaugeController {
      * @return true if the users can withdraw their redeemable APW, false otherwise
      */
     function getWithdrawableState() external view returns(bool);
+
+   /**
+     * @notice Setter for the inflation rate of the epoch
+     * @param _inflationRate the new inflation rate of the epoch
+     */
+    function setEpochInflationRate(uint256 _inflationRate) external ;
+
+   /**
+     * @notice Setter for the weight of one liquidity gauge
+     * @param _liquidityGauge the address of the liquidity gauge
+     * @param _gaugeWeight the new weight of the liquidity gauge
+     */
+    function setGaugeWeight(address _liquidityGauge, uint256 _gaugeWeight) external;
+
+   /**
+     * @notice Setter for the length of the epochs
+     * @param _epochLength the new length of the epochs
+     */
+    function setEpochLength(uint256 _epochLength) external ;
 
 }
