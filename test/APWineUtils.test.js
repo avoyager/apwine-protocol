@@ -7,7 +7,7 @@ const ether = require("@openzeppelin/test-helpers/src/ether")
 const common = require("./common")
 const { APWineMaths, APWineNaming } = common.contracts
 
-describe("APWine Library", function () {
+describe("APWine Utils", function () {
 
     this.timeout(100 * 1000)
     const [owner, user1, user2] = accounts

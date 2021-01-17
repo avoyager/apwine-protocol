@@ -22,12 +22,8 @@ describe("Aave Future", function (){
 
         await this.registry.addFutureFactory(this.ibtFutureFactory.address, "AAVE", { from: owner });
 
-        await AaveFuture.detectNetwork()
-        await AaveFuture.link("APWineMaths", this.maths.address)
         this.aaveFuture = await AaveFuture.new()
 
-        await AaveFutureWallet.detectNetwork()
-        await AaveFutureWallet.link("APWineMaths", this.maths.address)
         this.aaveFutureWallet =  await AaveFutureWallet.new()
 
         this.aaveFutureVault = await FutureVault.new()
