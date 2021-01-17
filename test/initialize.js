@@ -35,6 +35,8 @@ const initializeCore = async function () {
     await GaugeController.link("APWineMaths", this.maths.address)
     this.gaugeController =  await GaugeController.new()
     await this.gaugeController.initialize(owner, this.registry.address)
+    await this.gaugeController.setEpochInflationRate(5000000000000000,{ from: owner } )
+    await this.gaugeController.setEpochLength(60*60*24*365,{ from: owner } )
 
     await this.registry.setTreasury(this.treasury.address,{ from: owner })
     await this.registry.setController(this.controller.address,{ from: owner })
