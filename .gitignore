@@ -84,6 +84,11 @@ node_modules/
 build/
 *.env
 
+#openzepplin files
 .openzeppelin
-
 .openzeppelin/.session
+
+#coverage files
+coverage
+coverage.json
+coverageEnv
