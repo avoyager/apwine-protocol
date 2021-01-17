@@ -84,7 +84,7 @@ describe("APWine Libraries", function () {
 
 describe("APWine Contracts", function () {
 
-    this.timeout(100 * 1000)
+    this.timeout(100 * 5000)
     const [owner, user1, user2] = accounts
 
     beforeEach(async function () {
@@ -116,11 +116,16 @@ describe("APWine Contracts", function () {
         await GaugeController.link("APWineMaths", this.maths.address)
         this.gaugeController =  await GaugeController.new()
         await this.gaugeController.initialize(owner, this.registry.address)
+        await this.gaugeController.setEpochInflationRate(5000000000000000,{ from: owner } )
+        await this.gaugeController.setEpochLength(60*60*24*365,{ from: owner } )
 
         await this.registry.setTreasury(this.treasury.address,{ from: owner })
         await this.registry.setController(this.controller.address,{ from: owner })
         await this.registry.setProxyFactory(this.proxyFactory.address,{ from: owner })
         await this.registry.setGaugeController(this.gaugeController.address,{ from: owner })
+
+
+
     })
 
     it("Controller is correctly initialized", async function () {
@@ -188,11 +193,91 @@ describe("APWine Contracts", function () {
                 describe("Weekly ADAI", function (){
 
                     beforeEach(async function () {
-                        await this.ibtFutureFactory.deployFutureWithIBT("AAVE",ADAI_ADDRESS,60*60*24*7,{ from: owner });
+                        await this.ibtFutureFactory.deployFutureWithIBT("AAVE",ADAI_ADDRESS,7,{ from: owner })
+                        await this.gaugeController.setGaugeWeight( await this.gaugeController.getLiquidityGaugeOfFuture(await this.registry.getFutureAt(0)),2000000000000000,{ from: owner } )
                     })
 
-                    it("AAVE ADAI Future added", async function () {
+                    it("AAVE ADAI Future added in registry", async function () {
                         expect(await this.registry.futureCount()).to.be.bignumber.equal(new BN(1))
+                    })
+
+                    it("Can retrieve the future durations list" , async function(){
+                        const durations = await this.controller.getDurations()
+                        expect(await durations.length).to.be.equal(1)
+                    })
+
+                    it("Can retrieve the registered future with its duration", async function (){
+                        const dailyFutures = await this.controller.getFuturesWithDuration(60*60*24*7)
+                        expect(await dailyFutures.length).to.be.equal(1)
+                    })
+
+                    it("Can check is future is registred", async function(){
+                        expect(await this.registry.isRegisteredFuture(await this.registry.getFutureAt(0))).to.be.equal(true)
+                    })
+
+                    describe("User registration", function (){
+
+
+                        beforeEach(async function () {
+                            this.deployedAaveFuture =  await AaveFuture.at(await this.registry.getFutureAt(0))
+                            await uniswapRouter.swapExactETHForTokens(0, [WETH_ADDRESS, ADAI_ADDRESS], user1, Date.now() + 25, { from: user1, value: ether("1") })
+                        })
+
+                        it("has at least 100 ADAI in their wallet", async function () {
+                            expect(await adai.balanceOf(user1)).to.be.bignumber.gt(ether("100"))
+                        })
+
+                        it("can't register if it hasn't approved", async function () {
+                            expectRevert.unspecified( this.controller.register(this.deployedAaveFuture.address, ether("100"), { from: user1 }))
+                        })
+
+                        it("can register to the next period", async function () {
+                            await adai.approve(this.controller.address, ether("100"), { from: user1 })
+                            await this.controller.register(this.deployedAaveFuture.address, ether("100"), { from: user1 })
+                        })
+
+                        describe("with funds registered", function () {
+
+                            beforeEach(async function () {
+                                await adai.approve(this.controller.address, ether("100"), { from: user1 })
+                                await this.controller.register(this.deployedAaveFuture.address, ether("100"), { from: user1 })
+                            })
+
+                            it("can unregister", async function() {
+                                await this.controller.unregister(this.deployedAaveFuture.address,ether("1"), { from: user1 })
+                            })
+
+                            it("can get its registered funds", async function() {
+                                expect(await this.deployedAaveFuture.getRegisteredAmount(user1)).to.be.bignumber.gte(ether("1"))
+                            })
+
+                            it("can start the period", async function () {
+                                await this.controller.setPeriodStartingDelay(24*60*60*7,{ from: owner })
+                                await this.controller.startFuturesByPeriodDuration(24*60*60*7,{ from: owner })
+                            })
+
+                            describe("with next period started", function () {
+
+                                beforeEach(async function () {
+                                    await this.controller.setPeriodStartingDelay(24*60*60*7,{ from: owner })
+                                    await this.controller.startFuturesByPeriodDuration(24*60*60*7,{ from: owner })
+                                })
+
+                                it("fyt was generated with the right name", async function() {
+                                let addressFYT = await this.deployedAaveFuture.getFYTofPeriod(1, { from: user1 })
+                                const fyt1 = await contract.fromArtifact("ERC20", addressFYT)
+                                let symbolFYT = await fyt1.symbol()
+                                expect(symbolFYT == "7D-AAVE-ADAI-1")
+                                })
+
+                                it("user can claim tokens generated", async function() {
+                                    await this.controller.claimFYT(this.deployedAaveFuture.address, { from: user1 })
+                                })
+
+                                
+                            })
+                        })
+
                     })
 
                 })
@@ -202,109 +287,5 @@ describe("APWine Contracts", function () {
         })
 
     })
-
-
-    // describe("APWine Aave integration", function () {
-
-    //     beforeEach(async function () {
-    //         await AaveFuture.detectNetwork()
-    //         await AaveFuture.link("APWineMaths", this.maths.address)
-    //         await AaveFuture.link("APWineNaming", this.naming.address)
-    //         this.aaveWeeklyFuture = await AaveFuture.new()
-    //         await this.aaveWeeklyFuture.initialize(this.controller.address, ADAI_ADDRESS, 7,"W","Aave", "Weekly Aave DAI", "WADAIAAVE", owner)
-    //         await AaveFutureWallet.detectNetwork()
-    //         await AaveFutureWallet.link("APWineMaths", this.maths.address)
-    //         this.aaveWeeklyFutureWallet = await AaveFutureWallet.new()
-    //         await this.aaveWeeklyFutureWallet.initialize(this.aaveWeeklyFuture.address,owner)
-
-    //         this.aaveWeeklyFutureVault = await FutureVault.new()
-    //         await this.aaveWeeklyFutureVault.initialize(this.aaveWeeklyFuture.address, owner)
-    //         await this.aaveWeeklyFuture.setFutureVault(this.aaveWeeklyFutureVault.address,{from:owner})
-    //         await this.aaveWeeklyFuture.setFutureWallet(this.aaveWeeklyFutureWallet.address,{from:owner})
-
-    //         await this.controller.addFuture(this.aaveWeeklyFuture.address, {from:owner});
-    //     })
-
-    //     it("future is registered in controller", async function () {
-    //         expect(await this.controller.future(0)).to.equal(this.aaveWeeklyFuture.address)
-    //     })
-
-    //     it("has no registered balance by default", async function () {
-    //         expect(await this.aaveWeeklyFuture.getRegisteredAmount(user1)).to.be.bignumber.equal(new BN(0))
-    //     })
-
-    //     describe("with initial user ADAI balance", function () {
-
-    //         beforeEach(async function () {
-    //             await uniswapRouter.swapExactETHForTokens(0, [WETH_ADDRESS, ADAI_ADDRESS], user1, Date.now() + 25, { from: user1, value: ether("1") })
-    //         })
-
-    //         it("has at least 100 ADAI in their wallet", async function () {
-    //             expect(await adai.balanceOf(user1)).to.be.bignumber.gt(ether("100"))
-    //         })
-
-    //         it("can't register if it hasn't approved", async function () {
-    //             expectRevert.unspecified(this.controller.register(this.aaveWeeklyFuture.address, ether("100"), { from: user1 }))
-    //         })
-
-    //         // const register = async (address) => {
-    //         //     await adai.approve(this.controller.address, ether("100"))
-    //         //     await this.controller.register(this.aaveWeeklyFuture.address, ether("100"), { from: address })
-    //         // }
-
-    //         it("can register to the next period", async function () {
-    //             await adai.approve(this.controller.address, ether("100"), { from: user1 })
-    //             await this.controller.register(this.aaveWeeklyFuture.address, ether("100"), { from: user1 })
-    //         })
-
-    //         describe("with ADAI registered for the period", function () {
-
-    //             beforeEach(async function () {
-    //                 await adai.approve(this.controller.address, ether("100"), { from: user1 })
-    //                 await this.controller.register(this.aaveWeeklyFuture.address, ether("1"), { from: user1 })
-    //             })
-
-    //             it("can start the period", async function () {
-    //                 await this.controller.setPeriodStartingDelay(24*60*60*7,{ from: owner })
-    //                 await this.aaveWeeklyFuture.startNewPeriod({ from: owner })
-    //             })
-
-    //             it("can unregister", async function() {
-    //                 await this.aaveWeeklyFuture.unregister(ether("1"), { from: user1 })
-    //             })
-
-    //             it("can get its registered funds", async function() {
-    //                 expect(await this.aaveWeeklyFuture.getRegisteredAmount(user1)).to.be.bignumber.gte(ether("1"))
-    //             })
-
-    //             describe("with next period started", function () {
-
-    //                 beforeEach(async function () {
-    //                     await this.controller.setPeriodStartingDelay(24*60*60*7,{ from: owner })
-    //                     await this.aaveWeeklyFuture.startNewPeriod({ from: owner })
-    //                 })
-
-    //                 it("fyt was generated with the right name", async function() {
-    //                    let addressFYT = await this.aaveWeeklyFuture.getFYTofPeriod(1, { from: user1 })
-    //                    const fyt1 = await contract.fromArtifact("ERC20", addressFYT)
-    //                    let symbolFYT = await fyt1.symbol()
-    //                    expect(symbolFYT == "W1ADAIAAVE")
-    //                 })
-
-    //                 it("user can claim tokens generated", async function() {
-    //                     await this.aaveWeeklyFuture.claimFYT(user1, { from: user1 })
-    //                 })
-
-        
-        
-    //             })
-
-
-
-    //         })
-
-    //     })
-
-    // })
 
 })
