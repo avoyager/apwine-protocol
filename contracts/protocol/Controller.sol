@@ -83,6 +83,7 @@ contract Controller is Initializable, AccessControlUpgradeable {
     /* User Methods */
 
     function register(address _future, uint256 _amount) public futureIsValid(_future) {
+        require(ERC20(IFuture(_future).getIBTAddress()).transferFrom(msg.sender,_future,_amount), "invalid amount");
         IFuture(_future).register(msg.sender, _amount);
     }
 
@@ -149,6 +150,23 @@ contract Controller is Initializable, AccessControlUpgradeable {
         return nextPeriodSwitchByDuration[_periodDuration];
     }
 
+    function getDurations() public view returns(uint256[] memory){
+        uint256[] memory durationsList = new uint256[](durations.length());
+        for (uint256 i = 0; i < durations.length(); i++) {
+            durationsList[i] = durations.at(i);
+        }
+        return durationsList;
+    }
+
+    function getFuturesWithDuration(uint256 _periodDuration) public view returns (address[] memory) {
+        uint256 listLength = futuresByDuration[_periodDuration].length();
+        address[] memory filteredFutures = new address[](listLength);
+        for (uint256 i = 0; i < listLength; i++) {
+            filteredFutures[i] = futuresByDuration[_periodDuration].at(i);
+        }
+        return filteredFutures;
+    }
+
     /* future admin function*/
     function registerNewFuture(address _newFuture) public futureFactoryIsValid(msg.sender) {
         registry.addFuture(_newFuture);
@@ -176,13 +194,7 @@ contract Controller is Initializable, AccessControlUpgradeable {
         periodIndexByDurations[_periodDuration] = periodIndexByDurations[_periodDuration].add(1);
     }
 
-    function getFuturesWithDuration(uint256 _periodDuration) public view returns (address[] memory) {
-        address[] memory filteredFutures = new address[](futuresByDuration[_periodDuration].length());
-        for (uint256 i = 0; i < filteredFutures.length; i++) {
-            filteredFutures[i] = futuresByDuration[_periodDuration].at(i);
-        }
-        return filteredFutures;
-    }
+
 
     /* Security functions */
     function pauseFuture(address _future) public {

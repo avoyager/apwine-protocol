@@ -98,6 +98,12 @@ interface IController {
     function getNextPeriodStart(uint256 _periodDuration) external view returns (uint256);
 
     /**
+     * @notice Getter for the list of future durations registered in the contract
+     * @return the list of futures duration
+     */
+    function getDurations() external view returns(uint256[] memory);
+
+    /**
      * @notice Register a newly created future in the registry
      * @param _newFuture the address of the new future
      */
