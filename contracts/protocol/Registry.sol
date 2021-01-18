@@ -31,10 +31,6 @@ contract Registry is Initializable, AccessControlUpgradeable {
     EnumerableSetUpgradeable.AddressSet private futureWalletsLogic;
     EnumerableSetUpgradeable.AddressSet private futuresLogic;
 
-    mapping(address => string) private futureVaultName;
-    mapping(address => string) private futureWalletName;
-    mapping(address => string) private futureName;
-
     /* Futures Platforms Contracts */
     EnumerableSetUpgradeable.AddressSet private futureFactories;
     mapping(address => string) private futureFactoriesNames;
@@ -273,14 +269,14 @@ contract Registry is Initializable, AccessControlUpgradeable {
     }
 
     /* Futures */
-    function addFuture(address _future) public returns (bool) {
+    function addFuture(address _future) public {
         require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not an admin");
-        return futures.add(_future);
+        require(futures.add(_future),"future not added");
     }
 
-    function removeFuture(address _future) public returns (bool) {
+    function removeFuture(address _future) public{
         require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not an admin");
-        return futures.remove(_future);
+        require(futures.remove(_future),"future not removed");
     }
 
     function isRegisteredFuture(address _future) external view returns (bool) {
@@ -293,59 +289,5 @@ contract Registry is Initializable, AccessControlUpgradeable {
 
     function futureCount() external view returns (uint256) {
         return futures.length();
-    }
-
-    /* Future Wallets Logic */
-    function isRegisteredFutureWallet(address _futureWallet) external view returns (bool) {
-        return futureWalletsLogic.contains(_futureWallet);
-    }
-
-    function getFuturWalletAt(uint256 _index) external view returns (address) {
-        return futureWalletsLogic.at(_index);
-    }
-
-    function futureWalletCount() external view returns (uint256) {
-        return futureWalletsLogic.length();
-    }
-
-    function getFutureWalletName(address _futureWalletAddress) external view returns (string memory) {
-        require(futureWalletsLogic.contains(_futureWalletAddress), "invalid address");
-        return futureWalletName[_futureWalletAddress];
-    }
-
-    /* Future Vault Logic*/
-    function isRegisteredFutureVault(address _futureVault) public view returns (bool) {
-        return futureWalletsLogic.contains(_futureVault);
-    }
-
-    function getFutureVaultAt(uint256 _index) public view returns (address) {
-        return futureWalletsLogic.at(_index);
-    }
-
-    function futureVaultCount() external view returns (uint256) {
-        return futureWalletsLogic.length();
-    }
-
-    function getFutureVaultName(address _futureVault) external view returns (string memory) {
-        require(futureWalletsLogic.contains(_futureVault), "invalid address");
-        return futureWalletName[_futureVault];
-    }
-
-    /* Future Logic*/
-    function isRegisteredFutureLogic(address _futureLogic) external view returns (bool) {
-        return futuresLogic.contains(_futureLogic);
-    }
-
-    function getFutureLogicAt(uint256 _index) external view returns (address) {
-        return futuresLogic.at(_index);
-    }
-
-    function futureLogicCount() external view returns (uint256) {
-        return futuresLogic.length();
-    }
-
-    function getFutureLogicName(address _futureLogicAddress) external view returns (string memory) {
-        require(futuresLogic.contains(_futureLogicAddress), "invalid address");
-        return futureWalletName[_futureLogicAddress];
     }
 }

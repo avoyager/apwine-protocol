@@ -182,7 +182,7 @@ contract Controller is Initializable, AccessControlUpgradeable {
 
     function unregisterFuture(address _future) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        require(registry.removeFuture(_future), "invalid future");
+        registry.removeFuture(_future);
 
         uint256 futureDuration = IFuture(_future).PERIOD_DURATION();
         if (!durations.contains(futureDuration)) durations.remove(futureDuration);
