@@ -65,12 +65,12 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable {
      * @dev must be called from the future contract
      */
     function registerNewFutureLiquidity(uint256 _amount) public {
-        require(_amount > 0, "Amount must not be zero");
         require(hasRole(FUTURE_ROLE, msg.sender), "Caller is not the corresponding future");
         updateInflatedVolume();
         totalDepositedSupply[totalDepositedSupply.length - 1] = totalDepositedSupply[totalDepositedSupply.length - 1].add(
             _amount
         );
+        periodsSwitchesIndexes.push(totalDepositedSupply.length-1);
         emit LiquidityAdded(_amount, totalDepositedSupply[totalDepositedSupply.length - 1]);
     }
 
