@@ -19,6 +19,8 @@ Contract name | role
 `GaugeController` | regulate the weight of liquidity gauge and APW emission
 
 ### Futures contracts
+Contract name | role
+------------ | -------------
 `Future` | Main contracts for future mecanisms (admin and user)
 `Future Vault` | hold the treasury funds of the protocol
 `Future Wallet` | hold the funds of expired futures
