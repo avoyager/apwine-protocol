@@ -8,7 +8,7 @@ module.exports = {
     EPOCH_LENGTH : 60*60*24*365,
     INITIAL_INFLATION_RATE: 5000000000000000,  
     DAY: 60*60*24,
-
+    FUTURE_DEPLOYER_ROLE: "0xdacd85ccbf3b93dd485a10886cc255d4fba1805ebed1521d0c405d4416eca3be",
     // Core Protocol
     contracts:{
         Controller : artifacts.require('Controller'),
