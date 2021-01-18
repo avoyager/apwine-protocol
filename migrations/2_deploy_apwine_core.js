@@ -8,8 +8,8 @@ const { admin_address, ADAI_Address,EPOCH_LENGTH,INITIAL_INFLATION_RATE} = commo
 module.exports = async function (deployer) {
 
     /* Libraries*/
-    const apwineMaths = await deployer.deploy(APWineMaths);
-    const apwineNaming = await deployer.deploy(APWineNaming);
+    const apwineMaths = await APWineMaths.new();
+    const apwineNaming = await APWineNaming.new();
 
     /* Deploy and initialize core contracts */
     const registry = await deployProxy(Registry, [admin_address], { deployer,unsafeAllowCustomTypes:true});
@@ -37,7 +37,7 @@ module.exports = async function (deployer) {
     await registry.setMathsUtils(apwineMaths.address)
     await registry.setNamingUtils(apwineNaming.address)
 
-    await this.gaugeController.setEpochInflationRate(INITIAL_INFLATION_RATE,{ from: owner } )
-    await this.gaugeController.setEpochLength(EPOCH_LENGTH,{ from: owner } )
+    await gaugeController.setEpochInflationRate(INITIAL_INFLATION_RATE)
+    await gaugeController.setEpochLength(EPOCH_LENGTH)
 
 }

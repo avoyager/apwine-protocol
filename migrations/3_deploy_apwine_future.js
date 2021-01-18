@@ -2,8 +2,8 @@ const { deployProxy } = require('@openzeppelin/truffle-upgrades');
 require('dotenv').config();
 
 const common = require("./common")
-const { Controller, GaugeController, LiquidityGauge, Registry, Treasury, APWineMaths, APWineNaming, ProxyFactory, IBTFutureFactory, FutureYieldToken, APWineIBT } = common.contracts
-const { admin_address, ADAI_ADDRESS,EPOCH_LENGTH,INITIAL_INFLATION_RATE, DAY} = common;
+const { Controller, GaugeController, LiquidityGauge, Registry, Treasury, APWineMaths, APWineNaming, ProxyFactory, IBTFutureFactory, FutureYieldToken, APWineIBT, AaveFuture,AaveFutureWallet,FutureVault} = common.contracts
+const { admin_address, ADAI_ADDRESS,EPOCH_LENGTH,INITIAL_INFLATION_RATE, DAY,FUTURE_DEPLOYER_ROLE} = common;
 
 module.exports = async function (deployer) {
 
@@ -19,6 +19,7 @@ module.exports = async function (deployer) {
     const futureVault = await deployer.deploy(FutureVault);
 
     await registry.addFuturePlatform(ibtFutureFactory.address,"AAVE",aaveFuture.address,aaveFutureWallet.address,futureVault.address);
+    await ibtFutureFactory.grantRole(FUTURE_DEPLOYER_ROLE, admin_address);
     await ibtFutureFactory.deployFutureWithIBT("AAVE",ADAI_ADDRESS,DAY*7);
 
 }
