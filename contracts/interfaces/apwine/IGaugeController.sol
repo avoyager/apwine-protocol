@@ -3,11 +3,12 @@ pragma solidity >=0.7.0 <0.8.0;
 interface IGaugeController {
     enum FutureTypes {Weekly, Monthly}
 
-    function initialize(
-        address _ADMIN,
-        address _APW,
-        address _registry
-    ) external;
+    /**
+     * @notice Intializer of the contract
+     * @param _ADMIN the address of the admin of the contract
+     * @param _registry the address of the registry
+     */
+    function initialize(address _ADMIN, address _registry) external;
 
     /**
      * @notice Deploy a new liquidity gauge for a newly created future and register in in the registry
@@ -97,4 +98,10 @@ interface IGaugeController {
      * @param _epochLength the new length of the epochs
      */
     function setEpochLength(uint256 _epochLength) external;
+
+    /**
+     * @notice Setter for the APW token addres
+     * @param _APW the APW token address
+     */
+    function setAPW(address _APW) external;
 }

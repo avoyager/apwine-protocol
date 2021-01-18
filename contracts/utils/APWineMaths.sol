@@ -5,6 +5,12 @@ import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 contract APWineMaths {
     using SafeMathUpgradeable for uint256;
 
+    /**
+     * @notice scaled an input
+     * @param _actualValue the original value of the input
+     * @param _initialSum the scaled value of the sum of the inputs
+     * @param _actualSum the current value of the sum of the inputs
+     */
     function getScaledInput(
         uint256 _actualValue,
         uint256 _initialSum,
@@ -18,6 +24,12 @@ contract APWineMaths {
             );
     }
 
+    /**
+     * @notice scale back a value to the ouput
+     * @param _scalledOuput the current scaled output
+     * @param _initialSum the scaled value of the sum of the inputs
+     * @param _actualSum the current value of the sum of the inputs
+     */
     function getActualOutput(
         uint256 _scalledOuput,
         uint256 _initialSum,

@@ -17,9 +17,22 @@ import "contracts/interfaces/apwine/IGaugeController.sol";
 
 import "./FutureFactory.sol";
 
+/**
+ * @title Contract for IBT Future Factory
+ * @author Gaspard Peduzzi
+ * @notice Handles the deployement of new futures working with an IBT deposit
+ * @dev Basis to build different types of futures depending on their inner functionning
+ */
 contract IBTFutureFactory is FutureFactory {
     using SafeMathUpgradeable for uint256;
 
+    /**
+     * @notice Deploy and instance a new future with all the registered contracts
+     * @param _futurePlatformName the name of the platfrom (which correspond to a set of contracts registered in the registry)
+     * @param _ibt the address of the ibt of the future
+     * @param _periodDuration the duration in days of the future periods
+     * @return the address of the new future main contract
+     */
     function deployFutureWithIBT(
         string memory _futurePlatformName,
         address _ibt,

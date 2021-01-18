@@ -30,6 +30,7 @@ interface IFuture {
      * @param _ibt the address of the corresponding ibt
      * @param _periodDuration the length of the period (in days)
      * @param _platformName the name of the platform and tools
+     * @param _deployerAddress the future deployer address
      * @param _admin the address of the ACR admin
      */
     function initialize(
@@ -37,6 +38,7 @@ interface IFuture {
         address _ibt,
         uint256 _periodDuration,
         string memory _platformName,
+        address _deployerAddress,
         address _admin
     ) external;
 

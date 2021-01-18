@@ -12,6 +12,12 @@ import "contracts/interfaces/apwine/IRegistry.sol";
 
 import "contracts/interfaces/apwine/utils/IAPWineMath.sol";
 
+/**
+ * @title Future Wallet abstraction
+ * @author Gaspard Peduzzi
+ * @notice Main abstraction for the future wallets contract
+ * @dev The future wallets stores the yield after each expiration of the future period
+ */
 abstract contract FutureWallet is Initializable, AccessControlUpgradeable {
     using SafeMathUpgradeable for uint256;
 
@@ -24,7 +30,7 @@ abstract contract FutureWallet is Initializable, AccessControlUpgradeable {
     /**
      * @notice Intializer
      * @param _futureAddress the address of the corresponding future
-     * @param _adminAddress the address of the ACR admin
+     * @param _adminAddress the address of the admin
      */
     function initialize(address _futureAddress, address _adminAddress) public virtual initializer {
         future = IFuture(_futureAddress);
@@ -65,6 +71,13 @@ abstract contract FutureWallet is Initializable, AccessControlUpgradeable {
      */
     function getRedeemableYield(uint256 _periodIndex, address _tokenHolder) public view virtual returns (uint256);
 
+    /**
+     * @notice collect and update the yield balance of the sender
+     * @param _periodIndex the index of the corresponding period
+     * @param _userFYT the fyt holder balance
+     * @param _totalFYT the total fyt supply
+     * @return the yield that could be redeemed by the token holder for this period
+     */
     function _updateYieldBalances(
         uint256 _periodIndex,
         uint256 _userFYT,

@@ -10,6 +10,11 @@ import "contracts/interfaces/apwine/tokens/IAPWToken.sol";
 import "contracts/interfaces/apwine/IRegistry.sol";
 import "contracts/interfaces/IProxyFactory.sol";
 
+/**
+ * @title Gauge Controller contract
+ * @author Gaspard Peduzzi
+ * @notice The Gauge Controller regulate the weight of the liquidity gauge and the emission of the APW token against liquidity provision
+ */
 contract GaugeController is Initializable, AccessControlUpgradeable {
     using SafeMathUpgradeable for uint256;
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
@@ -43,12 +48,22 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
         _;
     }
 
+    /**
+     * @notice Intializer of the contract
+     * @param _ADMIN the address of the admin of the contract
+     * @param _registry the address of the registry
+     */
     function initialize(address _ADMIN, address _registry) public initializer {
         _setupRole(DEFAULT_ADMIN_ROLE, _ADMIN);
         _setupRole(ADMIN_ROLE, _ADMIN);
         registry = IRegistry(_registry);
     }
 
+    /**
+     * @notice Deploy a new liquidity gauge for a newly created future and register in in the registry
+     * @param _future the address of the new future
+     * @return the address of the new liquidity gauge
+     */
     function registerNewGauge(address _future) public returns (address) {
         require(registry.isRegisteredFutureFactory(msg.sender), "incorrect future factory address");
         address newLiquidityGauge = deployLiquidityGauge(_future);
@@ -69,6 +84,10 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
         return address(newLiquidityGauge);
     }
 
+    /**
+     * @notice Claim all claimable APW rewards for the sender
+     * @dev not gas efficient, claim function with specified liquidity gauges saves gas
+     */
     function claimAPW() public {
         require(isAPWClaimable, "apw rewards not claimable atm");
         uint256 totalRedeemable;
@@ -82,6 +101,10 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
         emit APWRedeemed(msg.sender, actualRedeemable);
     }
 
+    /**
+     * @notice Claim all claimable APW rewards for the sender for a specified list of liquidity gauges
+     * @param _liquidityGauges the the list of liquidity gauges to claim the rewards of
+     */
     function claimAPW(address[] memory _liquidityGauges) public {
         require(isAPWClaimable, "apw rewards not claimable atm");
         uint256 totalRedeemable;
@@ -97,22 +120,45 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
     }
 
     /* Getters */
+    /**
+     * @notice Getter for the inflation rate of the current epoch
+     * @return the inflation rate of the current epoch
+     */
     function getLastEpochInflationRate() external view returns (uint256) {
         return inflationRate;
     }
 
+    /**
+     * @notice Getter for weight of one gauge
+     * @param _liquidityGauge the address of the liquidity gauge to get the weight of
+     * @return the weight of the gauge
+     */
     function getGaugeWeight(address _liquidityGauge) external view returns (uint256) {
         return gaugesWeights[_liquidityGauge];
     }
 
+    /**
+     * @notice Getter for duration of one epoch
+     * @return the duration of one epoch
+     */
     function getEpochLength() external view returns (uint256) {
         return epochLength;
     }
 
+    /**
+     * @notice Getter for duration of one epoch
+     * @param _future the address of the future to check the liquidity gauge of
+     * @return the address of the liquidity gauge of the future
+     */
     function getLiquidityGaugeOfFuture(address _future) public view returns (address) {
         return futureGauges[_future];
     }
 
+    /**
+     * @notice Getter for the total redeemable APW of one user
+     * @param _user the address of the user to get the redeemable APW of
+     * @return the total amount of APW redeemable
+     */
     function getUserRedeemableAPW(address _user) external view returns (uint256) {
         uint256 totalRedeemable;
         for (uint256 i = 0; i < liquidityGauges.length(); i++) {
@@ -121,22 +167,39 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
         return totalRedeemable.sub(redeemedByUser[_user]);
     }
 
+    /**
+     * @notice Getter for the current state of rewards withdrawal availability
+     * @return true if the users can withdraw their redeemable APW, false otherwise
+     */
     function getWithdrawableState() external view returns (bool) {
         return isAPWClaimable;
     }
 
     /* Setters */
 
+    /**
+     * @notice Setter for the inflation rate of the epoch
+     * @param _inflationRate the new inflation rate of the epoch
+     */
     function setEpochInflationRate(uint256 _inflationRate) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         inflationRate = _inflationRate;
     }
 
+    /**
+     * @notice Setter for the weight of one liquidity gauge
+     * @param _liquidityGauge the address of the liquidity gauge
+     * @param _gaugeWeight the new weight of the liquidity gauge
+     */
     function setGaugeWeight(address _liquidityGauge, uint256 _gaugeWeight) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         gaugesWeights[_liquidityGauge] = _gaugeWeight;
     }
 
+    /**
+     * @notice Setter for the length of the epochs
+     * @param _epochLength the new length of the epochs
+     */
     function setEpochLength(uint256 _epochLength) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         epochLength = _epochLength;
@@ -148,12 +211,18 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
         apw = IAPWToken(_APW);
     }
 
+    /**
+     * @notice Admin function to pause APW whitdrawals
+     */
     function pauseAPWWithdraw() public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         require(isAPWClaimable, "apw rewards already paused");
         isAPWClaimable = false;
     }
 
+    /**
+     * @notice Admin function to resume APW whitdrawals
+     */
     function resumeAPWWithdraw() public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         require(!isAPWClaimable, "apw rewards already resumed");

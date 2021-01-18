@@ -2,6 +2,11 @@ pragma solidity >=0.7.0 <0.8.0;
 pragma experimental ABIEncoderV2;
 
 interface IRegistry {
+    /**
+     * @notice Initializer of the contract
+     * @param _admin the address of the admin of the contract
+     */
+    function initialize(address _admin) external;
 
     /* Setters */
 
@@ -41,7 +46,6 @@ interface IRegistry {
      */
     function setLiquidityGaugeLogic(address _liquidityGaugeLogic) external;
 
-
     /**
      * @notice Setter for the apwine ibt logic address
      * @param _APWineIBTLogic the address of the new apwine ibt logic
@@ -72,13 +76,11 @@ interface IRegistry {
      */
     function getControllerAddress() external view returns (address);
 
-
     /**
      * @notice Getter for the treasury address
      * @return the address of the treasury
      */
     function getTreasuryAddress() external view returns (address);
-
 
     /**
      * @notice Getter for the gauge controller address
@@ -104,13 +106,11 @@ interface IRegistry {
      */
     function getVestingAddress() external view returns (address);
 
-
     /**
      * @notice Getter for the proxy factory address
      * @return the proxy factory address
      */
     function getProxyFactoryAddress() external view returns (address);
-
 
     /**
      * @notice Getter for liquidity gauge logic address
@@ -124,13 +124,11 @@ interface IRegistry {
      */
     function getAPWineIBTLogicAddress() external view returns (address);
 
-
     /**
      * @notice Getter for APWine FYT logic address
      * @return the APWine FYT logic address
      */
     function getFYTLogicAddress() external view returns (address);
-
 
     /**
      * @notice Getter for math utils address
@@ -138,13 +136,11 @@ interface IRegistry {
      */
     function getMathsUtils() external view returns (address);
 
-
     /**
      * @notice Getter for naming utils address
      * @return the naming utils address
      */
     function getNamingUtils() external view returns (address);
-
 
     /* Future factory */
 
@@ -154,7 +150,6 @@ interface IRegistry {
      * @param _futureFactoryName the name of the future factory
      */
     function addFutureFactory(address _futureFactory, string memory _futureFactoryName) external;
-
 
     /**
      * @notice Getter to check if a future factory is registered
@@ -169,7 +164,6 @@ interface IRegistry {
      * @return the address of the corresponding future factory
      */
     function getFutureFactoryAt(uint256 _index) external view returns (address);
-
 
     /**
      * @notice Getter for number of future factories registered
@@ -221,7 +215,6 @@ interface IRegistry {
      */
     function futurePlatformsCount() external view returns (uint256);
 
-
     /**
      * @notice Getter the list of platforms names registered
      * @return the list of platfrom names registered
@@ -234,15 +227,14 @@ interface IRegistry {
      */
     function removeFuturePlatform(string memory _futurePlatformName) external;
 
-
     /* Futures */
     /**
      * @notice Add a future to the registry
      * @param _future the address of the future to add to the registry
      */
     function addFuture(address _future) external;
-   
-   /**
+
+    /**
      * @notice Remove a future from the registry
      * @param _future the address of the future to remove from the registry
      */

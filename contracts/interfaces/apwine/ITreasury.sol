@@ -1,6 +1,10 @@
 pragma solidity >=0.7.0 <0.8.0;
 
 interface ITreasury {
+    /**
+     * @notice Initializer of the contract
+     * @param _adminAddress the address the admin of the contract
+     */
     function initialize(address _adminAddress) external;
 
     /**
