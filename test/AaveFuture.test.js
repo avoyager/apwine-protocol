@@ -69,6 +69,25 @@ describe("Aave Future", function (){
             expect(await this.registry.isRegisteredFuture(await this.registry.getFutureAt(0))).to.be.equal(true)
         })
 
+        it("Can check future wallet is correctly deployed", async function(){
+            const deployedAaveFuture =  await AaveFuture.at(await this.registry.getFutureAt(0))
+            const futureWallet =  await AaveFutureWallet.at(await deployedAaveFuture.getFutureWalletAddress())
+            expect(await futureWallet.getFutureAddress()).to.be.deep.equal(deployedAaveFuture.address)
+        })
+
+        it("Can check future wallet is correctly set", async function(){
+            const deployedAaveFuture =  await AaveFuture.at(await this.registry.getFutureAt(0))
+            const futureWallet =  await AaveFutureWallet.at(await deployedAaveFuture.getFutureWalletAddress())
+            expect(await futureWallet.getIBTAddress()).to.be.deep.equal(await deployedAaveFuture.getIBTAddress())
+        })
+
+        it("Can check future vault is correctly deployed", async function(){
+            const deployedAaveFuture = await AaveFuture.at(await this.registry.getFutureAt(0))
+            const futureVault =  await FutureVault.at(await deployedAaveFuture.getFutureVaultAddress())
+            expect(await futureVault.getFutureAddress()).to.be.deep.equal(deployedAaveFuture.address)
+        })
+
+
         describe("User registration", function (){
 
 
@@ -124,11 +143,42 @@ describe("Aave Future", function (){
                         expect(symbolFYT == "7D-AAVE-ADAI-1")
                     })
 
+
+                    it("user get claimable apwibt", async function() {
+                        expect(await this.deployedAaveFuture.getClaimableAPWIBT(user1)).to.be.bignumber.gte(new BN(0))
+                    })
+
+
                     it("user can claim tokens generated", async function() {
                         await this.controller.claimFYT(this.deployedAaveFuture.address, { from: user1 })
                     })
 
-                    
+                    describe("with future period expired", function () {
+
+                        beforeEach(async function () {
+                            await this.controller.claimFYT(this.deployedAaveFuture.address, { from: user1 })
+                            await this.controller.startFuturesByPeriodDuration(24*60*60*7,{ from: owner })
+                            this.deployedAaveFutureWallet =  await AaveFutureWallet.at(await this.deployedAaveFuture.getFutureWalletAddress())
+                        })
+    
+                        it("internal next period id must be 3 ", async function() {
+                            expect(this.deployedAaveFuture.getNextPeriodIndex()).to.be.bignumber.equal(new BN(3))
+                        })
+    
+                        it("user can claim the new period tokens tokens generated", async function() {
+                            await this.controller.claimFYT(this.deployedAaveFuture.address, { from: user1 })
+                        })
+
+                        it("user can get its redeemable yield for the 1st period", async function() {
+                           expect(await this.deployedAaveFutureWallet.getRedeemableYield(1,user1, { from: user1 })).to.be.bignumber.gte(new BN(0))
+                        })
+
+                        it("user can redeem its yield for the 1st period", async function() {
+                            await this.deployedAaveFutureWallet.redeemYield(1, { from: user1 })
+                        })
+              
+                    })
+          
                 })
             })
 
