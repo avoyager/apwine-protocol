@@ -12,7 +12,7 @@ const { initializeCore, initializeFutures } = require("./initialize")
 
 describe("Yearn Future", function (){
 
-    this.timeout(100 * 5000)
+    this.timeout(100 * 10000)
     const [owner, user1, user2] = accounts
 
     beforeEach(async function () {
