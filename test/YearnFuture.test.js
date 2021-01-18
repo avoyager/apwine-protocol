@@ -6,7 +6,7 @@ const ether = require("@openzeppelin/test-helpers/src/ether")
 
 const common = require("./common")
 const { yTokenFuture, yTokenFutureWallet, FutureVault } = common.contracts
-const { adai, YUSD_ADDRESS,WETH_ADDRESS, uniswapRouter } = common
+const { adai,yusd, YUSD_ADDRESS,WETH_ADDRESS, uniswapRouter } = common
 
 const { initializeCore, initializeFutures } = require("./initialize")
 
