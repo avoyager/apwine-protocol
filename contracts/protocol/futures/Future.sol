@@ -302,7 +302,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
      * @return the amount of ibt the user can unlock
      */
     function getUnlockableFunds(address _user) public view virtual returns (uint256) {
-        return getClaimableAPWIBT(_user).add(apwibt.balanceOf(_user));
+        return apwibt.balanceOf(_user);
     }
 
     /**
