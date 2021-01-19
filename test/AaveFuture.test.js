@@ -5,8 +5,8 @@ const { BN, ether: amount, expectRevert, time, balance } = require("@openzeppeli
 const ether = require("@openzeppelin/test-helpers/src/ether")
 
 const common = require("./common")
-const { AaveFuture, AaveFutureWallet, FutureVault } = common.contracts
-const { adai, ADAI_ADDRESS, WETH_ADDRESS, uniswapRouter } = common
+const { AaveFuture, AaveFutureWallet, FutureVault, LiquidityGauge } = common.contracts
+const { adai, ADAI_ADDRESS, WETH_ADDRESS, uniswapRouter , DAY_TIME } = common
 
 const { initializeCore, initializeFutures } = require("./initialize")
 
@@ -47,8 +47,10 @@ describe("Aave Future", function (){
     describe("Weekly ADAI", function (){
 
         beforeEach(async function () {
-            await this.ibtFutureFactory.deployFutureWithIBT("AAVE",ADAI_ADDRESS,7,{ from: owner })
-            await this.gaugeController.setGaugeWeight( await this.gaugeController.getLiquidityGaugeOfFuture(await this.registry.getFutureAt(0)),2000000000000000,{ from: owner } )
+            await this.ibtFutureFactory.deployFutureWithIBT("AAVE",ADAI_ADDRESS,7,{ from: owner });
+            this.deployedAaveFuture =  await AaveFuture.at(await this.registry.getFutureAt(0))
+            this.aaveFutureLiquidityGauge =  await LiquidityGauge.at(await this.gaugeController.getLiquidityGaugeOfFuture(this.deployedAaveFuture.address))
+            await this.gaugeController.setGaugeWeight( this.aaveFutureLiquidityGauge.address ,2000000000000000,{ from: owner } )
         })
 
         it("AAVE ADAI Future added in registry", async function () {
@@ -66,25 +68,22 @@ describe("Aave Future", function (){
         })
 
         it("Can check is future is registred", async function(){
-            expect(await this.registry.isRegisteredFuture(await this.registry.getFutureAt(0))).to.be.equal(true)
+            expect(await this.registry.isRegisteredFuture(this.deployedAaveFuture.address)).to.be.equal(true)
         })
 
         it("Can check future wallet is correctly deployed", async function(){
-            const deployedAaveFuture =  await AaveFuture.at(await this.registry.getFutureAt(0))
-            const futureWallet =  await AaveFutureWallet.at(await deployedAaveFuture.getFutureWalletAddress())
-            expect(await futureWallet.getFutureAddress()).to.be.deep.equal(deployedAaveFuture.address)
+            const futureWallet =  await AaveFutureWallet.at(await this.deployedAaveFuture.getFutureWalletAddress())
+            expect(await futureWallet.getFutureAddress()).to.be.deep.equal(this.deployedAaveFuture.address)
         })
 
         it("Can check future wallet is correctly set", async function(){
-            const deployedAaveFuture =  await AaveFuture.at(await this.registry.getFutureAt(0))
-            const futureWallet =  await AaveFutureWallet.at(await deployedAaveFuture.getFutureWalletAddress())
-            expect(await futureWallet.getIBTAddress()).to.be.deep.equal(await deployedAaveFuture.getIBTAddress())
+            const futureWallet =  await AaveFutureWallet.at(await this.deployedAaveFuture.getFutureWalletAddress())
+            expect(await futureWallet.getIBTAddress()).to.be.deep.equal(await this.deployedAaveFuture.getIBTAddress())
         })
 
         it("Can check future vault is correctly deployed", async function(){
-            const deployedAaveFuture = await AaveFuture.at(await this.registry.getFutureAt(0))
-            const futureVault =  await FutureVault.at(await deployedAaveFuture.getFutureVaultAddress())
-            expect(await futureVault.getFutureAddress()).to.be.deep.equal(deployedAaveFuture.address)
+            const futureVault =  await FutureVault.at(await this.deployedAaveFuture.getFutureVaultAddress())
+            expect(await futureVault.getFutureAddress()).to.be.deep.equal(this.deployedAaveFuture.address)
         })
 
 
@@ -92,7 +91,6 @@ describe("Aave Future", function (){
 
 
             beforeEach(async function () {
-                this.deployedAaveFuture =  await AaveFuture.at(await this.registry.getFutureAt(0))
                 await uniswapRouter.swapExactETHForTokens(0, [WETH_ADDRESS, ADAI_ADDRESS], user1, Date.now() + 25, { from: user1, value: ether("1") })
             })
 
@@ -120,20 +118,24 @@ describe("Aave Future", function (){
                     await this.controller.unregister(this.deployedAaveFuture.address,ether("1"), { from: user1 })
                 })
 
+                it("can unregister the whole registered balance", async function() {
+                    await this.controller.unregister(this.deployedAaveFuture.address,0, { from: user1 })
+                })
+
                 it("can get its registered funds", async function() {
                     expect(await this.deployedAaveFuture.getRegisteredAmount(user1)).to.be.bignumber.gte(ether("1"))
                 })
 
                 it("can start the period", async function () {
-                    await this.controller.setPeriodStartingDelay(24*60*60*7,{ from: owner })
-                    await this.controller.startFuturesByPeriodDuration(24*60*60*7,{ from: owner })
+                    await this.controller.setPeriodStartingDelay(DAY_TIME*7,{ from: owner })
+                    await this.controller.startFuturesByPeriodDuration(DAY_TIME*7,{ from: owner })
                 })
 
                 describe("with next period started", function () {
 
                     beforeEach(async function () {
-                        await this.controller.setPeriodStartingDelay(24*60*60*7,{ from: owner })
-                        await this.controller.startFuturesByPeriodDuration(24*60*60*7,{ from: owner })
+                        await this.controller.setPeriodStartingDelay(DAY_TIME*7,{ from: owner })
+                        await this.controller.startFuturesByPeriodDuration(DAY_TIME*7,{ from: owner })
                     })
 
                     it("fyt was generated with the right name", async function() {
@@ -153,16 +155,21 @@ describe("Aave Future", function (){
                         await this.controller.claimFYT(this.deployedAaveFuture.address, { from: user1 })
                     })
 
+                    it("can start another period", async function() {
+                        await time.increase(DAY_TIME*7)
+                        await this.controller.startFuturesByPeriodDuration(DAY_TIME*7,{ from: owner })
+                    })
+
                     describe("with future period expired", function () {
 
                         beforeEach(async function () {
                             await this.controller.claimFYT(this.deployedAaveFuture.address, { from: user1 })
-                            await this.controller.startFuturesByPeriodDuration(24*60*60*7,{ from: owner })
+                            await this.controller.startFuturesByPeriodDuration(DAY_TIME*7,{ from: owner })
                             this.deployedAaveFutureWallet =  await AaveFutureWallet.at(await this.deployedAaveFuture.getFutureWalletAddress())
                         })
     
                         it("internal next period id must be 3 ", async function() {
-                            expect(this.deployedAaveFuture.getNextPeriodIndex()).to.be.bignumber.equal(new BN(3))
+                            expect(await this.deployedAaveFuture.getNextPeriodIndex()).to.be.bignumber.equal(new BN(3))
                         })
     
                         it("user can claim the new period tokens tokens generated", async function() {
@@ -175,6 +182,10 @@ describe("Aave Future", function (){
 
                         it("user can redeem its yield for the 1st period", async function() {
                             await this.deployedAaveFutureWallet.redeemYield(1, { from: user1 })
+                        })
+
+                        it("can check the redeemable user liqudity in liquidity gauge  ", async function() {
+                            expect(this.aaveFutureLiquidityGauge.getUserRedeemable(user1)).to.be.bignumber.gte(new BN(0))
                         })
               
                     })

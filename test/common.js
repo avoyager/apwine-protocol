@@ -41,5 +41,6 @@ module.exports = {
     FUTURE_DEPLOYER_ROLE: "0xdacd85ccbf3b93dd485a10886cc255d4fba1805ebed1521d0c405d4416eca3be",
     adai: contract.fromArtifact("ERC20", ADAI_ADDRESS),
     yusd: contract.fromArtifact("ERC20", YUSD_ADDRESS),
-    uniswapRouter: contract.fromABI(require("@uniswap/v2-periphery/build/IUniswapV2Router02.json").abi, undefined, "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D")
+    uniswapRouter: contract.fromABI(require("@uniswap/v2-periphery/build/IUniswapV2Router02.json").abi, undefined, "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"),
+    DAY_TIME: 60*60*24
 }
