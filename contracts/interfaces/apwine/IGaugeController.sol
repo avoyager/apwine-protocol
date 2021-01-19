@@ -102,6 +102,7 @@ interface IGaugeController {
     /**
      * @notice Setter for the APW token addres
      * @param _APW the APW token address
+     * @dev can only be called once
      */
     function setAPW(address _APW) external;
 }

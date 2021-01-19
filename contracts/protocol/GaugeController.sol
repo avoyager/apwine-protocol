@@ -205,6 +205,11 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
         epochLength = _epochLength;
     }
 
+    /**
+     * @notice Setter for the APW token addres
+     * @param _APW the APW token address
+     * @dev can only be called once
+     */
     function setAPW(address _APW) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         require(address(apw) != address(0), "Token already set");
