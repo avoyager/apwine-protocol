@@ -8,6 +8,12 @@ import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 
+/**
+ * @title ERC20 preset for tokens used in apwine protocol
+ * @author Gaspard Peduzzi
+ * @notice ERC20 mintabble pausable
+ * @dev allows overwriting of balanceOf function for liquid balance
+ */
 contract ClaimableERC20 is Initializable, ContextUpgradeable, IERC20Upgradeable, PausableUpgradeable {
     using SafeMathUpgradeable for uint256;
 

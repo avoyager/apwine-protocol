@@ -65,7 +65,7 @@ interface IController {
     /**
      * @notice Getter for the symbol of the apwine ibt of one future
      * @param _ibtSymbol the ibt of the external protocol
-     * @param _platfrom the external protocol name 
+     * @param _platfrom the external protocol name
      * @param _periodDuration the duration of the periods for the future
      * @return the generated symbol of the apwine ibt
      */
@@ -101,14 +101,13 @@ interface IController {
      * @notice Getter for the list of future durations registered in the contract
      * @return the list of futures duration
      */
-    function getDurations() external view returns(uint256[] memory);
+    function getDurations() external view returns (uint256[] memory);
 
     /**
      * @notice Register a newly created future in the registry
      * @param _newFuture the address of the new future
      */
     function registerNewFuture(address _newFuture) external;
-
 
     /**
      * @notice Unregister a future from the registry
@@ -135,9 +134,7 @@ interface IController {
      */
     function claimSelectedYield(address _user, address[] memory _futureAddress) external;
 
-
     function getRoleMember(bytes32 role, uint256 index) external view returns (address); // OZ ACL getter
-
 
     /**
      * @notice Interrupt a future avoiding news registrations

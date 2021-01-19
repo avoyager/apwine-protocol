@@ -1,33 +1,63 @@
 pragma solidity >=0.7.0 <0.8.0;
 import "contracts/protocol/futures/Future.sol";
 
+/**
+ * @title Main future abstraction contract for the stream futures
+ * @author Gaspard Peduzzi
+ * @notice Handles the stream future mecanisms
+ * @dev The future contract is the basis of all the mecanisms of the future with the from the registration to the period switch
+ */
 abstract contract StreamFuture is Future {
     using SafeMathUpgradeable for uint256;
 
     uint256[] scaledTotals;
 
+    /**
+     * @notice Intializer
+     * @param _controller the address of the controller
+     * @param _ibt the address of the corresponding ibt
+     * @param _periodDuration the length of the period (in days)
+     * @param _platformName the name of the platform and tools
+     * @param _deployerAddress the future deployer address
+     * @param _admin the address of the ACR admin
+     */
     function initialize(
-        address _controllerAddress,
+        address _controller,
         address _ibt,
-        uint256 _periodLength,
-        string memory _platform,
+        uint256 _periodDuration,
+        string memory _platformName,
         address _deployerAddress,
-        address _adminAddress
+        address _admin
     ) public virtual override initializer {
-        super.initialize(_controllerAddress, _ibt, _periodLength, _platform, _deployerAddress, _adminAddress);
+        super.initialize(_controller, _ibt, _periodDuration, _platformName, _deployerAddress, _admin);
         scaledTotals.push();
         scaledTotals.push();
     }
 
-    function register(address _winegrower, uint256 _amount) public virtual override periodsActive {
+    /**
+     * @notice Sender registers an amount of ibt for the next period
+     * @param _user address to register to the future
+     * @param _amount amount of ibt to be registered
+     * @dev called by the controller only
+     */
+    function register(address _user, uint256 _amount) public virtual override periodsActive {
         require(_amount > 0, "invalid amount to register");
         IRegistry registry = IRegistry(controller.getRegistryAddress());
         uint256 scaledInput =
-            IAPWineMaths(registry.getMathsUtils()).getScaledInput(_amount, scaledTotals[getNextPeriodIndex()], ibt.balanceOf(address(this)));
-        super.register(_winegrower, scaledInput);
+            IAPWineMaths(registry.getMathsUtils()).getScaledInput(
+                _amount,
+                scaledTotals[getNextPeriodIndex()],
+                ibt.balanceOf(address(this))
+            );
+        super.register(_user, scaledInput);
         scaledTotals[getNextPeriodIndex()] = scaledTotals[getNextPeriodIndex()].add(scaledInput);
     }
 
+    /**
+     * @notice Sender unregisters an amount of ibt for the next period
+     * @param _user user addresss
+     * @param _amount amount of ibt to be unregistered
+     */
     function unregister(address _user, uint256 _amount) public virtual override {
         require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to unregister");
         uint256 nextIndex = getNextPeriodIndex();
@@ -35,7 +65,11 @@ abstract contract StreamFuture is Future {
         uint256 userScaledBalance = registrations[_user].scaledBalance;
         IRegistry registry = IRegistry(controller.getRegistryAddress());
         uint256 currentRegistered =
-            IAPWineMaths(registry.getMathsUtils()).getActualOutput(userScaledBalance, scaledTotals[nextIndex], ibt.balanceOf(address(this)));
+            IAPWineMaths(registry.getMathsUtils()).getActualOutput(
+                userScaledBalance,
+                scaledTotals[nextIndex],
+                ibt.balanceOf(address(this))
+            );
         uint256 scaledToUnregister;
         uint256 toRefund;
         if (_amount == 0) {
@@ -57,6 +91,10 @@ abstract contract StreamFuture is Future {
         }
     }
 
+    /**
+     * @notice Start a new period
+     * @dev needs corresponding permissions for sender
+     */
     function startNewPeriod() public virtual override nextPeriodAvailable periodsActive {
         require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to start the next period");
 
@@ -83,6 +121,12 @@ abstract contract StreamFuture is Future {
         emit NewPeriodStarted(nextPeriodID, fytAddress);
     }
 
+    /**
+     * @notice Getter for user registered amount
+     * @param _user user to return the registered funds of
+     * @return the registered amount, 0 if no registrations
+     * @dev the registration can be older than for the next period
+     */
     function getRegisteredAmount(address _user) public view virtual override returns (uint256) {
         uint256 periodID = registrations[_user].startIndex;
         IRegistry registry = IRegistry(controller.getRegistryAddress());
@@ -98,6 +142,11 @@ abstract contract StreamFuture is Future {
         }
     }
 
+    /**
+     * @notice Getter for the amount of apwibt that the user can claim
+     * @param _user user to check the check the claimable apwibt of
+     * @return the amount of apwibt claimable by the user
+     */
     function getClaimableAPWIBT(address _user) public view override returns (uint256) {
         if (!hasClaimableAPWIBT(_user)) return 0;
         IRegistry registry = IRegistry(controller.getRegistryAddress());
@@ -110,6 +159,11 @@ abstract contract StreamFuture is Future {
             );
     }
 
+    /**
+     * @notice Getter for yield that is generated by the user funds during the current period
+     * @param _user user to check the unrealised yield of
+     * @return the yield (amout of ibt) currently generated by the locked funds of the user
+     */
     function getUnrealisedYield(address _user) public view override returns (uint256) {
         return
             (

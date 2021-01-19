@@ -8,19 +8,10 @@ import "contracts/interfaces/apwine/IFuture.sol";
 import "contracts/interfaces/apwine/ILiquidityGauge.sol";
 
 /**
- * @dev {ERC20} token, including:
- *
- *  - ability for holders to burn (destroy) their tokens
- *  - a minter role that allows for token minting (creation)
- *  - a pauser role that allows to stop all token transfers
- *  - modified logic for transfer that claims apwibt on both ends if claimable
- *
- * This contract uses {AccessControl} to lock permissioned functions using the
- * different roles - head to its documentation for details.
- *
- * The account that deploys the contract will be granted the minter and pauser
- * roles, as well as the default admin role, which will let it grant both minter
- * and pauser roles to aother accounts
+ * @title APWine interest bearing token
+ * @author Gaspard Peduzzi
+ * @notice Interest bearing token for the futures liquidity provided
+ * @dev the value of apwine ibt is equivalent to a fixed amount of underlying token of the future ibt
  */
 contract APWineIBT is Initializable, ContextUpgradeable, AccessControlUpgradeable, ClaimableERC20 {
     using SafeMathUpgradeable for uint256;
@@ -117,16 +108,23 @@ contract APWineIBT is Initializable, ContextUpgradeable, AccessControlUpgradeabl
 
         // sender and receiver state update
         if (from != address(future) && to != address(future)) {
+            // update apwibt and fyt balances befores executing the transfer
             if (future.hasClaimableFYT(from)) {
                 future.claimFYT(from);
             }
             if (future.hasClaimableFYT(to)) {
                 future.claimFYT(to);
             }
-            ILiquidityGauge(future.getLiquidityGaugeAddress()).transferUserLiquidty(from,to,amount);
+            ILiquidityGauge(future.getLiquidityGaugeAddress()).transferUserLiquidty(from, to, amount); // update the liquidity providing state of the users
         }
     }
 
+    /**
+     * @notice transfer a defined amount of apwibt from one user to another
+     * @param sender sender address
+     * @param recipient recipient address
+     * @param amount amount of apwibt to be transfered
+     */
     function transferFrom(
         address sender,
         address recipient,
@@ -152,6 +150,11 @@ contract APWineIBT is Initializable, ContextUpgradeable, AccessControlUpgradeabl
         super._transfer(sender, recipient, amount);
     }
 
+    /**
+     * @notice returns the current balance of one user including the apwibt that were not claimed yet
+     * @param account the address of the account to check the balance of
+     * @return the total apwibt balance of one address
+     */
     function balanceOf(address account) public view override returns (uint256) {
         return super.balanceOf(account).add(future.getClaimableAPWIBT(account));
     }

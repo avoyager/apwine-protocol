@@ -11,6 +11,11 @@ import "contracts/interfaces/apwine/IRegistry.sol";
 import "contracts/interfaces/apwine/utils/IAPWineNaming.sol";
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 
+/**
+ * @title Controller contract
+ * @author Gaspard Peduzzi
+ * @notice The controller dictate the future mecanisms and serves as an interfaces for main user interaction with futures
+ */
 contract Controller is Initializable, AccessControlUpgradeable {
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.UintSet;
@@ -82,19 +87,38 @@ contract Controller is Initializable, AccessControlUpgradeable {
 
     /* User Methods */
 
+    /**
+     * @notice Register an amount of ibt from the sender to the corresponding future
+     * @param _future the address of the future to be registered to
+     * @param _amount the amount to register
+     */
     function register(address _future, uint256 _amount) public futureIsValid(_future) {
-        require(ERC20(IFuture(_future).getIBTAddress()).transferFrom(msg.sender,_future,_amount), "invalid amount");
+        require(ERC20(IFuture(_future).getIBTAddress()).transferFrom(msg.sender, _future, _amount), "invalid amount");
         IFuture(_future).register(msg.sender, _amount);
     }
 
+    /**
+     * @notice Unregister an amount of ibt from the sender to the corresponding future
+     * @param _future the address of the future to be unregistered from
+     * @param _amount the amount to unregister
+     */
     function unregister(address _future, uint256 _amount) public futureIsValid(_future) {
         IFuture(_future).unregister(msg.sender, _amount);
     }
 
+    /**
+     * @notice Withdraw deposited funds from apwine
+     * @param _future the address of the future to be withdraw the ibt from
+     * @param _amount the amount to withdraw
+     */
     function withdrawLockFunds(address _future, uint256 _amount) public futureIsValid(_future) {
         IFuture(_future).withdrawLockFunds(msg.sender, _amount);
     }
 
+    /**
+     * @notice Claim fyt of the msg.sender
+     * @param _future the future from which to claim the ibts
+     */
     function claimFYT(address _future) public futureIsValid(_future) {
         IFuture(_future).claimFYT(msg.sender);
     }
@@ -112,6 +136,10 @@ contract Controller is Initializable, AccessControlUpgradeable {
     }
 
     /* User Getter */
+    /**
+     * @notice Get the list of future from which on user can claim FYT
+     * @param _user the user to claim de FYT from
+     */
     function getFuturesWithClaimableFYT(address _user) external view returns (address[] memory) {
         address[] memory selectedFutures = new address[](registry.futureCount());
         uint8 index = 0;
@@ -126,10 +154,21 @@ contract Controller is Initializable, AccessControlUpgradeable {
 
     /* Getter */
 
+    /**
+     * @notice Getter for the registry address of the protocol
+     * @return the address of the protocol registry
+     */
     function getRegistryAddress() external view returns (address) {
         return address(registry);
     }
 
+    /**
+     * @notice Getter for the symbol of the apwine ibt of one future
+     * @param _ibtSymbol the ibt of the external protocol
+     * @param _platfrom the external protocol name
+     * @param _periodDuration the duration of the periods for the future
+     * @return the generated symbol of the apwine ibt
+     */
     function getFutureIBTSymbol(
         string memory _ibtSymbol,
         string memory _platfrom,
@@ -138,19 +177,43 @@ contract Controller is Initializable, AccessControlUpgradeable {
         return IAPWineNaming(registry.getNamingUtils()).genIBTSymbol(_ibtSymbol, _platfrom, _periodDuration);
     }
 
+    /**
+     * @notice Getter for the symbol of the fyt of one future
+     * @param _apwibtSymbol the apwine ibt symbole  for this future
+     * @param _periodDuration the duration of the periods for this future
+     * @return the generated symbol of the fyt
+     */
     function getFYTSymbol(string memory _apwibtSymbol, uint256 _periodDuration) public view returns (string memory) {
-        return IAPWineNaming(registry.getNamingUtils()).genFYTSymbolFromIBT(uint8(periodIndexByDurations[_periodDuration]), _apwibtSymbol);
+        return
+            IAPWineNaming(registry.getNamingUtils()).genFYTSymbolFromIBT(
+                uint8(periodIndexByDurations[_periodDuration]),
+                _apwibtSymbol
+            );
     }
 
+    /**
+     * @notice Getter for the period index depending on the period duration of the future
+     * @param _periodDuration the periods duration
+     * @return the period index
+     */
     function getPeriodIndex(uint256 _periodDuration) public view returns (uint256) {
         return periodIndexByDurations[_periodDuration];
     }
 
+    /**
+     * @notice Getter for beginning timestamp of the next period for the futures with a defined periods duration
+     * @param _periodDuration the periods duration
+     * @return the timestamp of the beginning of the next period
+     */
     function getNextPeriodStart(uint256 _periodDuration) public view returns (uint256) {
         return nextPeriodSwitchByDuration[_periodDuration];
     }
 
-    function getDurations() public view returns(uint256[] memory){
+    /**
+     * @notice Getter for the list of future durations registered in the contract
+     * @return the list of futures duration
+     */
+    function getDurations() public view returns (uint256[] memory) {
         uint256[] memory durationsList = new uint256[](durations.length());
         for (uint256 i = 0; i < durations.length(); i++) {
             durationsList[i] = durations.at(i);
@@ -158,6 +221,10 @@ contract Controller is Initializable, AccessControlUpgradeable {
         return durationsList;
     }
 
+    /**
+     * @notice Getter for the futures by periods duration
+     * @param _periodDuration the periods duration of the futures to returns
+     */
     function getFuturesWithDuration(uint256 _periodDuration) public view returns (address[] memory) {
         uint256 listLength = futuresByDuration[_periodDuration].length();
         address[] memory filteredFutures = new address[](listLength);
@@ -168,6 +235,10 @@ contract Controller is Initializable, AccessControlUpgradeable {
     }
 
     /* future admin function*/
+    /**
+     * @notice Register a newly created future in the registry
+     * @param _newFuture the address of the new future
+     */
     function registerNewFuture(address _newFuture) public futureFactoryIsValid(msg.sender) {
         registry.addFuture(_newFuture);
         uint256 futureDuration = IFuture(_newFuture).PERIOD_DURATION();
@@ -176,9 +247,13 @@ contract Controller is Initializable, AccessControlUpgradeable {
         emit FutureRegistered(_newFuture);
     }
 
+    /**
+     * @notice Unregister a future from the registry
+     * @param _future the address of the future to unregister
+     */
     function unregisterFuture(address _future) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        require(registry.removeFuture(_future), "invalid future");
+        registry.removeFuture(_future);
 
         uint256 futureDuration = IFuture(_future).PERIOD_DURATION();
         if (!durations.contains(futureDuration)) durations.remove(futureDuration);
@@ -186,6 +261,10 @@ contract Controller is Initializable, AccessControlUpgradeable {
         emit FutureUnregistered(_future);
     }
 
+    /**
+     * @notice Start all the future that have a defined periods duration to synchronize them
+     * @param _periodDuration the periods duration of the future to start
+     */
     function startFuturesByPeriodDuration(uint256 _periodDuration) public {
         for (uint256 i = 0; i < futuresByDuration[_periodDuration].length(); i++) {
             IFuture(registry.getFutureAt(i)).startNewPeriod();
@@ -194,14 +273,23 @@ contract Controller is Initializable, AccessControlUpgradeable {
         periodIndexByDurations[_periodDuration] = periodIndexByDurations[_periodDuration].add(1);
     }
 
-
-
     /* Security functions */
+
+    /**
+     * @notice Interrupt a future avoiding news registrations
+     * @param _future the address of the future to pause
+     * @dev should only be called in extraordinary situations by the admin of the contract
+     */
     function pauseFuture(address _future) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         IFuture(_future).pausePeriods();
     }
 
+    /**
+     * @notice Resume a future that has been paused
+     * @param _future the address of the future to resume
+     * @dev should only be called in extraordinary situations by the admin of the contract
+     */
     function resumeFuture(address _future) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         IFuture(_future).resumePeriods();

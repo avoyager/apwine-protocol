@@ -14,6 +14,12 @@ import "contracts/interfaces/apwine/IRegistry.sol";
 import "contracts/interfaces/apwine/IController.sol";
 import "contracts/interfaces/apwine/IGaugeController.sol";
 
+/**
+ * @title Future Factory abstraction
+ * @author Gaspard Peduzzi
+ * @notice Handles the deployement of new futures
+ * @dev Basis to build different types of futures depending on their inner functionning
+ */
 abstract contract FutureFactory is Initializable, AccessControlUpgradeable {
     using SafeMathUpgradeable for uint256;
 
@@ -23,6 +29,11 @@ abstract contract FutureFactory is Initializable, AccessControlUpgradeable {
 
     IController internal controller;
 
+    /**
+     * @notice Initializer for the contract
+     * @param _controller the controller for the futures
+     * @param _admin the address that will have the admin right on this contract
+     */
     function initialize(address _controller, address _admin) public initializer {
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
         _setupRole(CONTROLLER_ROLE, _controller);
