@@ -46,6 +46,7 @@ contract Treasury is Initializable, AccessControlUpgradeable {
      */
     function sendEther(address payable _recipient, uint256 _amount) public payable {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        _recipient.transfer(_amount);
+        (bool success, ) = _recipient.call{value:_amount}("");
+        require(success, "Transfer failed.");       
     }
 }
