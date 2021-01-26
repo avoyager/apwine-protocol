@@ -81,6 +81,12 @@ interface IGaugeController {
     function getWithdrawableState() external view returns (bool);
 
     /**
+     * @notice Getter for the registry address
+     * @return the registry address
+     */
+    function getRegistry() external view returns (address);
+
+    /**
      * @notice Setter for the inflation rate of the epoch
      * @param _inflationRate the new inflation rate of the epoch
      */
@@ -105,4 +111,10 @@ interface IGaugeController {
      * @dev can only be called once
      */
     function setAPW(address _APW) external;
+
+    /**
+     * @notice Setter for the registry address
+     * @param _registry the new registry address
+     */
+    function setRegistry(address _registry) external;
 }

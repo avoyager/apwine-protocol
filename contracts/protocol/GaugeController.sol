@@ -35,7 +35,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
     /* Addresses */
     EnumerableSetUpgradeable.AddressSet private liquidityGauges;
     IAPWToken private apw;
-    IRegistry registry;
+    IRegistry private registry;
 
     mapping(address => uint256) internal redeemedByUser;
     mapping(address => uint256) internal userLiquidity;
@@ -175,6 +175,14 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
         return isAPWClaimable;
     }
 
+    /**
+     * @notice Getter for the registry address
+     * @return the registry address
+     */
+    function getRegistry() external view returns (address)  {
+        return address(registry);
+    }
+
     /* Setters */
 
     /**
@@ -214,6 +222,15 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         require(address(apw) != address(0), "Token already set");
         apw = IAPWToken(_APW);
+    }
+
+    /**
+     * @notice Setter for the registry address
+     * @param _registry the new registry address
+     */
+    function setRegistry(address _registry) public {
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
+        registry = IRegistry(_registry);
     }
 
     /**

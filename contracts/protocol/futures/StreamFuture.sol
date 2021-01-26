@@ -10,7 +10,7 @@ import "contracts/protocol/futures/Future.sol";
 abstract contract StreamFuture is Future {
     using SafeMathUpgradeable for uint256;
 
-    uint256[] scaledTotals;
+    uint256[] internal scaledTotals;
 
     /**
      * @notice Intializer
