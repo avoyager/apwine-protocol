@@ -4,6 +4,8 @@ require('dotenv').config();
 const common = require("./common")
 const { Controller, GaugeController, LiquidityGauge, Registry, Treasury, APWineMaths, APWineNaming, ProxyFactory, IBTFutureFactory, FutureYieldToken, APWineIBT, AaveFuture,AaveFutureWallet,FutureVault} = common.contracts
 const { admin_address, ADAI_ADDRESS,EPOCH_LENGTH,INITIAL_INFLATION_RATE, DAY,FUTURE_DEPLOYER_ROLE} = common;
+const team_wallet = require("./common").gnosisSafe;
+
 
 module.exports = async function (deployer) {
 

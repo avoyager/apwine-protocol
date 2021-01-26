@@ -9,6 +9,9 @@ module.exports = {
     INITIAL_INFLATION_RATE: 5000000000000000,  
     DAY: 60*60*24,
     FUTURE_DEPLOYER_ROLE: "0xdacd85ccbf3b93dd485a10886cc255d4fba1805ebed1521d0c405d4416eca3be",
+    ADMIN_ROLE:"0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775",
+    DEFAULT_ADMIN_ROLE : "0x00",
+
     // Core Protocol
     contracts:{
         Controller : artifacts.require('Controller'),
