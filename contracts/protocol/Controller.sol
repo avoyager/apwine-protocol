@@ -79,6 +79,11 @@ contract Controller is Initializable, AccessControlUpgradeable {
         STARTING_DELAY = _startingDelay;
     }
 
+    /**
+     * @notice Set the next period switch timestamp for the future with corresponding duration
+     * @param _periodDuration the periods duration
+     * @param _nextPeriodTimestamp the next period switch timsetamp
+     */
     function setNextPeriodSwitchTimestamp(uint256 _periodDuration, uint256 _nextPeriodTimestamp) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to set next period timestamp");
         nextPeriodSwitchByDuration[_periodDuration] = _nextPeriodTimestamp;

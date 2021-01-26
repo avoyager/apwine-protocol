@@ -21,6 +21,13 @@ interface IController {
      */
     function setPeriodStartingDelay(uint256 _startingDelay) external;
 
+    /**
+     * @notice Set the next period switch timestamp for the future with corresponding duration
+     * @param _periodDuration the periods duration
+     * @param _nextPeriodTimestamp the next period switch timsetamp
+     */
+    function setNextPeriodSwitchTimestamp(uint256 _periodDuration, uint256 _nextPeriodTimestamp) external;
+
     /* User Methods */
 
     /**
