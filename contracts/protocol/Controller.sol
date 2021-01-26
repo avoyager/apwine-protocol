@@ -28,6 +28,8 @@ contract Controller is Initializable, AccessControlUpgradeable {
 
     IRegistry public registry;
     mapping(uint256 => uint256) private nextPeriodSwitchByDuration;
+    mapping(uint256 => uint256) private unlockClaimableFactorByDuration;
+
 
     mapping(string => EnumerableSetUpgradeable.UintSet) private platformNames;
 
@@ -42,6 +44,7 @@ contract Controller is Initializable, AccessControlUpgradeable {
     event NextPeriodSwitchSet(uint256 _periodDuration, uint256 _nextSwitchTimestamp);
     event FutureRegistered(address _newFutureAddress);
     event FutureUnregistered(address _future);
+    event NewUnlockClamableFactor(uint256 _periodDuration, uint256 _newYieldUnlockFactor);
 
     /* PlatformController Settings */
     uint256 public STARTING_DELAY;
@@ -88,6 +91,17 @@ contract Controller is Initializable, AccessControlUpgradeable {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to set next period timestamp");
         nextPeriodSwitchByDuration[_periodDuration] = _nextPeriodTimestamp;
         emit NextPeriodSwitchSet(_periodDuration, _nextPeriodTimestamp);
+    }
+
+    /**
+     * @notice Set a new factor for the portion of the yield that is claimable when withdrawing funds during an ongoing period 
+     * @param _periodDuration the periods duration
+     * @param _claimableYieldFactor the portion of the yield that is claimable
+     */
+    function setUnlockClaimableFactor(uint256 _periodDuration, uint256 _claimableYieldFactor) public {
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to set the unlock yield factor");
+        unlockClaimableFactorByDuration[_periodDuration] = _claimableYieldFactor;
+        emit NewUnlockClamableFactor(_periodDuration, _claimableYieldFactor);
     }
 
     /* User Methods */
@@ -212,6 +226,15 @@ contract Controller is Initializable, AccessControlUpgradeable {
      */
     function getNextPeriodStart(uint256 _periodDuration) public view returns (uint256) {
         return nextPeriodSwitchByDuration[_periodDuration];
+    }
+
+    /**
+     * @notice Getter for the factor of claimable yield when unlocking
+     * @param _periodDuration the periods duration
+     * @return the factor of claimable yield of the last period
+     */
+    function getUnlockYieldFactor(uint256 _periodDuration) public view returns (uint256) {
+        return unlockClaimableFactorByDuration[_periodDuration];
     }
 
     /**

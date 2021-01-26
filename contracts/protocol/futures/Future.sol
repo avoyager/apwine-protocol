@@ -173,7 +173,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
     function _claimFYT(address _user) internal virtual {
         uint256 nextIndex = getNextPeriodIndex();
         for (uint256 i = lastPeriodClaimed[_user] + 1; i < nextIndex; i++) {
-            claimFYTforPeriod(_user, i); // TODO gas cost can be optimized
+            claimFYTforPeriod(_user, i);
         }
     }
 
@@ -192,7 +192,6 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
 
         if (_hasOnlyClaimableFYT(_user)) _claimFYT(_user);
         apwibt.transfer(_user, claimableAPWIBT);
-        // TODO register liquidity
 
         for (uint256 i = registrations[_user].startIndex; i < nextIndex; i++) {
             // get not claimed fyt
@@ -228,11 +227,14 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
         apwibt.burn(_amount);
         fyts[getNextPeriodIndex() - 1].burn(_amount);
 
-        ibt.transferFrom(address(futureVault), _user, fundsToBeUnlocked); // only send locked, TODO Send Yield
+        uint256 yieldToBeRedeemed = unrealisedYield.mul(controller.getUnlockYieldFactor(PERIOD_DURATION));
+
+        ibt.transferFrom(address(futureVault), _user, fundsToBeUnlocked.add(yieldToBeRedeemed));
+
         ibt.transferFrom(
             address(futureVault),
             IRegistry(controller.getRegistryAddress()).getTreasuryAddress(),
-            unrealisedYield
+            unrealisedYield.sub(yieldToBeRedeemed)
         );
         liquidityGauge.removeUserLiquidity(_user, fundsToBeUnlocked);
     }

@@ -28,6 +28,14 @@ interface IController {
      */
     function setNextPeriodSwitchTimestamp(uint256 _periodDuration, uint256 _nextPeriodTimestamp) external;
 
+
+    /**
+     * @notice Set a new factor for the portion of the yield that is claimable when withdrawing funds during an ongoing period 
+     * @param _periodDuration the periods duration
+     * @param _claimableYieldFactor the portion of the yield that is claimable
+     */
+    function setUnlockClaimableFactor(uint256 _periodDuration, uint256 _claimableYieldFactor) external;
+
     /* User Methods */
 
     /**
@@ -103,6 +111,13 @@ interface IController {
      * @return the timestamp of the beginning of the next period
      */
     function getNextPeriodStart(uint256 _periodDuration) external view returns (uint256);
+
+    /**
+     * @notice Getter for the factor of claimable yield when unlocking
+     * @param _periodDuration the periods duration
+     * @return the factor of claimable yield of the last period
+     */
+    function getUnlockYieldFactor(uint256 _periodDuration) external view returns (uint256);
 
     /**
      * @notice Getter for the list of future durations registered in the contract
