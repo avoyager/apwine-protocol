@@ -42,6 +42,7 @@ abstract contract RateFuture is Future {
      * @notice Sender unregisters an amount of ibt for the next period
      * @param _user user addresss
      * @param _amount amount of ibt to be unregistered
+     * @dev 0 unregister all
      */
     function unregister(address _user, uint256 _amount) public virtual override {
         require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to unregister");
@@ -53,7 +54,6 @@ abstract contract RateFuture is Future {
         uint256 toRefund;
 
         if (_amount == 0) {
-            require(currentRegistered >= 0, "Invalid amount to unregister");
             delete registrations[_user];
             toRefund = currentRegistered;
         } else {
