@@ -32,12 +32,12 @@ interface IGaugeController {
     /**
      * @notice Admin function to pause APW whitdrawals
      */
-    function pauseAPWWithdraw() external;
+    function pauseAPWWithdrawals() external;
 
     /**
      * @notice Admin function to resume APW whitdrawals
      */
-    function resumeAPWWithdraw() external;
+    function resumeAPWWithdrawals() external;
 
     /* Getters */
 

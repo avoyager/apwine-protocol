@@ -45,6 +45,7 @@ contract Controller is Initializable, AccessControlUpgradeable {
     event FutureRegistered(address _newFutureAddress);
     event FutureUnregistered(address _future);
     event NewUnlockClamableFactor(uint256 _periodDuration, uint256 _newYieldUnlockFactor);
+    event StartingDelaySet(uint256 _startingDelay);
 
     /* PlatformController Settings */
     uint256 public STARTING_DELAY;
@@ -80,6 +81,7 @@ contract Controller is Initializable, AccessControlUpgradeable {
     function setPeriodStartingDelay(uint256 _startingDelay) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         STARTING_DELAY = _startingDelay;
+        emit StartingDelaySet(_startingDelay);
     }
 
     /**

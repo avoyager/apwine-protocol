@@ -27,6 +27,8 @@ abstract contract FutureWallet is Initializable, AccessControlUpgradeable {
     IFuture public future;
     ERC20 public ibt;
 
+    event YieldRedeemed(address _user,uint256 _periodIndex);
+
     /**
      * @notice Intializer
      * @param _futureAddress the address of the corresponding future
@@ -61,6 +63,7 @@ abstract contract FutureWallet is Initializable, AccessControlUpgradeable {
 
         ibt.transfer(msg.sender, claimableYield);
         fyt.burn(senderTokenBalance);
+        emit YieldRedeemed(msg.sender,_periodIndex);
     }
 
     /**

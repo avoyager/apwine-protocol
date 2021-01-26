@@ -16,6 +16,8 @@ contract FutureVault is Initializable, AccessControlUpgradeable {
 
     IFuture private future;
 
+    event TokenApproved(address _tokenAddress);
+
     /**
      * @notice Intializer
      * @param _futureAddress the address of the corresponding future
@@ -42,5 +44,6 @@ contract FutureVault is Initializable, AccessControlUpgradeable {
     function approveAdditionalToken(address _tokenAddress) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to register approve another token");
         ERC20(_tokenAddress).approve(address(future), uint256(-1));
+        emit TokenApproved(_tokenAddress);
     }
 }

@@ -60,6 +60,12 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
     /* Events */
     event UserRegistered(address _userAddress, uint256 _amount, uint256 _periodIndex);
     event NewPeriodStarted(uint256 _newPeriodIndex, address _fytAddress);
+    event FutureVaultSet(address _futureVault);
+    event FutureWalletSet(address _futureWallet);
+    event LiquidityGaugeSet(address _liquidityGauge);
+    event FundsWithdrawn(address _user,uint256 _amount);
+    event PeriodsPaused();
+    event PeriodsResumed();
 
     /* Modifiers */
     modifier nextPeriodAvailable() {
@@ -210,15 +216,19 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
      */
     function withdrawLockFunds(address _user, uint256 _amount) public virtual {
         require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to whithdraw locked funds");
-        require(_amount > 0, "Amount to withdraw must be positive");
+        require((_amount > 0) && (_amount > apwibt.balanceOf(_user)), "Invalid amount");
         if (hasClaimableAPWIBT(_user)) {
             claimAPWIBT(_user);
         } else if (hasClaimableFYT(_user)) {
             claimFYT(_user);
         }
 
-        uint256 fundsToBeUnlocked = getUnlockableFunds(_user);
+        uint256 unlockableFunds = getUnlockableFunds(_user);
         uint256 unrealisedYield = getUnrealisedYield(_user);
+
+        uint256 fundsToBeUnlocked =  _amount.mul(unlockableFunds).div(apwibt.balanceOf(_user));
+        uint256 yieldToBeUnlocked = _amount.mul(unrealisedYield).div(apwibt.balanceOf(_user));
+
         require(apwibt.transferFrom(_user, address(this), _amount), "Invalid amount of APWIBT");
         require(
             fyts[getNextPeriodIndex() - 1].transferFrom(_user, address(this), _amount),
@@ -227,7 +237,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
         apwibt.burn(_amount);
         fyts[getNextPeriodIndex() - 1].burn(_amount);
 
-        uint256 yieldToBeRedeemed = unrealisedYield.mul(controller.getUnlockYieldFactor(PERIOD_DURATION));
+        uint256 yieldToBeRedeemed = yieldToBeUnlocked.mul(controller.getUnlockYieldFactor(PERIOD_DURATION));
 
         ibt.transferFrom(address(futureVault), _user, fundsToBeUnlocked.add(yieldToBeRedeemed));
 
@@ -236,7 +246,8 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
             IRegistry(controller.getRegistryAddress()).getTreasuryAddress(),
             unrealisedYield.sub(yieldToBeRedeemed)
         );
-        liquidityGauge.removeUserLiquidity(_user, fundsToBeUnlocked);
+        liquidityGauge.removeUserLiquidity(_user, _amount);
+        emit FundsWithdrawn(_user,_amount);
     }
 
     /* Utilitaries functions */
@@ -387,6 +398,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
     function pausePeriods() public {
         require(hasRole(FUTURE_PAUSER, msg.sender), "Caller is not allowed to pause future");
         PAUSED = true;
+        emit PeriodsPaused();
     }
 
     /**
@@ -395,6 +407,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
     function resumePeriods() public {
         require(hasRole(FUTURE_PAUSER, msg.sender), "Caller is not allowed to resume future");
         PAUSED = false;
+        emit PeriodsResumed();
     }
 
     /**
@@ -405,6 +418,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
     function setFutureVault(address _futureVault) public {
         require(hasRole(FUTURE_DEPLOYER, msg.sender), "Caller is not allowed to set the future vault address");
         futureVault = IFutureVault(_futureVault);
+        emit FutureVaultSet(_futureVault);
     }
 
     /**
@@ -415,6 +429,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
     function setFutureWallet(address _futureWallet) public {
         require(hasRole(FUTURE_DEPLOYER, msg.sender), "Caller is not allowed to set the future wallet address");
         futureWallet = IFutureWallet(_futureWallet);
+        emit FutureWalletSet(_futureWallet);
     }
 
     /**
@@ -425,5 +440,6 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
     function setLiquidityGauge(address _liquidityGauge) public {
         require(hasRole(FUTURE_DEPLOYER, msg.sender), "Caller is not allowed to set the liquidity gauge address");
         liquidityGauge = ILiquidityGauge(_liquidityGauge);
+        emit LiquidityGaugeSet(_liquidityGauge);
     }
 }

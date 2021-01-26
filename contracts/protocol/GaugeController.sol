@@ -42,6 +42,15 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
 
     event LiquidityGaugeRegistered(address _future, address _newLiquidityGauge);
     event APWRedeemed(address _user, uint256 _amount);
+    event EpochInflationRateSet(uint256 _inflationRate);
+    event GaugeWeightSet(address _liquidityGauge, uint256 _gaugeWeight);
+    event EpochLengthSet(uint256 _epochLength);
+    event APWAddressSet(address _APW);
+    event RegistryAddressSet(address _registry);
+    event APWWithdrawalsPaused();
+    event APWWithdrawalsResumed();
+
+
 
     modifier isValidLiquidyGauge() {
         require(liquidityGauges.contains(msg.sender), "Incorrect liqudity gauge");
@@ -192,6 +201,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
     function setEpochInflationRate(uint256 _inflationRate) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         inflationRate = _inflationRate;
+        emit EpochInflationRateSet(_inflationRate);
     }
 
     /**
@@ -202,6 +212,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
     function setGaugeWeight(address _liquidityGauge, uint256 _gaugeWeight) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         gaugesWeights[_liquidityGauge] = _gaugeWeight;
+        emit GaugeWeightSet( _liquidityGauge,  _gaugeWeight);
     }
 
     /**
@@ -211,6 +222,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
     function setEpochLength(uint256 _epochLength) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         epochLength = _epochLength;
+        emit EpochLengthSet(_epochLength);
     }
 
     /**
@@ -222,6 +234,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         require(address(apw) != address(0), "Token already set");
         apw = IAPWToken(_APW);
+        emit APWAddressSet(_APW);
     }
 
     /**
@@ -231,23 +244,26 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
     function setRegistry(address _registry) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         registry = IRegistry(_registry);
+        emit RegistryAddressSet(_registry);
     }
 
     /**
      * @notice Admin function to pause APW whitdrawals
      */
-    function pauseAPWWithdraw() public {
+    function pauseAPWWithdrawals() public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         require(isAPWClaimable, "apw rewards already paused");
         isAPWClaimable = false;
+        emit APWWithdrawalsPaused();
     }
 
     /**
      * @notice Admin function to resume APW whitdrawals
      */
-    function resumeAPWWithdraw() public {
+    function resumeAPWWithdrawals() public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         require(!isAPWClaimable, "apw rewards already resumed");
         isAPWClaimable = true;
+        emit APWWithdrawalsResumed();
     }
 }
