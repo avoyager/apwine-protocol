@@ -1,4 +1,4 @@
-pragma solidity >=0.7.0 <0.8.0;
+pragma solidity ^0.7.6;
 
 interface IGaugeController {
     enum FutureTypes {Weekly, Monthly}
