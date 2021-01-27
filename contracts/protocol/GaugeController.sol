@@ -14,7 +14,7 @@ import "contracts/interfaces/IProxyFactory.sol";
 /**
  * @title Gauge Controller contract
  * @author Gaspard Peduzzi
- * @notice The Gauge Controller regulate the weight of the liquidity gauge and the emission of the APW token against liquidity provision
+ * @notice The Gauge Controller regulates the weight of the liquidity gauge and the emission of the APW token against liquidity provision
  */
 contract GaugeController is Initializable, AccessControlUpgradeable, ReentrancyGuardUpgradeable {
     using SafeMathUpgradeable for uint256;
@@ -57,7 +57,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable, ReentrancyG
     }
 
     /**
-     * @notice Intializer of the contract
+     * @notice Initializer of the contract
      * @param _ADMIN the address of the admin of the contract
      * @param _registry the address of the registry
      */
@@ -68,7 +68,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable, ReentrancyG
     }
 
     /**
-     * @notice Deploy a new liquidity gauge for a newly created future and register in in the registry
+     * @notice Deploy a new liquidity gauge for a newly created future and register in the registry
      * @param _future the address of the new future
      * @return the address of the new liquidity gauge
      */
@@ -94,7 +94,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable, ReentrancyG
 
     /**
      * @notice Claim all claimable APW rewards for the sender
-     * @dev not gas efficient, claim function with specified liquidity gauges saves gas
+     * @dev, not gas efficient, claim function with specified liquidity gauges saves gas
      */
     function claimAPW() public nonReentrant {
         require(isAPWClaimable, "apw rewards not claimable atm");
@@ -111,7 +111,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable, ReentrancyG
 
     /**
      * @notice Claim all claimable APW rewards for the sender for a specified list of liquidity gauges
-     * @param _liquidityGauges the the list of liquidity gauges to claim the rewards of
+     * @param _liquidityGauges the list of liquidity gauges to claim the rewards of
      */
     function claimAPW(address[] memory _liquidityGauges) public nonReentrant {
         require(isAPWClaimable, "apw rewards not claimable atm");
@@ -137,8 +137,8 @@ contract GaugeController is Initializable, AccessControlUpgradeable, ReentrancyG
     }
 
     /**
-     * @notice Getter for weight of one gauge
-     * @param _liquidityGauge the address of the liquidity gauge to get the weight of
+     * @notice Getter for the weight of one gauge
+     * @param _liquidityGauge the liquidity gauge's address to get the weight from
      * @return the weight of the gauge
      */
     function getGaugeWeight(address _liquidityGauge) external view returns (uint256) {
@@ -154,7 +154,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable, ReentrancyG
     }
 
     /**
-     * @notice Getter for duration of one epoch
+     * @notice Getter for the duration of one epoch
      * @param _future the address of the future to check the liquidity gauge of
      * @return the address of the liquidity gauge of the future
      */
@@ -225,7 +225,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable, ReentrancyG
     }
 
     /**
-     * @notice Setter for the APW token addres
+     * @notice Setter for the APW token address
      * @param _APW the APW token address
      * @dev can only be called once
      */
