@@ -6,7 +6,7 @@ interface IIBTFutureFactory {
     /**
      * @notice update gauge and user liquidity state then return the new redeemable
      * @param _futurePlatformName the name of the platform of the future to create
-     * @param _ibt the ibt for the future
+     * @param _ibt the IBT for the future
      * @param _periodDuration the duration of the period of the future
      * @return the address of the newly created future contract
      */

@@ -62,7 +62,7 @@ interface ILiquidityGauge {
      * @notice Register new user liquidity
      * @param _sender the user to transfer the liquidity from
      * @param _receiver the user to transfer the liquidity to
-     * @param _amount the amount of liquditiy to transfer
+     * @param _amount the amount of liquidity to transfer
      */
     function transferUserLiquidty(
         address _sender,

@@ -25,7 +25,7 @@ interface IGaugeController {
 
     /**
      * @notice Claim all claimable APW rewards for the sender for a specified list of liquidity gauges
-     * @param _liquidityGauges the the list of liquidity gauges to claim the rewards of
+     * @param _liquidityGauges the list of liquidity gauges to claim the rewards of
      */
     function claimAPW(address[] memory _liquidityGauges) external;
 
