@@ -14,7 +14,7 @@ import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 /**
  * @title Controller contract
  * @author Gaspard Peduzzi
- * @notice The controller dictate the future mecanisms and serves as an interfaces for main user interaction with futures
+ * @notice The controller dictates the future mechanisms and serves as an interface for main user interaction with futures
  */
 contract Controller is Initializable, AccessControlUpgradeable {
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
@@ -96,7 +96,7 @@ contract Controller is Initializable, AccessControlUpgradeable {
 
     /**
      * @notice Set a new factor for the portion of the yield that is claimable when withdrawing funds during an ongoing period
-     * @param _periodDuration the periods duration
+     * @param _periodDuration the duration of the periods
      * @param _claimableYieldFactor the portion of the yield that is claimable
      */
     function setUnlockClaimableFactor(uint256 _periodDuration, uint256 _claimableYieldFactor) public {
@@ -108,7 +108,7 @@ contract Controller is Initializable, AccessControlUpgradeable {
     /* User Methods */
 
     /**
-     * @notice Register an amount of ibt from the sender to the corresponding future
+     * @notice Register an amount of IBT from the sender to the corresponding future
      * @param _future the address of the future to be registered to
      * @param _amount the amount to register
      */
@@ -118,7 +118,7 @@ contract Controller is Initializable, AccessControlUpgradeable {
     }
 
     /**
-     * @notice Unregister an amount of ibt from the sender to the corresponding future
+     * @notice Unregister an amount of IBT from the sender to the corresponding future
      * @param _future the address of the future to be unregistered from
      * @param _amount the amount to unregister
      */
@@ -128,7 +128,7 @@ contract Controller is Initializable, AccessControlUpgradeable {
 
     /**
      * @notice Withdraw deposited funds from apwine
-     * @param _future the address of the future to be withdraw the ibt from
+     * @param _future the address of the future to withdraw the IBT from
      * @param _amount the amount to withdraw
      */
     function withdrawLockFunds(address _future, uint256 _amount) public futureIsValid(_future) {
@@ -136,8 +136,8 @@ contract Controller is Initializable, AccessControlUpgradeable {
     }
 
     /**
-     * @notice Claim fyt of the msg.sender
-     * @param _future the future from which to claim the ibts
+     * @notice Claim FYT of the msg.sender
+     * @param _future the future from which to claim the FYT
      */
     function claimFYT(address _future) public futureIsValid(_future) {
         IFuture(_future).claimFYT(msg.sender);
@@ -146,7 +146,7 @@ contract Controller is Initializable, AccessControlUpgradeable {
     /**
      * @notice Register the sender to the corresponding platformController
      * @param _user the address of the user
-     * @param futuresAddresses the addresses of the futures to claim the fyts from
+     * @param futuresAddresses the addresses of the futures to claim the FYT from
      */
     function claimSelectedYield(address _user, address[] memory futuresAddresses) public {
         for (uint256 i = 0; i < futuresAddresses.length; i++) {
@@ -183,11 +183,11 @@ contract Controller is Initializable, AccessControlUpgradeable {
     }
 
     /**
-     * @notice Getter for the symbol of the apwine ibt of one future
-     * @param _ibtSymbol the ibt of the external protocol
+     * @notice Getter for the symbol of the apwine IBT of one future
+     * @param _ibtSymbol the IBT of the external protocol
      * @param _platfrom the external protocol name
      * @param _periodDuration the duration of the periods for the future
-     * @return the generated symbol of the apwine ibt
+     * @return the generated symbol of the apwine IBT
      */
     function getFutureIBTSymbol(
         string memory _ibtSymbol,
@@ -198,10 +198,10 @@ contract Controller is Initializable, AccessControlUpgradeable {
     }
 
     /**
-     * @notice Getter for the symbol of the fyt of one future
-     * @param _apwibtSymbol the apwine ibt symbole  for this future
+     * @notice Getter for the symbol of the FYT of one future
+     * @param _apwibtSymbol the apwine IBT symbol  for this future
      * @param _periodDuration the duration of the periods for this future
-     * @return the generated symbol of the fyt
+     * @return the generated symbol of the FYT
      */
     function getFYTSymbol(string memory _apwibtSymbol, uint256 _periodDuration) public view returns (string memory) {
         return
@@ -213,7 +213,7 @@ contract Controller is Initializable, AccessControlUpgradeable {
 
     /**
      * @notice Getter for the period index depending on the period duration of the future
-     * @param _periodDuration the periods duration
+     * @param _periodDuration the duration of the periods
      * @return the period index
      */
     function getPeriodIndex(uint256 _periodDuration) public view returns (uint256) {
@@ -221,8 +221,8 @@ contract Controller is Initializable, AccessControlUpgradeable {
     }
 
     /**
-     * @notice Getter for beginning timestamp of the next period for the futures with a defined periods duration
-     * @param _periodDuration the periods duration
+     * @notice Getter for the beginning timestamp of the next period for the futures with a defined periods duration
+     * @param _periodDuration the duration of the periods 
      * @return the timestamp of the beginning of the next period
      */
     function getNextPeriodStart(uint256 _periodDuration) public view returns (uint256) {
@@ -231,8 +231,8 @@ contract Controller is Initializable, AccessControlUpgradeable {
 
     /**
      * @notice Getter for the factor of claimable yield when unlocking
-     * @param _periodDuration the periods duration
-     * @return the factor of claimable yield of the last period
+     * @param _periodDuration the duration of the periods 
+     * @return the factor of the claimable yield of the last period
      */
     function getUnlockYieldFactor(uint256 _periodDuration) public view returns (uint256) {
         return unlockClaimableFactorByDuration[_periodDuration];
@@ -252,7 +252,7 @@ contract Controller is Initializable, AccessControlUpgradeable {
 
     /**
      * @notice Getter for the futures by periods duration
-     * @param _periodDuration the periods duration of the futures to returns
+     * @param _periodDuration the periods' duration of the futures to returns
      */
     function getFuturesWithDuration(uint256 _periodDuration) public view returns (address[] memory) {
         uint256 listLength = futuresByDuration[_periodDuration].length();
@@ -292,7 +292,7 @@ contract Controller is Initializable, AccessControlUpgradeable {
 
     /**
      * @notice Start all the future that have a defined periods duration to synchronize them
-     * @param _periodDuration the periods duration of the future to start
+     * @param _periodDuration the period's duration of the future to start
      */
     function startFuturesByPeriodDuration(uint256 _periodDuration) public {
         for (uint256 i = 0; i < futuresByDuration[_periodDuration].length(); i++) {
