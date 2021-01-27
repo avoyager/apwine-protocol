@@ -142,6 +142,14 @@ interface IFuture {
     function getClaimableAPWIBT(address _user) external view returns (uint256);
 
     /**
+     * @notice Getter for the amount of fyt that the user can claim for a certain period
+     * @param _user user to check the check the claimable fyt of
+     * @param _periodID period ID to check the claimable fyt of
+     * @return the amount of fyt claimable by the user for this period ID
+     */
+    function getClaimableFYTForPeriod(address _user, uint256 _periodID) external view returns (uint256);
+
+    /**
      * @notice Getter for next period index
      * @return next period index
      * @dev index starts at 1

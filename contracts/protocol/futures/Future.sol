@@ -3,6 +3,7 @@ pragma solidity ^0.7.6;
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 
 import "contracts/interfaces/IProxyFactory.sol";
 import "contracts/interfaces/apwine/tokens/IFutureYieldToken.sol";
@@ -23,7 +24,7 @@ import "contracts/interfaces/apwine/IRegistry.sol";
  * @notice Handles the future mecanisms
  * @dev The future contract is the basis of all the mecanisms of the future with the from the registration to the period switch
  */
-abstract contract Future is Initializable, AccessControlUpgradeable {
+abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyGuardUpgradeable {
     using SafeMathUpgradeable for uint256;
 
     /* Structs */
@@ -63,7 +64,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
     event FutureVaultSet(address _futureVault);
     event FutureWalletSet(address _futureWallet);
     event LiquidityGaugeSet(address _liquidityGauge);
-    event FundsWithdrawn(address _user,uint256 _amount);
+    event FundsWithdrawn(address _user, uint256 _amount);
     event PeriodsPaused();
     event PeriodsResumed();
 
@@ -146,7 +147,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
                 registrations[_user].scaledBalance = registrations[_user].scaledBalance.add(_amount);
             } else {
                 // User had an unclaimed registation from a previous period
-                claimAPWIBT(_user);
+                _claimAPWIBT(_user);
                 _register(_user, _amount);
             }
         }
@@ -170,9 +171,9 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
      * @notice Send the user its owed fyt (and apwibt if there are some claimable)
      * @param _user address of the user to send the fyt to
      */
-    function claimFYT(address _user) public virtual {
+    function claimFYT(address _user) public virtual nonReentrant {
         require(hasClaimableFYT(_user), "The is not fyt claimable for this address");
-        if (hasClaimableAPWIBT(_user)) claimAPWIBT(_user);
+        if (hasClaimableAPWIBT(_user)) _claimAPWIBT(_user);
         else _claimFYT(_user);
     }
 
@@ -191,10 +192,9 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
         fyts[_periodIndex].transfer(_user, apwibt.balanceOf(_user));
     }
 
-    function claimAPWIBT(address _user) internal virtual {
+    function _claimAPWIBT(address _user) internal virtual {
         uint256 nextIndex = getNextPeriodIndex();
         uint256 claimableAPWIBT = getClaimableAPWIBT(_user);
-        // require(claimableAPWIBT>0, "There are no ibt claimable at the moment for this address");
 
         if (_hasOnlyClaimableFYT(_user)) _claimFYT(_user);
         apwibt.transfer(_user, claimableAPWIBT);
@@ -214,28 +214,23 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
      * @param _amount amount of funds to unlocked
      * @dev will require transfer of fyt of the oingoing period corresponding to the funds unlocked
      */
-    function withdrawLockFunds(address _user, uint256 _amount) public virtual {
+    function withdrawLockFunds(address _user, uint256 _amount) public virtual nonReentrant {
         require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to whithdraw locked funds");
         require((_amount > 0) && (_amount > apwibt.balanceOf(_user)), "Invalid amount");
         if (hasClaimableAPWIBT(_user)) {
-            claimAPWIBT(_user);
+            _claimAPWIBT(_user);
         } else if (hasClaimableFYT(_user)) {
-            claimFYT(_user);
+            _claimFYT(_user);
         }
 
         uint256 unlockableFunds = getUnlockableFunds(_user);
         uint256 unrealisedYield = getUnrealisedYield(_user);
 
-        uint256 fundsToBeUnlocked =  _amount.mul(unlockableFunds).div(apwibt.balanceOf(_user));
+        uint256 fundsToBeUnlocked = _amount.mul(unlockableFunds).div(apwibt.balanceOf(_user));
         uint256 yieldToBeUnlocked = _amount.mul(unrealisedYield).div(apwibt.balanceOf(_user));
 
-        require(apwibt.transferFrom(_user, address(this), _amount), "Invalid amount of APWIBT");
-        require(
-            fyts[getNextPeriodIndex() - 1].transferFrom(_user, address(this), _amount),
-            "Invalid amount of FYT of last period"
-        );
-        apwibt.burn(_amount);
-        fyts[getNextPeriodIndex() - 1].burn(_amount);
+        apwibt.burnFrom(_user, _amount);
+        fyts[getNextPeriodIndex() - 1].burnFrom(_user, _amount);
 
         uint256 yieldToBeRedeemed = yieldToBeUnlocked.mul(controller.getUnlockYieldFactor(PERIOD_DURATION));
 
@@ -247,18 +242,19 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
             unrealisedYield.sub(yieldToBeRedeemed)
         );
         liquidityGauge.removeUserLiquidity(_user, _amount);
-        emit FundsWithdrawn(_user,_amount);
+        emit FundsWithdrawn(_user, _amount);
     }
 
     /* Utilitaries functions */
-    function deployFutureYieldToken() internal returns (address) {
+    function deployFutureYieldToken(uint256 _internalPeriodID) internal returns (address) {
         IRegistry registry = IRegistry(controller.getRegistryAddress());
         string memory tokenDenomination = controller.getFYTSymbol(apwibt.symbol(), PERIOD_DURATION);
         bytes memory payload =
             abi.encodeWithSignature(
-                "initialize(string,string,address)",
+                "initialize(string,string,uint256,address)",
                 tokenDenomination,
                 tokenDenomination,
+                _internalPeriodID,
                 address(this)
             );
         IFutureYieldToken newToken =
@@ -308,6 +304,25 @@ abstract contract Future is Initializable, AccessControlUpgradeable {
      * @return the amount of apwibt claimable by the user
      */
     function getClaimableAPWIBT(address _user) public view virtual returns (uint256);
+
+    /**
+     * @notice Getter for the amount of fyt that the user can claim for a certain period
+     * @param _user user to check the check the claimable fyt of
+     * @param _periodID period ID to check the claimable fyt of
+     * @return the amount of fyt claimable by the user for this period ID
+     */
+    function getClaimableFYTForPeriod(address _user, uint256 _periodID) public view virtual returns (uint256) {
+        if (
+            _periodID >= getNextPeriodIndex() ||
+            registrations[_user].startIndex == 0 ||
+            registrations[_user].scaledBalance == 0 ||
+            registrations[_user].startIndex > _periodID
+        ) {
+            return 0;
+        } else {
+            return getClaimableAPWIBT(_user);
+        }
+    }
 
     /**
      * @notice Getter for user ibt amount that is unlockable

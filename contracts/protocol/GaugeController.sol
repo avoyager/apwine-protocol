@@ -4,6 +4,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/EnumerableSetUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 
 import "contracts/interfaces/apwine/ILiquidityGauge.sol";
 import "contracts/interfaces/apwine/tokens/IAPWToken.sol";
@@ -15,7 +16,7 @@ import "contracts/interfaces/IProxyFactory.sol";
  * @author Gaspard Peduzzi
  * @notice The Gauge Controller regulate the weight of the liquidity gauge and the emission of the APW token against liquidity provision
  */
-contract GaugeController is Initializable, AccessControlUpgradeable {
+contract GaugeController is Initializable, AccessControlUpgradeable, ReentrancyGuardUpgradeable {
     using SafeMathUpgradeable for uint256;
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
 
@@ -49,8 +50,6 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
     event RegistryAddressSet(address _registry);
     event APWWithdrawalsPaused();
     event APWWithdrawalsResumed();
-
-
 
     modifier isValidLiquidyGauge() {
         require(liquidityGauges.contains(msg.sender), "Incorrect liqudity gauge");
@@ -97,7 +96,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
      * @notice Claim all claimable APW rewards for the sender
      * @dev not gas efficient, claim function with specified liquidity gauges saves gas
      */
-    function claimAPW() public {
+    function claimAPW() public nonReentrant {
         require(isAPWClaimable, "apw rewards not claimable atm");
         uint256 totalRedeemable;
         for (uint256 i = 0; i < liquidityGauges.length(); i++) {
@@ -114,7 +113,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
      * @notice Claim all claimable APW rewards for the sender for a specified list of liquidity gauges
      * @param _liquidityGauges the the list of liquidity gauges to claim the rewards of
      */
-    function claimAPW(address[] memory _liquidityGauges) public {
+    function claimAPW(address[] memory _liquidityGauges) public nonReentrant {
         require(isAPWClaimable, "apw rewards not claimable atm");
         uint256 totalRedeemable;
         for (uint256 i = 0; i < _liquidityGauges.length; i++) {
@@ -188,7 +187,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
      * @notice Getter for the registry address
      * @return the registry address
      */
-    function getRegistry() external view returns (address)  {
+    function getRegistry() external view returns (address) {
         return address(registry);
     }
 
@@ -212,7 +211,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable {
     function setGaugeWeight(address _liquidityGauge, uint256 _gaugeWeight) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         gaugesWeights[_liquidityGauge] = _gaugeWeight;
-        emit GaugeWeightSet( _liquidityGauge,  _gaugeWeight);
+        emit GaugeWeightSet(_liquidityGauge, _gaugeWeight);
     }
 
     /**

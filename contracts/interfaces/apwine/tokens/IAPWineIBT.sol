@@ -21,5 +21,16 @@ interface IAPWineIBT is ERC20 {
      */
     function mint(address to, uint256 amount) external;
 
+    /**
+     * @dev Destroys `amount` tokens from `account`, deducting from the caller's
+     * allowance.
+     *
+     * See {ERC20-_burn} and {ERC20-allowance}.
+     *
+     * Requirements:
+     *
+     * - the caller must have allowance for ``accounts``'s tokens of at least
+     * `amount`.
+     */
     function burnFrom(address account, uint256 amount) external;
 }

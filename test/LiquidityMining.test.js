@@ -32,7 +32,7 @@ describe("Gauge Controller", function (){
     })
 
     it("can enable APW withdrawals", async function () {
-        await this.gaugeController.resumeAPWWithdraw({from:owner})
+        await this.gaugeController.resumeAPWWithdrawals({from:owner})
     })
 
 

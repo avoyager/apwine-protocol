@@ -28,9 +28,8 @@ interface IController {
      */
     function setNextPeriodSwitchTimestamp(uint256 _periodDuration, uint256 _nextPeriodTimestamp) external;
 
-
     /**
-     * @notice Set a new factor for the portion of the yield that is claimable when withdrawing funds during an ongoing period 
+     * @notice Set a new factor for the portion of the yield that is claimable when withdrawing funds during an ongoing period
      * @param _periodDuration the periods duration
      * @param _claimableYieldFactor the portion of the yield that is claimable
      */

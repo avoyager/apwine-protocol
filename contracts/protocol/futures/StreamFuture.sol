@@ -40,7 +40,7 @@ abstract contract StreamFuture is Future {
      * @param _amount amount of ibt to be registered
      * @dev called by the controller only
      */
-    function register(address _user, uint256 _amount) public virtual override periodsActive {
+    function register(address _user, uint256 _amount) public virtual override periodsActive nonReentrant {
         require(_amount > 0, "invalid amount to register");
         IRegistry registry = IRegistry(controller.getRegistryAddress());
         uint256 scaledInput =
@@ -59,7 +59,7 @@ abstract contract StreamFuture is Future {
      * @param _amount amount of ibt to be unregistered
      * @dev 0 unregister all
      */
-    function unregister(address _user, uint256 _amount) public virtual override {
+    function unregister(address _user, uint256 _amount) public virtual override nonReentrant {
         require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to unregister");
         uint256 nextIndex = getNextPeriodIndex();
         require(registrations[_user].startIndex == nextIndex, "There is no ongoing registration for the next period");
@@ -95,7 +95,7 @@ abstract contract StreamFuture is Future {
      * @notice Start a new period
      * @dev needs corresponding permissions for sender
      */
-    function startNewPeriod() public virtual override nextPeriodAvailable periodsActive {
+    function startNewPeriod() public virtual override nextPeriodAvailable periodsActive nonReentrant {
         require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to start the next period");
 
         uint256 nextPeriodID = getNextPeriodIndex();
@@ -117,7 +117,7 @@ abstract contract StreamFuture is Future {
         scaledTotals.push();
 
         /* Future Yield Token*/
-        address fytAddress = deployFutureYieldToken();
+        address fytAddress = deployFutureYieldToken(nextPeriodID);
         emit NewPeriodStarted(nextPeriodID, fytAddress);
     }
 

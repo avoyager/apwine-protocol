@@ -3,6 +3,7 @@ pragma solidity ^0.7.6;
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 
 import "contracts/interfaces/ERC20.sol";
 import "contracts/interfaces/apwine/tokens/IFutureYieldToken.sol";
@@ -18,7 +19,7 @@ import "contracts/interfaces/apwine/utils/IAPWineMath.sol";
  * @notice Main abstraction for the future wallets contract
  * @dev The future wallets stores the yield after each expiration of the future period
  */
-abstract contract FutureWallet is Initializable, AccessControlUpgradeable {
+abstract contract FutureWallet is Initializable, AccessControlUpgradeable, ReentrancyGuardUpgradeable {
     using SafeMathUpgradeable for uint256;
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
@@ -27,7 +28,7 @@ abstract contract FutureWallet is Initializable, AccessControlUpgradeable {
     IFuture public future;
     ERC20 public ibt;
 
-    event YieldRedeemed(address _user,uint256 _periodIndex);
+    event YieldRedeemed(address _user, uint256 _periodIndex);
 
     /**
      * @notice Intializer
@@ -52,18 +53,17 @@ abstract contract FutureWallet is Initializable, AccessControlUpgradeable {
      * @notice redeem the yield of the underlying yield of the FYT held by the sender
      * @param _periodIndex the index of the period to redeem the yield from
      */
-    function redeemYield(uint256 _periodIndex) public virtual {
+    function redeemYield(uint256 _periodIndex) public virtual nonReentrant {
         require(_periodIndex < future.getNextPeriodIndex() - 1, "Invalid period index");
         IFutureYieldToken fyt = IFutureYieldToken(future.getFYTofPeriod(_periodIndex));
         uint256 senderTokenBalance = fyt.balanceOf(msg.sender);
         require(senderTokenBalance > 0, "FYT sender balance should not be null");
-        require(fyt.transferFrom(msg.sender, address(this), senderTokenBalance), "Failed transfer");
 
         uint256 claimableYield = _updateYieldBalances(_periodIndex, senderTokenBalance, fyt.totalSupply());
 
+        fyt.burnFrom(msg.sender, senderTokenBalance);
         ibt.transfer(msg.sender, claimableYield);
-        fyt.burn(senderTokenBalance);
-        emit YieldRedeemed(msg.sender,_periodIndex);
+        emit YieldRedeemed(msg.sender, _periodIndex);
     }
 
     /**

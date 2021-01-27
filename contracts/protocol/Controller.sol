@@ -30,7 +30,6 @@ contract Controller is Initializable, AccessControlUpgradeable {
     mapping(uint256 => uint256) private nextPeriodSwitchByDuration;
     mapping(uint256 => uint256) private unlockClaimableFactorByDuration;
 
-
     mapping(string => EnumerableSetUpgradeable.UintSet) private platformNames;
 
     EnumerableSetUpgradeable.UintSet private durations;
@@ -96,7 +95,7 @@ contract Controller is Initializable, AccessControlUpgradeable {
     }
 
     /**
-     * @notice Set a new factor for the portion of the yield that is claimable when withdrawing funds during an ongoing period 
+     * @notice Set a new factor for the portion of the yield that is claimable when withdrawing funds during an ongoing period
      * @param _periodDuration the periods duration
      * @param _claimableYieldFactor the portion of the yield that is claimable
      */

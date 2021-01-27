@@ -39,12 +39,22 @@ abstract contract RateFuture is Future {
     }
 
     /**
+     * @notice Sender registers an amount of ibt for the next period
+     * @param _user address to register to the future
+     * @param _amount amount of ibt to be registered
+     * @dev called by the controller only
+     */
+    function register(address _user, uint256 _amount) public virtual override periodsActive nonReentrant {
+        super.register(_user, _amount);
+    }
+
+    /**
      * @notice Sender unregisters an amount of ibt for the next period
      * @param _user user addresss
      * @param _amount amount of ibt to be unregistered
      * @dev 0 unregister all
      */
-    function unregister(address _user, uint256 _amount) public virtual override {
+    function unregister(address _user, uint256 _amount) public virtual override nonReentrant {
         require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to unregister");
 
         uint256 nextIndex = getNextPeriodIndex();
@@ -72,7 +82,7 @@ abstract contract RateFuture is Future {
      * @notice Start a new period
      * @dev needs corresponding permissions for sender
      */
-    function startNewPeriod() public virtual override nextPeriodAvailable periodsActive {
+    function startNewPeriod() public virtual override nextPeriodAvailable periodsActive nonReentrant {
         require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to start the next period");
 
         uint256 nextPeriodID = getNextPeriodIndex();
@@ -98,7 +108,7 @@ abstract contract RateFuture is Future {
         IBTRates.push();
 
         /* Future Yield Token*/
-        address fytAddress = deployFutureYieldToken();
+        address fytAddress = deployFutureYieldToken(nextPeriodID);
         emit NewPeriodStarted(nextPeriodID, fytAddress);
     }
 

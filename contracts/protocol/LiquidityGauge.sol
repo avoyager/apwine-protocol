@@ -5,6 +5,8 @@ import "contracts/interfaces/apwine/IFuture.sol";
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+
 import "contracts/interfaces/apwine/tokens/IAPWineIBT.sol";
 
 /**
@@ -12,7 +14,7 @@ import "contracts/interfaces/apwine/tokens/IAPWineIBT.sol";
  * @author Gaspard Peduzzi
  * @notice The liquidity gauge is deployed at the creation of the future and track user liquidity provision
  */
-contract LiquidityGauge is Initializable, AccessControlUpgradeable {
+contract LiquidityGauge is Initializable, AccessControlUpgradeable, ReentrancyGuardUpgradeable {
     using SafeMathUpgradeable for uint256;
 
     bytes32 public constant FUTURE_ROLE = keccak256("FUTURE_ROLE");
@@ -64,13 +66,13 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable {
      * @param _amount the liquidity amount added
      * @dev must be called from the future contract
      */
-    function registerNewFutureLiquidity(uint256 _amount) public {
+    function registerNewFutureLiquidity(uint256 _amount) public nonReentrant {
         require(hasRole(FUTURE_ROLE, msg.sender), "Caller is not the corresponding future");
         updateInflatedVolume();
         totalDepositedSupply[totalDepositedSupply.length - 1] = totalDepositedSupply[totalDepositedSupply.length - 1].add(
             _amount
         );
-        periodsSwitchesIndexes.push(totalDepositedSupply.length-1);
+        periodsSwitchesIndexes.push(totalDepositedSupply.length - 1);
         emit LiquidityAdded(_amount, totalDepositedSupply[totalDepositedSupply.length - 1]);
     }
 
@@ -79,7 +81,7 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable {
      * @param _amount the liquidity amount withdrawn
      * @dev must be called from the future contract
      */
-    function unregisterFutureLiquidity(uint256 _amount) public {
+    function unregisterFutureLiquidity(uint256 _amount) public nonReentrant {
         require(_amount > 0, "Amount must not be zero");
         require(hasRole(FUTURE_ROLE, msg.sender), "Caller is not the corresponding future");
         updateInflatedVolume();
@@ -158,7 +160,7 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable {
      * @notice Register new user liquidity
      * @param _user the user to register the liquidity of
      */
-    function registerUserLiquidity(address _user) public {
+    function registerUserLiquidity(address _user) public nonReentrant {
         require(hasRole(FUTURE_ROLE, msg.sender), "Caller is not the corresponding future");
         if (liquidityRegistrationsPeriodIndex[_user] == future.getNextPeriodIndex()) return; // return if registration already done
         updateUserLiquidity(_user);
@@ -169,7 +171,7 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable {
      * @notice Delete a user liquidity registration
      * @param _user the user to delete the liquidity registration of
      */
-    function deleteUserLiquidityRegistration(address _user) public {
+    function deleteUserLiquidityRegistration(address _user) public nonReentrant {
         require(hasRole(FUTURE_ROLE, msg.sender), "Caller is not the corresponding future");
         assert(liquidityRegistrationsPeriodIndex[_user] == future.getNextPeriodIndex());
         delete liquidityRegistrationsPeriodIndex[_user];
@@ -180,7 +182,7 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable {
      * @param _user the user to remove the liquidity from
      * @param _amount the amount of liquidity to remove
      */
-    function removeUserLiquidity(address _user, uint256 _amount) public {
+    function removeUserLiquidity(address _user, uint256 _amount) public nonReentrant {
         require(hasRole(FUTURE_ROLE, msg.sender), "Caller is not the corresponding future");
         updateUserLiquidity(_user);
         assert(lastLiquidityAmountRecorded[_user] >= _amount);
@@ -198,7 +200,7 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable {
         address _sender,
         address _receiver,
         uint256 _amount
-    ) public {
+    ) public nonReentrant {
         require(hasRole(TRANSFER_ROLE, msg.sender), "Caller cannot transfer liquidity");
         updateInflatedVolume();
         _updateUserLiquidity(_sender);

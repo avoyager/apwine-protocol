@@ -4,13 +4,14 @@ import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 
 /**
  * @title Treasury Contract
  * @author Gaspard Peduzzi
  * @notice the treasury of the protocols, allow to store and transfer funds
  */
-contract Treasury is Initializable, AccessControlUpgradeable {
+contract Treasury is Initializable, AccessControlUpgradeable, ReentrancyGuardUpgradeable {
     using SafeMathUpgradeable for uint256;
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
@@ -34,7 +35,7 @@ contract Treasury is Initializable, AccessControlUpgradeable {
         address _erc20,
         address _recipient,
         uint256 _amount
-    ) public {
+    ) public nonReentrant {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         IERC20Upgradeable(_erc20).transfer(_recipient, _amount);
     }
@@ -44,9 +45,9 @@ contract Treasury is Initializable, AccessControlUpgradeable {
      * @param _recipient the address of the recipient
      * @param _amount the amount of ether to send
      */
-    function sendEther(address payable _recipient, uint256 _amount) public payable {
+    function sendEther(address payable _recipient, uint256 _amount) public payable nonReentrant {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        (bool success, ) = _recipient.call{value:_amount}("");
-        require(success, "Transfer failed.");       
+        (bool success, ) = _recipient.call{value: _amount}("");
+        require(success, "Transfer failed.");
     }
 }
