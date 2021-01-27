@@ -113,8 +113,8 @@ contract Registry is Initializable, AccessControlUpgradeable {
     }
 
     /**
-     * @notice Setter for the apw token address
-     * @param _newAPW the address of the apw token
+     * @notice Setter for the APW token address
+     * @param _newAPW the address of the APW token
      */
     function setAPW(address _newAPW) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
@@ -125,7 +125,7 @@ contract Registry is Initializable, AccessControlUpgradeable {
     /* Getters */
     /**
      * @notice Getter for the DAO address
-     * @return the address of the DAO that has admin right on the apw token
+     * @return the address of the DAO that has admin right on the APW token
      */
     function getDAOAddress() public view returns (address) {
         return IAPWToken(apw).getDAO();
@@ -193,8 +193,8 @@ contract Registry is Initializable, AccessControlUpgradeable {
     }
 
     /**
-     * @notice Setter for the apwine ibt logic address
-     * @param _APWineIBTLogic the address of the new apwine ibt logic
+     * @notice Setter for the apwine IBTlogic address
+     * @param _APWineIBTLogic the address of the new apwine IBTlogic
      */
     function setAPWineIBTLogic(address _APWineIBTLogic) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
@@ -203,8 +203,8 @@ contract Registry is Initializable, AccessControlUpgradeable {
     }
 
     /**
-     * @notice Setter for the apwine fyt logic address
-     * @param _FYTLogic the address of the new apwine ibt logic
+     * @notice Setter for the apwine FYTlogic address
+     * @param _FYTLogic the address of the new apwine IBT logic
      */
     function setFYTLogic(address _FYTLogic) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
@@ -315,14 +315,14 @@ contract Registry is Initializable, AccessControlUpgradeable {
 
     /**
      * @notice Getter for number of future factories registered
-     * @return the number of future factory registered
+     * @return the number of future factories registered
      */
     function futureFactoryCount() external view returns (uint256) {
         return futureFactories.length();
     }
 
     /**
-     * @notice Getter for name of a future factory contract
+     * @notice Getter for the name of a future factory contract
      * @param _futureFactory the address of a future factory
      * @return the name of the corresponding future factory contract
      */
@@ -333,7 +333,7 @@ contract Registry is Initializable, AccessControlUpgradeable {
 
     /* Future Platform */
     /**
-     * @notice Register a new future platfrom in the registry
+     * @notice Register a new future platform in the registry
      * @param _futureFactory the address of the future factory
      * @param _futurePlatformName the name of the future platfrom
      * @param _future the address of the future contract logic
@@ -381,8 +381,8 @@ contract Registry is Initializable, AccessControlUpgradeable {
     }
 
     /**
-     * @notice Getter to check if a future platfrom is registered
-     * @param _futurePlatformName the name of the future platfrom to check the registration of
+     * @notice Getter to check if a future platform is registered
+     * @param _futurePlatformName the name of the future platform to check the registration of
      * @return true if it is, false otherwise
      */
     function isRegisteredFuturePlatform(string memory _futurePlatformName) public view returns (bool) {
@@ -405,8 +405,8 @@ contract Registry is Initializable, AccessControlUpgradeable {
     }
 
     /**
-     * @notice Getter the total count of future platftroms registered
-     * @return the number of future platfroms registered
+     * @notice Getter the total count of future platforms registered
+     * @return the number of future platforms registered
      */
     function futurePlatformsCount() external view returns (uint256) {
         return futurePlatformsNames.length;
@@ -414,7 +414,7 @@ contract Registry is Initializable, AccessControlUpgradeable {
 
     /**
      * @notice Getter the list of platforms names registered
-     * @return the list of platfrom names registered
+     * @return the list of platform names registered
      */
     function getFuturePlatformNames() external view returns (string[] memory) {
         return futurePlatformsNames;
