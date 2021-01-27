@@ -25,7 +25,7 @@ contract APWineMaths {
     }
 
     /**
-     * @notice scale back a value to the ouput
+     * @notice scale back a value to the output
      * @param _scalledOuput the current scaled output
      * @param _initialSum the scaled value of the sum of the inputs
      * @param _actualSum the current value of the sum of the inputs
