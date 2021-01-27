@@ -17,8 +17,8 @@ import "contracts/interfaces/apwine/IGaugeController.sol";
 /**
  * @title Future Factory abstraction
  * @author Gaspard Peduzzi
- * @notice Handles the deployement of new futures
- * @dev Basis to build different types of futures depending on their inner functionning
+ * @notice Handles the deployment of new futures
+ * @dev Basis to build different types of futures depending on their inner functioning
  */
 abstract contract FutureFactory is Initializable, AccessControlUpgradeable {
     using SafeMathUpgradeable for uint256;
