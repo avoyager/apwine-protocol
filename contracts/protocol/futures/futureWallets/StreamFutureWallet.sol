@@ -5,8 +5,8 @@ import "contracts/protocol/futures/futureWallets/FutureWallet.sol";
 /**
  * @title Strean Future Wallet abstraction
  * @author Gaspard Peduzzi
- * @notice Abstraction for the future wallets that works with an ibt for which its holder gets the interest directly in its wallet progressively (i.e aTokens)
- * @dev Override future wallet abstraction with the particular functionning of stream based ibt
+ * @notice Abstraction for the future wallets that works with an IBT for which its holder gets the interest directly in its wallet progressively (i.e aTokens)
+ * @dev Override future wallet abstraction with the particular functioning of stream-based IBT
  */
 abstract contract StreamFutureWallet is FutureWallet {
     using SafeMathUpgradeable for uint256;
@@ -47,7 +47,7 @@ abstract contract StreamFutureWallet is FutureWallet {
     /**
      * @notice return the yield that could be redeemed by an address for a particular period
      * @param _periodIndex the index of the corresponding period
-     * @param _tokenHolder the fyt holder
+     * @param _tokenHolder the FYT holder
      * @return the yield that could be redeemed by the token holder for this period
      */
     function getRedeemableYield(uint256 _periodIndex, address _tokenHolder) public view override returns (uint256) {
@@ -63,8 +63,8 @@ abstract contract StreamFutureWallet is FutureWallet {
     /**
      * @notice collect and update the yield balance of the sender
      * @param _periodIndex the index of the corresponding period
-     * @param _userFYT the fyt holder balance
-     * @param _totalFYT the total fyt supply
+     * @param _userFYT the FYT holder balance
+     * @param _totalFYT the total FYT supply
      * @return the yield claimed
      */
     function _updateYieldBalances(

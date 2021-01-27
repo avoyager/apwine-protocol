@@ -21,8 +21,8 @@ import "contracts/interfaces/apwine/IRegistry.sol";
 /**
  * @title Main future abstraction contract
  * @author Gaspard Peduzzi
- * @notice Handles the future mecanisms
- * @dev The future contract is the basis of all the mecanisms of the future with the from the registration to the period switch
+ * @notice Handles the future mechanisms
+ * @dev The future contract is the basis of all the mechanisms of the future with the from the registration to the period switch
  */
 abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyGuardUpgradeable {
     using SafeMathUpgradeable for uint256;
@@ -130,9 +130,9 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
     function startNewPeriod() public virtual;
 
     /**
-     * @notice Sender registers an amount of ibt for the next period
+     * @notice Sender registers an amount of IBT for the next period
      * @param _user address to register to the future
-     * @param _amount amount of ibt to be registered
+     * @param _amount amount of IBTto be registered
      * @dev called by the controller only
      */
     function register(address _user, uint256 _amount) public virtual periodsActive {
@@ -160,16 +160,16 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
     }
 
     /**
-     * @notice Sender unregisters an amount of ibt for the next period
-     * @param _user user addresss
-     * @param _amount amount of ibt to be unregistered
+     * @notice Sender unregisters an amount of IBT for the next period
+     * @param _user user's addresss
+     * @param _amount amount of IBT to be unregistered
      */
     function unregister(address _user, uint256 _amount) public virtual;
 
     /* Claim functions */
     /**
-     * @notice Send the user its owed fyt (and apwibt if there are some claimable)
-     * @param _user address of the user to send the fyt to
+     * @notice Send the user its owed FYT (and apwIBT if there are some claimable)
+     * @param _user address of the user to send the FYT to
      */
     function claimFYT(address _user) public virtual nonReentrant {
         require(hasClaimableFYT(_user), "The is not fyt claimable for this address");
@@ -209,10 +209,10 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
     }
 
     /**
-     * @notice Sender unlock the locked funds corresponding to its apwibt holding
-     * @param _user user adress
+     * @notice Sender unlock the locked funds corresponding to its apwIBT holding
+     * @param _user user's adress
      * @param _amount amount of funds to unlocked
-     * @dev will require transfer of fyt of the oingoing period corresponding to the funds unlocked
+     * @dev will require a transfer of FYT of the ongoing period corresponding to the funds unlocked
      */
     function withdrawLockFunds(address _user, uint256 _amount) public virtual nonReentrant {
         require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to whithdraw locked funds");
@@ -281,9 +281,9 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
     }
 
     /**
-     * @notice Check if a user has ibt not claimed
+     * @notice Check if a user has IBT not claimed
      * @param _user the user to check
-     * @return true if the user can claim some ibt, false otherwise
+     * @return true if the user can claim some IBT, false otherwise
      */
     function hasClaimableAPWIBT(address _user) public view returns (bool) {
         return (registrations[_user].startIndex < getNextPeriodIndex()) && (registrations[_user].scaledBalance > 0);
@@ -306,10 +306,10 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
     function getClaimableAPWIBT(address _user) public view virtual returns (uint256);
 
     /**
-     * @notice Getter for the amount of fyt that the user can claim for a certain period
-     * @param _user user to check the check the claimable fyt of
-     * @param _periodID period ID to check the claimable fyt of
-     * @return the amount of fyt claimable by the user for this period ID
+     * @notice Getter for the amount of FYT that the user can claim for a certain period
+     * @param _user the user to check the claimable FYT of
+     * @param _periodID period ID to check the claimable FYTof
+     * @return the amount of FYTclaimable by the user for this period ID
      */
     function getClaimableFYTForPeriod(address _user, uint256 _periodID) public view virtual returns (uint256) {
         if (
@@ -325,9 +325,9 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
     }
 
     /**
-     * @notice Getter for user ibt amount that is unlockable
-     * @param _user user to unlock the ibt from
-     * @return the amount of ibt the user can unlock
+     * @notice Getter for user IBT amount that is unlockable
+     * @param _user the user to unlock the IBT from
+     * @return the amount of IBT the user can unlock
      */
     function getUnlockableFunds(address _user) public view virtual returns (uint256) {
         return apwibt.balanceOf(_user);
@@ -335,7 +335,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
 
     /**
      * @notice Getter for user registered amount
-     * @param _user user to return the registered funds of
+     * @param _user the user to return the registered funds of
      * @return the registered amount, 0 if no registrations
      * @dev the registration can be older than for the next period
      */
@@ -343,8 +343,8 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
 
     /**
      * @notice Getter for yield that is generated by the user funds during the current period
-     * @param _user user to check the unrealised yield of
-     * @return the yield (amout of ibt) currently generated by the locked funds of the user
+     * @param _user the user to check the unrealized yield of
+     * @return the yield (amount of IBT) currently generated by the locked funds of the user
      */
     function getUnrealisedYield(address _user) public view virtual returns (uint256);
 
