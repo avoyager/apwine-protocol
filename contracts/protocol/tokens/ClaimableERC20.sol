@@ -11,7 +11,7 @@ import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 /**
  * @title ERC20 preset for tokens used in apwine protocol
  * @author Gaspard Peduzzi
- * @notice ERC20 mintabble pausable
+ * @notice ERC20 mintable pausable
  * @dev allows overwriting of balanceOf function for liquid balance
  */
 contract ClaimableERC20 is Initializable, ContextUpgradeable, IERC20Upgradeable, PausableUpgradeable {
