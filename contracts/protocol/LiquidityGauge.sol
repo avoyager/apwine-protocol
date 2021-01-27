@@ -194,7 +194,7 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable, ReentrancyGu
      * @notice Register new user liquidity
      * @param _sender the user to transfer the liquidity from
      * @param _receiver the user to transfer the liquidity to
-     * @param _amount the amount of liquditiy to transfer
+     * @param _amount the amount of liquidity to transfer
      */
     function transferUserLiquidty(
         address _sender,
@@ -218,7 +218,7 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable, ReentrancyGu
     }
 
     /**
-     * @notice Update the current stored liquidity of one user
+     * @notice Update the currently stored liquidity of one user
      * @param _user the user to update the liquidity of
      */
     function updateUserLiquidity(address _user) public {
