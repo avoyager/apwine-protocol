@@ -180,9 +180,9 @@ interface IRegistry {
 
     /* Future Platfrom */
     /**
-     * @notice Register a new future platfrom in the registry
+     * @notice Register a new future platform in the registry
      * @param _futureFactory the address of the future factory
-     * @param _futurePlatformName the name of the future platfrom
+     * @param _futurePlatformName the name of the future platform
      * @param _future the address of the future contract logic
      * @param _futureWallet the address of the future wallet contract logic
      * @param _futureVault the name of the future vault contract logic

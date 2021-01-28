@@ -4,8 +4,8 @@ import "contracts/protocol/futures/StreamFuture.sol";
 /**
  * @title Contract for Aave Future
  * @author Gaspard Peduzzi
- * @notice Handles the future mecanisms for the Aave platform
- * @dev Implement directly the stream future abstraction as its fits the aToken ibt
+ * @notice Handles the future mechanisms for the Aave platform
+ * @dev Implement directly the stream future abstraction as its fits the aToken IBT
  */
 contract AaveFuture is StreamFuture {
 

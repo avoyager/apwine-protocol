@@ -5,10 +5,10 @@ import "contracts/interfaces/apwine/IFuture.sol";
 import "contracts/interfaces/apwine/ILiquidityGauge.sol";
 
 /**
- * @title APWine interest bearing token
+ * @title APWine interest-bearing token
  * @author Gaspard Peduzzi
  * @notice Interest bearing token for the futures liquidity provided
- * @dev the value of apwine ibt is equivalent to a fixed amount of underlying token of the future ibt
+ * @dev the value of apwine IBT is equivalent to a fixed amount of underlying token of the future IBT
  */
 contract APWineIBT is MinterPauserClaimableERC20 {
     using SafeMathUpgradeable for uint256;
@@ -55,10 +55,10 @@ contract APWineIBT is MinterPauserClaimableERC20 {
     }
 
     /**
-     * @notice transfer a defined amount of apwibt from one user to another
-     * @param sender sender address
-     * @param recipient recipient address
-     * @param amount amount of apwibt to be transfered
+     * @notice transfer a defined amount of apwIBT from one user to another
+     * @param sender sender's address
+     * @param recipient recipient'saddress
+     * @param amount amount of apwIBT to be transferred
      */
     function transferFrom(
         address sender,
@@ -96,9 +96,9 @@ contract APWineIBT is MinterPauserClaimableERC20 {
     }
 
     /**
-     * @notice returns the current balance of one user including the apwibt that were not claimed yet
+     * @notice returns the current balance of one user including the apwIBT that were not claimed yet
      * @param account the address of the account to check the balance of
-     * @return the total apwibt balance of one address
+     * @return the total apwIBT balance of one address
      */
     function balanceOf(address account) public view override returns (uint256) {
         return super.balanceOf(account).add(future.getClaimableAPWIBT(account));

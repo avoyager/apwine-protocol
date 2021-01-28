@@ -27,11 +27,11 @@ interface IAPWineNaming {
     function genFYTSymbolFromIBT(uint8 _index, string memory _ibtSymbol) external pure returns (string memory);
 
     /**
-     * @notice generate the apwibt symbol
-     * @param _ibtSymbol the symbol of the ibt of the future
-     * @param _platfrom the platfrom name
+     * @notice generate the apwIBT symbol
+     * @param _ibtSymbol the symbol of the IBTof the future
+     * @param _platfrom the platform name
      * @param _periodDuration the period duration
-     * @return the symbol fo the apwibt
+     * @return the symbol fo the apwIBT
      * @dev i.e 30D-AAVE-ADAI
      */
     function genIBTSymbol(

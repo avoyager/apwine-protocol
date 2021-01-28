@@ -30,7 +30,7 @@ interface IController {
 
     /**
      * @notice Set a new factor for the portion of the yield that is claimable when withdrawing funds during an ongoing period
-     * @param _periodDuration the periods duration
+     * @param _periodDuration the duration of the periods 
      * @param _claimableYieldFactor the portion of the yield that is claimable
      */
     function setUnlockClaimableFactor(uint256 _periodDuration, uint256 _claimableYieldFactor) external;
@@ -53,7 +53,7 @@ interface IController {
 
     /**
      * @notice Withdraw deposited funds from apwine
-     * @param _future the address of the future to be withdraw the ibt from
+     * @param _future the address of the future to withdraw the IBT from
      * @param _amount the amount to withdraw
      */
     function withdrawLockFunds(address _future, uint256 _amount) external;
@@ -77,11 +77,11 @@ interface IController {
     function getRegistryAddress() external view returns (address);
 
     /**
-     * @notice Getter for the symbol of the apwine ibt of one future
-     * @param _ibtSymbol the ibt of the external protocol
+     * @notice Getter for the symbol of the apwine IBTof one future
+     * @param _ibtSymbol the IBT of the external protocol
      * @param _platfrom the external protocol name
      * @param _periodDuration the duration of the periods for the future
-     * @return the generated symbol of the apwine ibt
+     * @return the generated symbol of the apwine IBT
      */
     function getFutureIBTSymbol(
         string memory _ibtSymbol,
@@ -90,10 +90,10 @@ interface IController {
     ) external pure returns (string memory);
 
     /**
-     * @notice Getter for the symbol of the fyt of one future
-     * @param _apwibtSymbol the apwine ibt symbole  for this future
+     * @notice Getter for the symbol of the FYT of one future
+     * @param _apwibtSymbol the apwine IBT symbole  for this future
      * @param _periodDuration the duration of the periods for this future
-     * @return the generated symbol of the fyt
+     * @return the generated symbol of the FYT
      */
     function getFYTSymbol(string memory _apwibtSymbol, uint256 _periodDuration) external view returns (string memory);
 

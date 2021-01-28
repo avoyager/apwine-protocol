@@ -1,62 +1,35 @@
 pragma solidity 0.7.6;
 
-import "./Proxy.sol";
-import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
+import "./BaseAdminUpgradeabilityProxy.sol";
+import "./InitializableUpgradeabilityProxy.sol";
 
 /**
- * @title BaseUpgradeabilityProxy
- * @dev This contract implements a proxy that allows to change the
- * implementation address to which it will delegate.
- * Such a change is called an implementation upgrade.
+ * @title InitializableAdminUpgradeabilityProxy
+ * @dev Extends from BaseAdminUpgradeabilityProxy with an initializer for
+ * initializing the implementation, admin, and init data.
  */
-contract BaseUpgradeabilityProxy is Proxy {
+contract InitializableAdminUpgradeabilityProxy is BaseAdminUpgradeabilityProxy, InitializableUpgradeabilityProxy {
     /**
-     * @dev Emitted when the implementation is upgraded.
-     * @param implementation Address of the new implementation.
+     * Contract initializer.
+     * @param _logic address of the initial implementation.
+     * @param _admin Address of the proxy administrator.
+     * @param _data Data to send as msg.data to the implementation to initialize the proxied contract.
+     * It should include the signature and the parameters of the function to be called, as described in
+     * https://solidity.readthedocs.io/en/v0.4.24/abi-spec.html#function-selector-and-argument-encoding.
+     * This parameter is optional, if no data is given the initialization call to the proxied contract will be skipped.
      */
-    event Upgraded(address indexed implementation);
-
-    /**
-     * @dev Storage slot with the address of the current implementation.
-     * This is the keccak-256 hash of "eip1967.proxy.implementation" subtracted by 1, and is
-     * validated in the constructor.
-     */
-    bytes32 internal constant IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
-
-    /**
-     * @dev Returns the current implementation.
-     * @return impl Address of the current implementation
-     */
-    function _implementation() internal view override returns (address impl) {
-        bytes32 slot = IMPLEMENTATION_SLOT;
-        assembly {
-            impl := sload(slot)
-        }
+    function initialize(
+        address _logic,
+        address _admin,
+        bytes memory _data
+    ) public payable {
+        require(_implementation() == address(0));
+        InitializableUpgradeabilityProxy.initialize(_logic, _data);
+        assert(ADMIN_SLOT == bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1));
+        _setAdmin(_admin);
     }
 
-    /**
-     * @dev Upgrades the proxy to a new implementation.
-     * @param newImplementation Address of the new implementation.
-     */
-    function _upgradeTo(address newImplementation) internal {
-        _setImplementation(newImplementation);
-        emit Upgraded(newImplementation);
-    }
-
-    /**
-     * @dev Sets the implementation address of the proxy.
-     * @param newImplementation Address of the new implementation.
-     */
-    function _setImplementation(address newImplementation) internal {
-        require(
-            AddressUpgradeable.isContract(newImplementation),
-            "Cannot set a proxy implementation to a non-contract address"
-        );
-
-        bytes32 slot = IMPLEMENTATION_SLOT;
-
-        assembly {
-            sstore(slot, newImplementation)
-        }
+    function _willFallback() internal virtual override(BaseAdminUpgradeabilityProxy, Proxy) {
+        super._willFallback();
     }
 }

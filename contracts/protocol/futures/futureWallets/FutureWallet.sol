@@ -69,7 +69,7 @@ abstract contract FutureWallet is Initializable, AccessControlUpgradeable, Reent
     /**
      * @notice return the yield that could be redeemed by an address for a particular period
      * @param _periodIndex the index of the corresponding period
-     * @param _tokenHolder the fyt holder
+     * @param _tokenHolder the FYT holder
      * @return the yield that could be redeemed by the token holder for this period
      */
     function getRedeemableYield(uint256 _periodIndex, address _tokenHolder) public view virtual returns (uint256);
@@ -77,8 +77,8 @@ abstract contract FutureWallet is Initializable, AccessControlUpgradeable, Reent
     /**
      * @notice collect and update the yield balance of the sender
      * @param _periodIndex the index of the corresponding period
-     * @param _userFYT the fyt holder balance
-     * @param _totalFYT the total fyt supply
+     * @param _userFYT the FYT holder balance
+     * @param _totalFYT the total FYT supply
      * @return the yield that could be redeemed by the token holder for this period
      */
     function _updateYieldBalances(
@@ -96,8 +96,8 @@ abstract contract FutureWallet is Initializable, AccessControlUpgradeable, Reent
     }
 
     /**
-     * @notice getter for the address of the ibt corresponding to this future wallet
-     * @return the address of the ibt
+     * @notice getter for the address of the IBT corresponding to this future wallet
+     * @return the address of the IBT
      */
     function getIBTAddress() public view virtual returns (address) {
         return address(ibt);
