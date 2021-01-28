@@ -9,7 +9,7 @@ import "contracts/interfaces/apwine/IFuture.sol";
  * @title Future vault contract
  * @author Gaspard Peduzzi
  * @notice Handles the future vault mecanisms
- * @dev The future vault contract stores the ibt locked during the different periods
+ * @dev The future vault contract stores the IBT locked during the different periods
  */
 contract FutureVault is Initializable, AccessControlUpgradeable {
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
@@ -32,7 +32,7 @@ contract FutureVault is Initializable, AccessControlUpgradeable {
 
     /**
      * @notice Getter for the future address
-     * @return the vinyard address linked to this future wallet
+     * @return the future address linked to this vault
      */
     function getFutureAddress() public view returns (address) {
         return address(future);
@@ -42,7 +42,7 @@ contract FutureVault is Initializable, AccessControlUpgradeable {
      * @notice Approve another token to be transfered from this contract by the future
      */
     function approveAdditionalToken(address _tokenAddress) public {
-        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to register approve another token");
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to approve another token");
         ERC20(_tokenAddress).approve(address(future), uint256(-1));
         emit TokenApproved(_tokenAddress);
     }

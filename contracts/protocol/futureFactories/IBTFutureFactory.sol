@@ -29,7 +29,7 @@ contract IBTFutureFactory is FutureFactory {
     /**
      * @notice Deploy and instance a new future with all the registered contracts
      * @param _futurePlatformName the name of the platform (which correspond to a set of contracts registered in the registry)
-     * @param _ibt the address of the IBTof the future
+     * @param _ibt the address of the IBT of the future
      * @param _periodDuration the duration in days of the future periods
      * @return the address of the new future main contract
      */
@@ -38,7 +38,7 @@ contract IBTFutureFactory is FutureFactory {
         address _ibt,
         uint256 _periodDuration
     ) public returns (address) {
-        require(hasRole(FUTURE_DEPLOYER, msg.sender), "Caller is not an future admin");
+        require(hasRole(FUTURE_DEPLOYER, msg.sender), "Caller is not a future admin");
         IRegistry registry = IRegistry(controller.getRegistryAddress());
         require(registry.isRegisteredFuturePlatform(_futurePlatformName), "invalid future platform name");
 

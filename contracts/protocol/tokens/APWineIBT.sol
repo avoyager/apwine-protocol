@@ -5,10 +5,10 @@ import "contracts/interfaces/apwine/IFuture.sol";
 import "contracts/interfaces/apwine/ILiquidityGauge.sol";
 
 /**
- * @title APWine interest-bearing token
+ * @title APWine interest bearing token
  * @author Gaspard Peduzzi
  * @notice Interest bearing token for the futures liquidity provided
- * @dev the value of apwine IBT is equivalent to a fixed amount of underlying token of the future IBT
+ * @dev the value of an APWine IBT is equivalent to a fixed amount of underlying tokens of the future IBT
  */
 contract APWineIBT is MinterPauserClaimableERC20 {
     using SafeMathUpgradeable for uint256;
@@ -43,7 +43,7 @@ contract APWineIBT is MinterPauserClaimableERC20 {
 
         // sender and receiver state update
         if (from != address(future) && to != address(future) && from != address(0x0) && to != address(0x0)) {
-            // update apwibt and fyt balances befores executing the transfer
+            // update apwIBT and FYT balances befores executing the transfer
             if (future.hasClaimableFYT(from)) {
                 future.claimFYT(from);
             }

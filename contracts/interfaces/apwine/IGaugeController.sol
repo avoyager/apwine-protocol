@@ -11,7 +11,7 @@ interface IGaugeController {
     function initialize(address _ADMIN, address _registry) external;
 
     /**
-     * @notice Deploy a new liquidity gauge for a newly created future and register in in the registry
+     * @notice Deploy a new liquidity gauge for a newly created future and register it in the registry
      * @param _future the address of the new future
      * @return the address of the new liquidity gauge
      */
@@ -30,12 +30,12 @@ interface IGaugeController {
     function claimAPW(address[] memory _liquidityGauges) external;
 
     /**
-     * @notice Admin function to pause APW whitdrawals
+     * @notice Admin function to pause APW withdrawals
      */
     function pauseAPWWithdrawals() external;
 
     /**
-     * @notice Admin function to resume APW whitdrawals
+     * @notice Admin function to resume APW withdrawals
      */
     function resumeAPWWithdrawals() external;
 

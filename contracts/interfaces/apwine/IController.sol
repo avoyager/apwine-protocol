@@ -23,8 +23,8 @@ interface IController {
 
     /**
      * @notice Set the next period switch timestamp for the future with corresponding duration
-     * @param _periodDuration the periods duration
-     * @param _nextPeriodTimestamp the next period switch timsetamp
+     * @param _periodDuration the duration of a period
+     * @param _nextPeriodTimestamp the next period switch timestamp
      */
     function setNextPeriodSwitchTimestamp(uint256 _periodDuration, uint256 _nextPeriodTimestamp) external;
 
@@ -38,35 +38,35 @@ interface IController {
     /* User Methods */
 
     /**
-     * @notice Register an amount of ibt from the sender to the corresponding future
+     * @notice Register an amount of IBT from the sender to the corresponding future
      * @param _future the address of the future to be registered to
      * @param _amount the amount to register
      */
     function register(address _future, uint256 _amount) external;
 
     /**
-     * @notice Unregister an amount of ibt from the sender to the corresponding future
+     * @notice Unregister an amount of IBT from the sender to the corresponding future
      * @param _future the address of the future to be unregistered from
      * @param _amount the amount to unregister
      */
     function unregister(address _future, uint256 _amount) external;
 
     /**
-     * @notice Withdraw deposited funds from apwine
+     * @notice Withdraw deposited funds from APWine
      * @param _future the address of the future to withdraw the IBT from
      * @param _amount the amount to withdraw
      */
     function withdrawLockFunds(address _future, uint256 _amount) external;
 
     /**
-     * @notice Claim fyt of the msg.sender
-     * @param _future the future from which to claim the ibts
+     * @notice Claim FYT of the msg.sender
+     * @param _future the future from which to claim the FYT
      */
     function claimFYT(address _future) external;
 
     /**
-     * @notice Get the list of future from which on user can claim FYT
-     * @param _user the user to claim de FYT from
+     * @notice Get the list of futures from which a user can claim FYT
+     * @param _user the user to check
      */
     function getFuturesWithClaimableFYT(address _user) external view returns (address[] memory);
 
@@ -77,21 +77,21 @@ interface IController {
     function getRegistryAddress() external view returns (address);
 
     /**
-     * @notice Getter for the symbol of the apwine IBTof one future
+     * @notice Getter for the symbol of the apwIBT of one future
      * @param _ibtSymbol the IBT of the external protocol
-     * @param _platfrom the external protocol name
+     * @param _platform the external protocol name
      * @param _periodDuration the duration of the periods for the future
-     * @return the generated symbol of the apwine IBT
+     * @return the generated symbol of the apwIBT
      */
     function getFutureIBTSymbol(
         string memory _ibtSymbol,
-        string memory _platfrom,
+        string memory _platform,
         uint256 _periodDuration
     ) external pure returns (string memory);
 
     /**
      * @notice Getter for the symbol of the FYT of one future
-     * @param _apwibtSymbol the apwine IBT symbole  for this future
+     * @param _apwibtSymbol the apwIBT symbol for this future
      * @param _periodDuration the duration of the periods for this future
      * @return the generated symbol of the FYT
      */
@@ -137,14 +137,14 @@ interface IController {
     function unregisterFuture(address _future) external;
 
     /**
-     * @notice Start all the future that have a defined periods duration to synchronize them
-     * @param _periodDuration the periods duration of the future to start
+     * @notice Start all the futures that have a defined periods duration to synchronize them
+     * @param _periodDuration the periods duration of the futures to start
      */
     function startFuturesByPeriodDuration(uint256 _periodDuration) external;
 
     /**
      * @notice Getter for the futures by periods duration
-     * @param _periodDuration the periods duration of the futures to returns
+     * @param _periodDuration the periods duration of the futures to return
      */
     function getFuturesWithDuration(uint256 _periodDuration) external view returns (address[] memory);
 

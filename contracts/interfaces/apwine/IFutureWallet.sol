@@ -23,7 +23,7 @@ interface IFutureWallet {
     /**
      * @notice return the yield that could be redeemed by an address for a particular period
      * @param _periodIndex the index of the corresponding period
-     * @param _tokenHolder the fyt holder
+     * @param _tokenHolder the FYT holder
      * @return the yield that could be redeemed by the token holder for this period
      */
     function getRedeemableYield(uint256 _periodIndex, address _tokenHolder) external view returns (uint256);
@@ -35,8 +35,8 @@ interface IFutureWallet {
     function getFutureAddress() external view returns (address);
 
     /**
-     * @notice getter for the address of the ibt corresponding to this future wallet
-     * @return the address of the ibt
+     * @notice getter for the address of the IBT corresponding to this future wallet
+     * @return the address of the IBT
      */
     function getIBTAddress() external view returns (address);
 }

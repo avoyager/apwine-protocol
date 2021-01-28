@@ -128,6 +128,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable, ReentrancyG
     }
 
     /* Getters */
+
     /**
      * @notice Getter for the inflation rate of the current epoch
      * @return the inflation rate of the current epoch
@@ -138,7 +139,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable, ReentrancyG
 
     /**
      * @notice Getter for the weight of one gauge
-     * @param _liquidityGauge the liquidity gauge's address to get the weight from
+     * @param _liquidityGauge the liquidity gauge address to get the weight from
      * @return the weight of the gauge
      */
     function getGaugeWeight(address _liquidityGauge) external view returns (uint256) {
@@ -247,7 +248,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable, ReentrancyG
     }
 
     /**
-     * @notice Admin function to pause APW whitdrawals
+     * @notice Admin function to pause APW withdrawals
      */
     function pauseAPWWithdrawals() public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
@@ -257,7 +258,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable, ReentrancyG
     }
 
     /**
-     * @notice Admin function to resume APW whitdrawals
+     * @notice Admin function to resume APW withdrawals
      */
     function resumeAPWWithdrawals() public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");

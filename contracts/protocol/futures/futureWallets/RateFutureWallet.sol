@@ -5,7 +5,7 @@ import "contracts/protocol/futures/futureWallets/FutureWallet.sol";
 /**
  * @title Rate Future Wallet abstraction
  * @author Gaspard Peduzzi
- * @notice Abstraction for the future wallets that works with an IBT which value incorporates the fees (i.e. cTokens)
+ * @notice Abstraction for the future wallets that works with an IBT whose value incorporates the fees (i.e. cTokens)
  * @dev Override future wallet abstraction with the particular functioning of rate based IBT
  */
 abstract contract RateFutureWallet is FutureWallet {

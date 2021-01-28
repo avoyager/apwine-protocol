@@ -12,7 +12,7 @@ import "contracts/interfaces/apwine/tokens/IAPWToken.sol";
 /**
  * @title Registry Contract
  * @author Gaspard Peduzzi
- * @notice Keep a record of all the valid contract address currently used in the protocol
+ * @notice Keeps a record of all valid contract addresses currently used in the protocol
  */
 contract Registry is Initializable, AccessControlUpgradeable {
     using SafeMathUpgradeable for uint256;
@@ -51,7 +51,7 @@ contract Registry is Initializable, AccessControlUpgradeable {
         address futureWallet;
     }
 
-    /* Utils*/
+    /* Utils */
     address private mathsUtils;
     address private namingUtils;
 
@@ -80,6 +80,7 @@ contract Registry is Initializable, AccessControlUpgradeable {
     }
 
     /* Setters */
+
     /**
      * @notice Setter for the treasury address
      * @param _newTreasury the address of the new treasury
@@ -125,7 +126,7 @@ contract Registry is Initializable, AccessControlUpgradeable {
     /* Getters */
     /**
      * @notice Getter for the DAO address
-     * @return the address of the DAO that has admin right on the APW token
+     * @return the address of the DAO that has admin rights on the APW token
      */
     function getDAOAddress() public view returns (address) {
         return IAPWToken(apw).getDAO();
@@ -148,7 +149,7 @@ contract Registry is Initializable, AccessControlUpgradeable {
     }
 
     /**
-     * @notice Getter for the controller  address
+     * @notice Getter for the controller address
      * @return the address of the controller
      */
     function getControllerAddress() public view returns (address) {
@@ -171,7 +172,8 @@ contract Registry is Initializable, AccessControlUpgradeable {
         return gaugeController;
     }
 
-    /* Logic setters*/
+    /* Logic setters */
+
     /**
      * @notice Setter for the proxy factory address
      * @param _proxyFactory the address of the new proxy factory
@@ -193,8 +195,8 @@ contract Registry is Initializable, AccessControlUpgradeable {
     }
 
     /**
-     * @notice Setter for the apwine IBTlogic address
-     * @param _APWineIBTLogic the address of the new apwine IBTlogic
+     * @notice Setter for the APWine IBTlogic address
+     * @param _APWineIBTLogic the address of the new APWine IBTlogic
      */
     function setAPWineIBTLogic(address _APWineIBTLogic) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
@@ -203,17 +205,17 @@ contract Registry is Initializable, AccessControlUpgradeable {
     }
 
     /**
-     * @notice Setter for the apwine FYTlogic address
-     * @param _FYTLogic the address of the new apwine IBT logic
+     * @notice Setter for the APWine FYTlogic address
+     * @param _FYTLogic the address of the new APWine IBT logic
      */
     function setFYTLogic(address _FYTLogic) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        emit RegistryUpdate("FYT  Logic", _FYTLogic, _FYTLogic);
+        emit RegistryUpdate("FYT logic", _FYTLogic, _FYTLogic);
         FYTLogic = _FYTLogic;
     }
 
     /**
-     * @notice Setter for the maths utils address
+     * @notice Setter for the math utils address
      * @param _mathsUtils the address of the new math utils
      */
     function setMathsUtils(address _mathsUtils) public {
@@ -233,6 +235,7 @@ contract Registry is Initializable, AccessControlUpgradeable {
     }
 
     /* Logic getters */
+
     /**
      * @notice Getter for the proxy factory address
      * @return the proxy factory address
@@ -284,6 +287,7 @@ contract Registry is Initializable, AccessControlUpgradeable {
     }
 
     /* Futures Deployer */
+
     /**
      * @notice Register a new future factory in the registry
      * @param _futureFactory the address of the future factory contract
@@ -332,10 +336,11 @@ contract Registry is Initializable, AccessControlUpgradeable {
     }
 
     /* Future Platform */
+
     /**
      * @notice Register a new future platform in the registry
      * @param _futureFactory the address of the future factory
-     * @param _futurePlatformName the name of the future platfrom
+     * @param _futurePlatformName the name of the future platform
      * @param _future the address of the future contract logic
      * @param _futureWallet the address of the future wallet contract logic
      * @param _futureVault the name of the future vault contract logic
@@ -348,7 +353,7 @@ contract Registry is Initializable, AccessControlUpgradeable {
         address _futureVault
     ) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
-        require(futureFactories.contains(_futureFactory), "invalid future platfrom deployer address");
+        require(futureFactories.contains(_futureFactory), "invalid future platform deployer address");
 
         futurePlatform memory newFuturePlaform =
             futurePlatform({futureVault: _futureVault, futureWallet: _futureWallet, future: _future});
@@ -362,7 +367,7 @@ contract Registry is Initializable, AccessControlUpgradeable {
 
     /**
      * @notice Remove a future platform from the registry
-     * @param _futurePlatformName the name of the future platfrom to remove from the registry
+     * @param _futurePlatformName the name of the future platform to remove from the registry
      */
     function removeFuturePlatform(string memory _futurePlatformName) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
@@ -393,7 +398,7 @@ contract Registry is Initializable, AccessControlUpgradeable {
     }
 
     /**
-     * @notice Getter for the future platfrom contracts
+     * @notice Getter for the future platform contracts
      * @param _futurePlatformName the name of the future platform
      * @return the addresses of 0) the future logic 1) the future wallet logic 2) the future vault logic
      */
@@ -413,7 +418,7 @@ contract Registry is Initializable, AccessControlUpgradeable {
     }
 
     /**
-     * @notice Getter the list of platforms names registered
+     * @notice Getter the list of platform names registered
      * @return the list of platform names registered
      */
     function getFuturePlatformNames() external view returns (string[] memory) {
@@ -441,7 +446,7 @@ contract Registry is Initializable, AccessControlUpgradeable {
     }
 
     /**
-     * @notice Getter to check if a future  is registered
+     * @notice Getter to check if a future is registered
      * @param _future the address of the future to check the registration of
      * @return true if it is, false otherwise
      */
@@ -459,8 +464,8 @@ contract Registry is Initializable, AccessControlUpgradeable {
     }
 
     /**
-     * @notice Getter for number of future registered
-     * @return the number of future registered
+     * @notice Getter for number of futures registered
+     * @return the number of futures registered
      */
     function futureCount() external view returns (uint256) {
         return futures.length();

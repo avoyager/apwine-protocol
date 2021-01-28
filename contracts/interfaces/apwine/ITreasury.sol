@@ -3,7 +3,7 @@ pragma solidity 0.7.6;
 interface ITreasury {
     /**
      * @notice Initializer of the contract
-     * @param _adminAddress the address the admin of the contract
+     * @param _adminAddress the address of the admin of the contract
      */
     function initialize(address _adminAddress) external;
 
@@ -11,7 +11,7 @@ interface ITreasury {
      * @notice send erc20 tokens to an address
      * @param _erc20 the address of the erc20 token
      * @param _recipient the address of the recipient
-     * @param _amount the amount of token to send
+     * @param _amount the amount of tokens to send
      */
     function sendToken(
         address _erc20,

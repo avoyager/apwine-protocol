@@ -7,7 +7,7 @@ import "contracts/interfaces/apwine/IFuture.sol";
  * @title Future Yield Token erc20
  * @author Gaspard Peduzzi
  * @notice ERC20 mintable pausable
- * @dev future yield tokens are minted at the beginning of one period and can be burned against their underlying yield at the expiration of the period
+ * @dev FYT are minted at the beginning of one period and can be burned against their underlying yield at the expiration of the period
  */
 contract FutureYieldToken is MinterPauserClaimableERC20 {
     using SafeMathUpgradeable for uint256;
@@ -44,7 +44,7 @@ contract FutureYieldToken is MinterPauserClaimableERC20 {
 
         // sender and receiver state update
         if (from != address(future) && to != address(future) && from != address(0x0) && to != address(0x0)) {
-            // update apwibt and fyt balances befores executing the transfer
+            // update apwIBT and FYT balances before executing the transfer
             if (future.hasClaimableFYT(from)) {
                 future.claimFYT(from);
             }
@@ -103,9 +103,9 @@ contract FutureYieldToken is MinterPauserClaimableERC20 {
     }
 
     /**
-     * @notice returns the current balance of one user including the FYT which were not claimed yet
+     * @notice returns the current balance of one user including unclaimed FYT
      * @param account the address of the account to check the balance of
-     * @return the total FYTbalance of one address
+     * @return the total FYT balance of one address
      */
     function balanceOf(address account) public view override returns (uint256) {
         return super.balanceOf(account).add(future.getClaimableFYTForPeriod(account, internalPeriodID));

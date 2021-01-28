@@ -8,26 +8,26 @@ contract APWineNaming {
     /**
      * @notice generate the symbol of the FYT
      * @param _index the index of the current period
-     * @param _ibtSymbol the symbol of the ibt
-     * @param _platfrom the platform name
+     * @param _ibtSymbol the symbol of the IBT
+     * @param _platform the platform name
      * @param _periodDuration the period duration
-     * @return the symbol fo the FYT
+     * @return the symbol for the FYT
      * @dev i.e 30D-AAVE-ADAI-2
      */
     function genFYTSymbol(
         uint8 _index,
         string memory _ibtSymbol,
-        string memory _platfrom,
+        string memory _platform,
         uint256 _periodDuration
     ) public pure returns (string memory) {
-        return concatenate(genIBTSymbol(_ibtSymbol, _platfrom, _periodDuration), concatenate("-", uintToString(_index)));
+        return concatenate(genIBTSymbol(_ibtSymbol, _platform, _periodDuration), concatenate("-", uintToString(_index)));
     }
 
     /**
      * @notice generate the symbol from the apwIBT
      * @param _index the index of the current period
-     * @param _ibtSymbol the symbol of the ibt
-     * @return the symbol fo the FYT
+     * @param _ibtSymbol the symbol of the IBT
+     * @return the symbol for the FYT
      * @dev i.e 30D-AAVE-ADAI-2
      */
     function genFYTSymbolFromIBT(uint8 _index, string memory _ibtSymbol) public pure returns (string memory) {
@@ -37,20 +37,20 @@ contract APWineNaming {
     /**
      * @notice generate the apwIBT symbol
      * @param _ibtSymbol the symbol of the IBT of the future
-     * @param _platfrom the platform name
+     * @param _platform the platform name
      * @param _periodDuration the period duration
-     * @return the symbol fo the apwIBT
+     * @return the symbol for the apwIBT
      * @dev i.e 30D-AAVE-ADAI
      */
     function genIBTSymbol(
         string memory _ibtSymbol,
-        string memory _platfrom,
+        string memory _platform,
         uint256 _periodDuration
     ) public pure returns (string memory) {
         return
             concatenate(
                 getPeriodDurationDenominator(_periodDuration),
-                concatenate("-", concatenate(_platfrom, concatenate("-", _ibtSymbol)))
+                concatenate("-", concatenate(_platform, concatenate("-", _ibtSymbol)))
             );
     }
 

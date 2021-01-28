@@ -9,7 +9,7 @@ import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol
 /**
  * @title Treasury Contract
  * @author Gaspard Peduzzi
- * @notice the treasury of the protocols, allow to store and transfer funds
+ * @notice the treasury of the protocols, allowing storage and transfer of funds
  */
 contract Treasury is Initializable, AccessControlUpgradeable, ReentrancyGuardUpgradeable {
     using SafeMathUpgradeable for uint256;
@@ -29,7 +29,7 @@ contract Treasury is Initializable, AccessControlUpgradeable, ReentrancyGuardUpg
      * @notice send erc20 tokens to an address
      * @param _erc20 the address of the erc20 token
      * @param _recipient the address of the recipient
-     * @param _amount the amount of token to send
+     * @param _amount the amount of tokens to send
      */
     function sendToken(
         address _erc20,

@@ -22,7 +22,7 @@ import "contracts/interfaces/apwine/IRegistry.sol";
  * @title Main future abstraction contract
  * @author Gaspard Peduzzi
  * @notice Handles the future mechanisms
- * @dev The future contract is the basis of all the mechanisms of the future with the from the registration to the period switch
+ * @dev Basis of all mecanisms for futures (registrations, period switch)
  */
 abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyGuardUpgradeable {
     using SafeMathUpgradeable for uint256;
@@ -87,7 +87,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
     /**
      * @notice Intializer
      * @param _controller the address of the controller
-     * @param _ibt the address of the corresponding ibt
+     * @param _ibt the address of the corresponding IBT
      * @param _periodDuration the length of the period (in days)
      * @param _platformName the name of the platform and tools
      * @param _admin the address of the ACR admin
@@ -123,6 +123,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
     }
 
     /* Period functions */
+
     /**
      * @notice Start a new period
      * @dev needs corresponding permissions for sender
@@ -132,7 +133,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
     /**
      * @notice Sender registers an amount of IBT for the next period
      * @param _user address to register to the future
-     * @param _amount amount of IBTto be registered
+     * @param _amount amount of IBT to be registered
      * @dev called by the controller only
      */
     function register(address _user, uint256 _amount) public virtual periodsActive {
@@ -161,18 +162,19 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
 
     /**
      * @notice Sender unregisters an amount of IBT for the next period
-     * @param _user user's addresss
+     * @param _user user address
      * @param _amount amount of IBT to be unregistered
      */
     function unregister(address _user, uint256 _amount) public virtual;
 
     /* Claim functions */
+
     /**
-     * @notice Send the user its owed FYT (and apwIBT if there are some claimable)
+     * @notice Send the user their owed FYT (and apwIBT if there are some claimable)
      * @param _user address of the user to send the FYT to
      */
     function claimFYT(address _user) public virtual nonReentrant {
-        require(hasClaimableFYT(_user), "The is not fyt claimable for this address");
+        require(hasClaimableFYT(_user), "No FYT claimable for this address");
         if (hasClaimableAPWIBT(_user)) _claimAPWIBT(_user);
         else _claimFYT(_user);
     }
@@ -200,7 +202,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
         apwibt.transfer(_user, claimableAPWIBT);
 
         for (uint256 i = registrations[_user].startIndex; i < nextIndex; i++) {
-            // get not claimed fyt
+            // get unclaimed fyt
             fyts[i].transfer(_user, claimableAPWIBT);
         }
 
@@ -209,13 +211,13 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
     }
 
     /**
-     * @notice Sender unlock the locked funds corresponding to its apwIBT holding
-     * @param _user user's adress
-     * @param _amount amount of funds to unlocked
+     * @notice Sender unlocks the locked funds corresponding to their apwIBT holding
+     * @param _user user adress
+     * @param _amount amount of funds to unlock
      * @dev will require a transfer of FYT of the ongoing period corresponding to the funds unlocked
      */
     function withdrawLockFunds(address _user, uint256 _amount) public virtual nonReentrant {
-        require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to whithdraw locked funds");
+        require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to withdraw locked funds");
         require((_amount > 0) && (_amount > apwibt.balanceOf(_user)), "Invalid amount");
         if (hasClaimableAPWIBT(_user)) {
             _claimAPWIBT(_user);
@@ -245,7 +247,8 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
         emit FundsWithdrawn(_user, _amount);
     }
 
-    /* Utilitaries functions */
+    /* Utilitary functions */
+
     function deployFutureYieldToken(uint256 _internalPeriodID) internal returns (address) {
         IRegistry registry = IRegistry(controller.getRegistryAddress());
         string memory tokenDenomination = controller.getFYTSymbol(apwibt.symbol(), PERIOD_DURATION);
@@ -267,10 +270,11 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
     }
 
     /* Getters */
+
     /**
-     * @notice Check if a user has fyt not claimed
+     * @notice Check if a user has unclaimed FYT
      * @param _user the user to check
-     * @return true if the user can claim some fyt, false otherwise
+     * @return true if the user can claim some FYT, false otherwise
      */
     function hasClaimableFYT(address _user) public view returns (bool) {
         return hasClaimableAPWIBT(_user) || _hasOnlyClaimableFYT(_user);
@@ -299,17 +303,17 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
     }
 
     /**
-     * @notice Getter for the amount of apwibt that the user can claim
-     * @param _user user to check the check the claimable apwibt of
-     * @return the amount of apwibt claimable by the user
+     * @notice Getter for the amount of apwIBT that the user can claim
+     * @param _user user to check the check the claimable apwIBT of
+     * @return the amount of apwIBT claimable by the user
      */
     function getClaimableAPWIBT(address _user) public view virtual returns (uint256);
 
     /**
      * @notice Getter for the amount of FYT that the user can claim for a certain period
      * @param _user the user to check the claimable FYT of
-     * @param _periodID period ID to check the claimable FYTof
-     * @return the amount of FYTclaimable by the user for this period ID
+     * @param _periodID period ID to check the claimable FYT of
+     * @return the amount of FYT claimable by the user for this period ID
      */
     function getClaimableFYTForPeriod(address _user, uint256 _periodID) public view virtual returns (uint256) {
         if (
@@ -337,7 +341,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
      * @notice Getter for user registered amount
      * @param _user the user to return the registered funds of
      * @return the registered amount, 0 if no registrations
-     * @dev the registration can be older than for the next period
+     * @dev the registration can be older than the next period
      */
     function getRegisteredAmount(address _user) public view virtual returns (uint256);
 
@@ -349,8 +353,8 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
     function getUnrealisedYield(address _user) public view virtual returns (uint256);
 
     /**
-     * @notice Getter for controller  address
-     * @return the controller  address
+     * @notice Getter for controller address
+     * @return the controller address
      */
     function getControllerAddress() public view returns (address) {
         return address(controller);
@@ -373,7 +377,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
     }
 
     /**
-     * @notice Getter for liquidityGauge address
+     * @notice Getter for liquidity gauge address
      * @return liquidity gauge address
      */
     function getLiquidityGaugeAddress() public view returns (address) {
@@ -381,32 +385,33 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
     }
 
     /**
-     * @notice Getter for the ibt address
-     * @return ibt address
+     * @notice Getter for the IBT address
+     * @return IBT address
      */
     function getIBTAddress() public view returns (address) {
         return address(ibt);
     }
 
     /**
-     * @notice Getter for future apwibt address
-     * @return apwibt address
+     * @notice Getter for future apwIBT address
+     * @return apwIBT address
      */
     function getAPWIBTAddress() public view returns (address) {
         return address(apwibt);
     }
 
     /**
-     * @notice Getter for fyt address of a particular period
+     * @notice Getter for FYT address of a particular period
      * @param _periodIndex period index
-     * @return fyt address
+     * @return FYT address
      */
     function getFYTofPeriod(uint256 _periodIndex) public view returns (address) {
-        require(_periodIndex < getNextPeriodIndex(), "The isnt any fyt for this period yet");
+        require(_periodIndex < getNextPeriodIndex(), "No FYT for this period yet");
         return address(fyts[_periodIndex]);
     }
 
     /* Admin function */
+    
     /**
      * @notice Pause registrations and the creation of new periods
      */

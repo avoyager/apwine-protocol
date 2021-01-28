@@ -32,7 +32,7 @@ abstract contract FutureFactory is Initializable, AccessControlUpgradeable {
     /**
      * @notice Initializer for the contract
      * @param _controller the controller for the futures
-     * @param _admin the address that will have the admin right on this contract
+     * @param _admin the address which will be getting admin rights on this contract
      */
     function initialize(address _controller, address _admin) public initializer {
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);

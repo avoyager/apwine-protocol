@@ -10,7 +10,7 @@ import "contracts/protocol/futures/Future.sol";
  * @title Main future abstraction contract for the rate futures
  * @author Gaspard Peduzzi
  * @notice Handles the rates future mecanisms
- * @dev The future contract is the basis of all the mecanisms of the future with the from the registration to the period switch
+ * @dev Basis of all mecanisms for futures (registrations, period switch)
  */
 abstract contract RateFuture is Future {
     using SafeMathUpgradeable for uint256;
@@ -20,7 +20,7 @@ abstract contract RateFuture is Future {
     /**
      * @notice Intializer
      * @param _controller the address of the controller
-     * @param _ibt the address of the corresponding ibt
+     * @param _ibt the address of the corresponding IBT
      * @param _periodDuration the length of the period (in days)
      * @param _platformName the name of the platform and tools
      * @param _admin the address of the ACR admin
@@ -39,9 +39,9 @@ abstract contract RateFuture is Future {
     }
 
     /**
-     * @notice Sender registers an amount of ibt for the next period
+     * @notice Sender registers an amount of IBT for the next period
      * @param _user address to register to the future
-     * @param _amount amount of ibt to be registered
+     * @param _amount amount of IBT to be registered
      * @dev called by the controller only
      */
     function register(address _user, uint256 _amount) public virtual override periodsActive nonReentrant {
@@ -49,10 +49,10 @@ abstract contract RateFuture is Future {
     }
 
     /**
-     * @notice Sender unregisters an amount of ibt for the next period
+     * @notice Sender unregisters an amount of IBT for the next period
      * @param _user user addresss
-     * @param _amount amount of ibt to be unregistered
-     * @dev 0 unregister all
+     * @param _amount amount of IBT to be unregistered
+     * @dev 0 unregisters all
      */
     function unregister(address _user, uint256 _amount) public virtual override nonReentrant {
         require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to unregister");
@@ -99,15 +99,15 @@ abstract contract RateFuture is Future {
 
         /* Period Switch*/
         if (registrationsTotals[nextPeriodID] > 0) {
-            apwibt.mint(address(this), registrationsTotals[nextPeriodID].mul(IBTRates[nextPeriodID])); // Mint new APWIBTs
-            ibt.transfer(address(futureVault), registrationsTotals[nextPeriodID]); // Send ibt to future for the new period
+            apwibt.mint(address(this), registrationsTotals[nextPeriodID].mul(IBTRates[nextPeriodID])); // Mint new apwIBTs
+            ibt.transfer(address(futureVault), registrationsTotals[nextPeriodID]); // Send IBT to future for the new period
         }
         liquidityGauge.registerNewFutureLiquidity(registrationsTotals[nextPeriodID]);
 
         registrationsTotals.push();
         IBTRates.push();
 
-        /* Future Yield Token*/
+        /* Future Yield Token */
         address fytAddress = deployFutureYieldToken(nextPeriodID);
         emit NewPeriodStarted(nextPeriodID, fytAddress);
     }
@@ -116,7 +116,7 @@ abstract contract RateFuture is Future {
      * @notice Getter for user registered amount
      * @param _user user to return the registered funds of
      * @return the registered amount, 0 if no registrations
-     * @dev the registration can be older than for the next period
+     * @dev the registration can be older than the next period
      */
     function getRegisteredAmount(address _user) public view override returns (uint256) {
         uint256 periodID = registrations[_user].startIndex;
@@ -136,9 +136,9 @@ abstract contract RateFuture is Future {
     }
 
     /**
-     * @notice Getter for the amount of apwibt that the user can claim
-     * @param _user user to check the check the claimable apwibt of
-     * @return the amount of apwibt claimable by the user
+     * @notice Getter for the amount of apwIBT that the user can claim
+     * @param _user user to check the check the claimable apwIBT of
+     * @return the amount of apwIBT claimable by the user
      */
     function getClaimableAPWIBT(address _user) public view override returns (uint256) {
         if (!hasClaimableAPWIBT(_user)) return 0;
@@ -151,9 +151,9 @@ abstract contract RateFuture is Future {
     }
 
     /**
-     * @notice Getter for user ibt amount that is unlockable
-     * @param _user user to unlock the ibt from
-     * @return the amount of ibt the user can unlock
+     * @notice Getter for user IBT amount that is unlockable
+     * @param _user user to unlock the IBT from
+     * @return the amount of IBT the user can unlock
      */
     function getUnlockableFunds(address _user) public view override returns (uint256) {
         return scaleIBTAmount(super.getUnlockableFunds(_user), IBTRates[getNextPeriodIndex() - 1], getIBTRate());
@@ -162,7 +162,7 @@ abstract contract RateFuture is Future {
     /**
      * @notice Getter for yield that is generated by the user funds during the current period
      * @param _user user to check the unrealised yield of
-     * @return the yield (amout of ibt) currently generated by the locked funds of the user
+     * @return the yield (amount of IBT) currently generated by the locked funds of the user
      */
     function getUnrealisedYield(address _user) public view override returns (uint256) {
         return
@@ -172,8 +172,8 @@ abstract contract RateFuture is Future {
     }
 
     /**
-     * @notice Getter for the rate of the ibt
-     * @return the uint256 rate, ibt x rate must be equal to the quantity of underlying tokens
+     * @notice Getter for the rate of the IBT
+     * @return the uint256 rate, IBT x rate must be equal to the quantity of underlying tokens
      */
     function getIBTRate() public view virtual returns (uint256);
 }

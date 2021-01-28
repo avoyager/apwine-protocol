@@ -85,8 +85,8 @@ contract Controller is Initializable, AccessControlUpgradeable {
 
     /**
      * @notice Set the next period switch timestamp for the future with corresponding duration
-     * @param _periodDuration the periods duration
-     * @param _nextPeriodTimestamp the next period switch timsetamp
+     * @param _periodDuration the period duration
+     * @param _nextPeriodTimestamp the next period switch timestamp
      */
     function setNextPeriodSwitchTimestamp(uint256 _periodDuration, uint256 _nextPeriodTimestamp) public {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not allowed to set next period timestamp");
@@ -127,7 +127,7 @@ contract Controller is Initializable, AccessControlUpgradeable {
     }
 
     /**
-     * @notice Withdraw deposited funds from apwine
+     * @notice Withdraw deposited funds from APWine
      * @param _future the address of the future to withdraw the IBT from
      * @param _amount the amount to withdraw
      */
@@ -157,8 +157,8 @@ contract Controller is Initializable, AccessControlUpgradeable {
 
     /* User Getter */
     /**
-     * @notice Get the list of future from which on user can claim FYT
-     * @param _user the user to claim de FYT from
+     * @notice Get the list of futures from which a user can claim FYT
+     * @param _user the user to check
      */
     function getFuturesWithClaimableFYT(address _user) external view returns (address[] memory) {
         address[] memory selectedFutures = new address[](registry.futureCount());
@@ -183,23 +183,23 @@ contract Controller is Initializable, AccessControlUpgradeable {
     }
 
     /**
-     * @notice Getter for the symbol of the apwine IBT of one future
+     * @notice Getter for the symbol of the APWine IBT of one future
      * @param _ibtSymbol the IBT of the external protocol
-     * @param _platfrom the external protocol name
+     * @param _platform the external protocol name
      * @param _periodDuration the duration of the periods for the future
-     * @return the generated symbol of the apwine IBT
+     * @return the generated symbol of the APWine IBT
      */
     function getFutureIBTSymbol(
         string memory _ibtSymbol,
-        string memory _platfrom,
+        string memory _platform,
         uint256 _periodDuration
     ) public view returns (string memory) {
-        return IAPWineNaming(registry.getNamingUtils()).genIBTSymbol(_ibtSymbol, _platfrom, _periodDuration);
+        return IAPWineNaming(registry.getNamingUtils()).genIBTSymbol(_ibtSymbol, _platform, _periodDuration);
     }
 
     /**
      * @notice Getter for the symbol of the FYT of one future
-     * @param _apwibtSymbol the apwine IBT symbol  for this future
+     * @param _apwibtSymbol the APWine IBT symbol for this future
      * @param _periodDuration the duration of the periods for this future
      * @return the generated symbol of the FYT
      */
@@ -221,7 +221,7 @@ contract Controller is Initializable, AccessControlUpgradeable {
     }
 
     /**
-     * @notice Getter for the beginning timestamp of the next period for the futures with a defined periods duration
+     * @notice Getter for the beginning timestamp of the next period for the futures with a defined period duration
      * @param _periodDuration the duration of the periods 
      * @return the timestamp of the beginning of the next period
      */
@@ -240,7 +240,7 @@ contract Controller is Initializable, AccessControlUpgradeable {
 
     /**
      * @notice Getter for the list of future durations registered in the contract
-     * @return the list of futures duration
+     * @return the list of future durations
      */
     function getDurations() public view returns (uint256[] memory) {
         uint256[] memory durationsList = new uint256[](durations.length());
@@ -251,8 +251,8 @@ contract Controller is Initializable, AccessControlUpgradeable {
     }
 
     /**
-     * @notice Getter for the futures by periods duration
-     * @param _periodDuration the periods' duration of the futures to returns
+     * @notice Getter for the futures by period duration
+     * @param _periodDuration the period duration of the futures to return
      */
     function getFuturesWithDuration(uint256 _periodDuration) public view returns (address[] memory) {
         uint256 listLength = futuresByDuration[_periodDuration].length();
@@ -263,7 +263,8 @@ contract Controller is Initializable, AccessControlUpgradeable {
         return filteredFutures;
     }
 
-    /* future admin function*/
+    /* Future admin methods */
+
     /**
      * @notice Register a newly created future in the registry
      * @param _newFuture the address of the new future
@@ -291,8 +292,8 @@ contract Controller is Initializable, AccessControlUpgradeable {
     }
 
     /**
-     * @notice Start all the future that have a defined periods duration to synchronize them
-     * @param _periodDuration the period's duration of the future to start
+     * @notice Start all futures that have a defined period duration to synchronize them
+     * @param _periodDuration the period duration of the futures to start
      */
     function startFuturesByPeriodDuration(uint256 _periodDuration) public {
         for (uint256 i = 0; i < futuresByDuration[_periodDuration].length(); i++) {

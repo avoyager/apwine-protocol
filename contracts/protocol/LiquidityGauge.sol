@@ -12,7 +12,7 @@ import "contracts/interfaces/apwine/tokens/IAPWineIBT.sol";
 /**
  * @title Liquidity Gauge Contract
  * @author Gaspard Peduzzi
- * @notice The liquidity gauge is deployed at the creation of the future and track user liquidity provision
+ * @notice The liquidity gauge is deployed at the creation of the future and tracks user liquidity provision
  */
 contract LiquidityGauge is Initializable, AccessControlUpgradeable, ReentrancyGuardUpgradeable {
     using SafeMathUpgradeable for uint256;
@@ -77,7 +77,7 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable, ReentrancyGu
     }
 
     /**
-     * @notice Unregister liquidity withdrawn from to the future
+     * @notice Unregister liquidity withdrawn from the future
      * @param _amount the liquidity amount withdrawn
      * @dev must be called from the future contract
      */
@@ -93,7 +93,7 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable, ReentrancyGu
 
     /**
      * @notice update gauge and user liquidity state then return the new redeemable
-     * @param _user the user to who update and return the redeemable of
+     * @param _user the user to update and return the redeemable of
      */
     function updateAndGetRedeemable(address _user) public returns (uint256) {
         updateUserLiquidity(_user);
@@ -110,7 +110,7 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable, ReentrancyGu
     }
 
     /**
-     * @notice Getter fot the last inflated amount
+     * @notice Getter for the last inflated amount
      * @return the last inflated amount
      */
     function getLastInflatedAmount() public view returns (uint256) {
@@ -124,7 +124,7 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable, ReentrancyGu
     }
 
     /**
-     * @notice Getter for redeemable APWs of one user
+     * @notice Getter for redeemable APW of one user
      * @param _user the user to check the redeemable APW of
      * @return the amount of redeemable APW
      */

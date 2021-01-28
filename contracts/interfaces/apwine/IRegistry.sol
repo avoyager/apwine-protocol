@@ -29,8 +29,8 @@ interface IRegistry {
     function setController(address _newController) external;
 
     /**
-     * @notice Setter for the apw token address
-     * @param _newAPW the address of the apw token
+     * @notice Setter for the APW token address
+     * @param _newAPW the address of the APW token
      */
     function setAPW(address _newAPW) external;
 
@@ -47,14 +47,14 @@ interface IRegistry {
     function setLiquidityGaugeLogic(address _liquidityGaugeLogic) external;
 
     /**
-     * @notice Setter for the apwine ibt logic address
-     * @param _APWineIBTLogic the address of the new apwine ibt logic
+     * @notice Setter for the APWine IBT logic address
+     * @param _APWineIBTLogic the address of the new APWine IBT logic
      */
     function setAPWineIBTLogic(address _APWineIBTLogic) external;
 
     /**
-     * @notice Setter for the apwine fyt logic address
-     * @param _FYTLogic the address of the new apwine ibt logic
+     * @notice Setter for the APWine FYT logic address
+     * @param _FYTLogic the address of the new APWine FYT logic
      */
     function setFYTLogic(address _FYTLogic) external;
 
@@ -71,7 +71,7 @@ interface IRegistry {
     function setNamingUtils(address _namingUtils) external;
 
     /**
-     * @notice Getter for the controller  address
+     * @notice Getter for the controller address
      * @return the address of the controller
      */
     function getControllerAddress() external view returns (address);
@@ -90,7 +90,7 @@ interface IRegistry {
 
     /**
      * @notice Getter for the DAO address
-     * @return the address of the DAO that has admin right on the apw token
+     * @return the address of the DAO that has admin rights on the APW token
      */
     function getDAOAddress() external returns (address);
 
@@ -178,7 +178,7 @@ interface IRegistry {
      */
     function getFutureFactoryName(address _futureFactory) external view returns (string memory);
 
-    /* Future Platfrom */
+    /* Future platform */
     /**
      * @notice Register a new future platform in the registry
      * @param _futureFactory the address of the future factory
@@ -196,14 +196,14 @@ interface IRegistry {
     ) external;
 
     /**
-     * @notice Getter to check if a future platfrom is registered
-     * @param _futurePlatformName the name of the future platfrom to check the registration of
+     * @notice Getter to check if a future platform is registered
+     * @param _futurePlatformName the name of the future platform to check the registration of
      * @return true if it is, false otherwise
      */
     function isRegisteredFuturePlatform(string memory _futurePlatformName) external view returns (bool);
 
     /**
-     * @notice Getter for the future platfrom contracts
+     * @notice Getter for the future platform contracts
      * @param _futurePlatformName the name of the future platform
      * @return the addresses of 0) the future logic 1) the future wallet logic 2) the future vault logic
      */
@@ -211,19 +211,19 @@ interface IRegistry {
 
     /**
      * @notice Getter the total count of future platftroms registered
-     * @return the number of future platfroms registered
+     * @return the number of future platforms registered
      */
     function futurePlatformsCount() external view returns (uint256);
 
     /**
      * @notice Getter the list of platforms names registered
-     * @return the list of platfrom names registered
+     * @return the list of platform names registered
      */
     function getFuturePlatformNames() external view returns (string[] memory);
 
     /**
      * @notice Remove a future platform from the registry
-     * @param _futurePlatformName the name of the future platfrom to remove from the registry
+     * @param _futurePlatformName the name of the future platform to remove from the registry
      */
     function removeFuturePlatform(string memory _futurePlatformName) external;
 
@@ -241,7 +241,7 @@ interface IRegistry {
     function removeFuture(address _future) external;
 
     /**
-     * @notice Getter to check if a future  is registered
+     * @notice Getter to check if a future is registered
      * @param _future the address of the future to check the registration of
      * @return true if it is, false otherwise
      */

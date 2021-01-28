@@ -10,7 +10,7 @@ interface IFutureVault {
 
     /**
      * @notice Getter for the future address
-     * @return the vinyard address linked to this future wallet
+     * @return the future address linked to this vault
      */
     function getFutureAddress() external view returns (address);
 

@@ -24,7 +24,7 @@ interface ILiquidityGauge {
 
     /**
      * @notice update gauge and user liquidity state then return the new redeemable
-     * @param _user the user to who update and return the redeemable of
+     * @param _user the user to update and return the redeemable of
      */
     function updateAndGetRedeemable(address _user) external returns (uint256);
 
@@ -34,7 +34,7 @@ interface ILiquidityGauge {
     function updateInflatedVolume() external;
 
     /**
-     * @notice Getter fot the last inflated amount
+     * @notice Getter for the last inflated amount
      * @return the last inflated amount
      */
     function getLastInflatedAmount() external view returns (uint256);

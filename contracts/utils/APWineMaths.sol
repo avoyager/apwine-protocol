@@ -6,7 +6,7 @@ contract APWineMaths {
     using SafeMathUpgradeable for uint256;
 
     /**
-     * @notice scaled an input
+     * @notice scale an input
      * @param _actualValue the original value of the input
      * @param _initialSum the scaled value of the sum of the inputs
      * @param _actualSum the current value of the sum of the inputs
@@ -26,16 +26,16 @@ contract APWineMaths {
 
     /**
      * @notice scale back a value to the output
-     * @param _scalledOuput the current scaled output
+     * @param _scaledOutput the current scaled output
      * @param _initialSum the scaled value of the sum of the inputs
      * @param _actualSum the current value of the sum of the inputs
      */
     function getActualOutput(
-        uint256 _scalledOuput,
+        uint256 _scaledOutput,
         uint256 _initialSum,
         uint256 _actualSum
     ) public pure returns (uint256) {
         if (_initialSum == 0 || _actualSum == 0) return 0;
-        return (_scalledOuput.mul(_actualSum)).div(_initialSum);
+        return (_scaledOutput.mul(_actualSum)).div(_initialSum);
     }
 }
