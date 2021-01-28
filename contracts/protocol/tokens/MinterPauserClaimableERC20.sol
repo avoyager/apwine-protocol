@@ -1,4 +1,4 @@
-pragma solidity ^0.7.6;
+pragma solidity 0.7.6;
 
 import "contracts/protocol/tokens/ClaimableERC20.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";

@@ -1,4 +1,4 @@
-pragma solidity ^0.7.6;
+pragma solidity 0.7.6;
 
 import "contracts/protocol/tokens/MinterPauserClaimableERC20.sol";
 import "contracts/interfaces/apwine/IFuture.sol";

@@ -1,4 +1,4 @@
-pragma solidity ^0.7.6;
+pragma solidity 0.7.6;
 
 import "contracts/protocol/futures/RateFuture.sol";
 import "contracts/interfaces/platforms/yearn/IyToken.sol";

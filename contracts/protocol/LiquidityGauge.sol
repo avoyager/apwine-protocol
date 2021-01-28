@@ -1,4 +1,4 @@
-pragma solidity ^0.7.6;
+pragma solidity 0.7.6;
 
 import "contracts/interfaces/apwine/IGaugeController.sol";
 import "contracts/interfaces/apwine/IFuture.sol";
