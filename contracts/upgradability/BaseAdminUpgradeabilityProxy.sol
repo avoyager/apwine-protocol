@@ -78,7 +78,7 @@ contract BaseAdminUpgradeabilityProxy is BaseUpgradeabilityProxy {
      * on the new implementation.
      * This is useful to initialize the proxied contract.
      * @param newImplementation Address of the new implementation.
-     * @param data Data to send as msg.data in the low-level call.
+     * @param data Data to send as msg.data in the low level call.
      * It should include the signature and the parameters of the function to be called, as described in
      * https://solidity.readthedocs.io/en/v0.4.24/abi-spec.html#function-selector-and-argument-encoding.
      */

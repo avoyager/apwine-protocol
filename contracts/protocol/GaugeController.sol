@@ -94,7 +94,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable, ReentrancyG
 
     /**
      * @notice Claim all claimable APW rewards for the sender
-     * @dev, not gas efficient, claim function with specified liquidity gauges saves gas
+     * @dev not gas efficient, claim function with specified liquidity gauges saves gas
      */
     function claimAPW() public nonReentrant {
         require(isAPWClaimable, "apw rewards not claimable atm");
