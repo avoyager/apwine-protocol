@@ -59,9 +59,9 @@ describe("Gauge Controller", function (){
         describe("With user liquidity provided", function (){
     
             beforeEach(async function () {
-                await uniswapRouter.connect(user1).swapExactETHForTokens(0, [WETH_ADDRESS, ADAI_ADDRESS], this.user1.address, Date.now() + 25, {value: ether("1") })
-                await adai.approve(this.controller.address, ether("100"))
-                await this.controller.connect(this.user1).register(this.deployedAaveFuture.address, ether("100"))
+                await uniswapRouter.connect(user1).swapExactETHForTokens(0, [WETH_ADDRESS, ADAI_ADDRESS], this.user1.address, Date.now() + 25, {value:  ethers.utils.parseEther("1") })
+                await adai.approve(this.controller.address,  ethers.utils.parseEther("100"))
+                await this.controller.connect(this.user1).register(this.deployedAaveFuture.address,  ethers.utils.parseEther("100"))
                 await this.controller.connect(this.owner).setPeriodStartingDelay(DAY_TIME*7)
                 await this.controller.connect(this.owner).startFuturesByPeriodDuration(DAY_TIME*7)
                 await time.increase(DAY_TIME*7)
