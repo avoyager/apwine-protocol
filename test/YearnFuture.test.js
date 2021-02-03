@@ -1,39 +1,36 @@
 const { accounts, contract } = require("@openzeppelin/test-environment")
 const { expect } = require("chai")
+const { ethers, upgrades } = require("hardhat");
 
-const { BN, ether: amount, expectRevert, time, balance } = require("@openzeppelin/test-helpers")
-const ether = require("@openzeppelin/test-helpers/src/ether")
+const { BN, expectRevert, time, balance } = require("@openzeppelin/test-helpers")
 
 const common = require("./common")
-const { yTokenFuture, yTokenFutureWallet, FutureVault ,LiquidityGauge} = common.contracts
-const { adai,yusd, YUSD_ADDRESS,WETH_ADDRESS, uniswapRouter,DAY_TIME } = common
+const { YUSD_ADDRESS,WETH_ADDRESS,DAY_TIME } = common
 
-const { initializeCore, initializeFutures } = require("./initialize")
+const { initializeCore, initializeFutures,initializeYearnContracts } = require("./initialize")
+const { util } = require("prettier");
+
 
 describe("Yearn Future", function (){
 
     this.timeout(100 * 10000)
-    const [owner, user1, user2] = accounts
-
     beforeEach(async function () {
 
         await initializeCore.bind(this)()
         await initializeFutures.bind(this)()
+        await initializeYearnContracts.bind(this)()
 
-        await this.registry.addFutureFactory(this.ibtFutureFactory.address, "YEARN", { from: owner });
-
-        this.yearnFuture = await yTokenFuture.new()
-
-        this.yearnFutureWallet =  await yTokenFutureWallet.new()
-
-        this.yearnFutureVault = await FutureVault.new()
-
-        await this.registry.addFuturePlatform(this.ibtFutureFactory.address, "YEARN", this.yearnFuture.address,this.yearnFutureWallet.address,this.yearnFutureVault.address,{ from: owner })
+        this.yTokenFuture = await this.yTokenFuture.deploy()
+        this.yTokenFutureWallet =  await this.yTokenFutureWallet.deploy()
+        this.yearnFutureVault = await this.yearnFutureVault.deploy()
+        
+        await this.registry.connect(this.owner).addFutureFactory(this.ibtFutureFactory.address, "YEARN");
+        await this.registry.connect(this.owner).addFuturePlatform(this.ibtFutureFactory.address, "YEARN", this.yTokenFuture.address,this.yTokenFutureWallet.address,this.yearnFutureVault.address)
     })
 
 
     it("Contracts correctly registered", async function () {
-        expect(await this.registry.getFuturePlatform("YEARN")).to.eql([this.yearnFuture.address,this.yearnFutureWallet.address,this.yearnFutureVault.address])
+        expect(await this.registry.getFuturePlatform("YEARN")).to.eql([this.yTokenFuture.address,this.yTokenFutureWallet.address,this.yearnFutureVault.address])
     })
 
     it("Future registered", async function () {
@@ -41,20 +38,20 @@ describe("Yearn Future", function (){
     })
     
     it("Future platforms count is valid", async function () {
-        expect(await this.registry.futurePlatformsCount()).to.be.bignumber.equal(new BN(1))
+        expect(await this.registry.futurePlatformsCount()).to.equal(1)
     })
 
     describe("Weekly YUSD", function (){
 
         beforeEach(async function () {
-            await this.ibtFutureFactory.deployFutureWithIBT("YEARN",YUSD_ADDRESS,7,{ from: owner })
-            this.deployedYearnFuture =  await yTokenFuture.at(await this.registry.getFutureAt(0))
-            this.yearnFutureLiquidityGauge =  await LiquidityGauge.at(await this.gaugeController.getLiquidityGaugeOfFuture(this.deployedYearnFuture.address))
-            await this.gaugeController.setGaugeWeight( this.yearnFutureLiquidityGauge.address,2000000000000000,{ from: owner } )
+            await this.ibtFutureFactory.connect(this.owner).deployFutureWithIBT("YEARN",YUSD_ADDRESS,7)
+            this.deployedYearnFuture =  await this.yTokenFuture.attach(await this.registry.getFutureAt(0))
+            this.yearnFutureLiquidityGauge =  await this.LiquidityGauge.attach(await this.gaugeController.getLiquidityGaugeOfFuture(this.deployedYearnFuture.address))
+            await this.gaugeController.connect(this.owner).setGaugeWeight(this.yearnFutureLiquidityGauge.address,2000000000000000)
         })
 
         it("YEARN YUSD Future added in registry", async function () {
-            expect(await this.registry.futureCount()).to.be.bignumber.equal(new BN(1))
+            expect(await this.registry.futureCount()).to.equal(1)
         })
 
         it("Can retrieve the future durations list" , async function(){
@@ -72,17 +69,17 @@ describe("Yearn Future", function (){
         })
 
         it("Can check future wallet is correctly deployed", async function(){
-            const futureWallet =  await yTokenFutureWallet.at(await this.deployedYearnFuture.getFutureWalletAddress())
+            const futureWallet =  await this.yTokenFutureWallet.attach(await this.deployedYearnFuture.getFutureWalletAddress())
             expect(await futureWallet.getFutureAddress()).to.be.deep.equal(this.deployedYearnFuture.address)
         })
 
         it("Can check future wallet is correctly set", async function(){
-            const futureWallet =  await yTokenFutureWallet.at(await this.deployedYearnFuture.getFutureWalletAddress())
+            const futureWallet =  await this.yTokenFutureWallet.attach(await this.deployedYearnFuture.getFutureWalletAddress())
             expect(await futureWallet.getIBTAddress()).to.be.deep.equal(await this.deployedYearnFuture.getIBTAddress())
         })
 
         it("Can check future vault is correctly deployed", async function(){
-            const futureVault =  await FutureVault.at(await this.deployedYearnFuture.getFutureVaultAddress())
+            const futureVault =  await this.yearnFutureVault.attach(await this.deployedYearnFuture.getFutureVaultAddress())
             expect(await futureVault.getFutureAddress()).to.be.deep.equal(this.deployedYearnFuture.address)
         })
 
@@ -90,100 +87,123 @@ describe("Yearn Future", function (){
 
 
             beforeEach(async function () {
-                await uniswapRouter.swapExactETHForTokens(0, [WETH_ADDRESS, YUSD_ADDRESS], user1, Date.now() + 25, { from: user1, value: ether("1") })
+                this.uniswapRouter = new ethers.Contract("0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",require("@uniswap/v2-periphery/build/IUniswapV2Router02.json").abi, this.owner);
+                await this.uniswapRouter.swapExactETHForTokens(0, [WETH_ADDRESS, YUSD_ADDRESS], this.user1.address, Date.now() + 25, { value:  ethers.utils.parseEther("1") })              
+                this.yusd = new ethers.Contract(YUSD_ADDRESS,require("@openzeppelin/contracts-upgradeable/build/contracts/ERC20Upgradeable.json").abi, this.owner);
             })
 
             it("has at least 100 YUSD in their wallet", async function () {
-                expect(await yusd.balanceOf(user1)).to.be.bignumber.gt(ether("100"))
+                expect(await this.yusd.balanceOf(this.user1.address)).to.gt(ethers.utils.parseEther("100"))
             })
 
             it("can't register if it hasn't approved", async function () {
-                expectRevert.unspecified( this.controller.register(this.deployedYearnFuture.address, ether("100"), { from: user1 }))
+                expectRevert.unspecified( this.controller.connect(this.user1).register(this.deployedYearnFuture.address, ethers.utils.parseEther("100")))
             })
 
             it("can register to the next period", async function () {
-                await yusd.approve(this.controller.address, ether("100"), { from: user1 })
-                await this.controller.register(this.deployedYearnFuture.address, ether("100"), { from: user1 })
+                await this.yusd.connect(this.user1).approve(this.controller.address, ethers.utils.parseEther("100"))
+                await this.controller.connect(this.user1).register(this.deployedYearnFuture.address, ethers.utils.parseEther("100"))
             })
 
             describe("with funds registered", function () {
 
                 beforeEach(async function () {
-                    await yusd.approve(this.controller.address, ether("100"), { from: user1 })
-                    await this.controller.register(this.deployedYearnFuture.address, ether("100"), { from: user1 })
+                    await this.yusd.connect(this.user1).approve(this.controller.address, ethers.utils.parseEther("100"))
+                    await this.controller.connect(this.user1).register(this.deployedYearnFuture.address, ethers.utils.parseEther("100"))
                 })
 
                 
                 it("can unregister", async function() {
-                    await this.controller.unregister(this.deployedYearnFuture.address,ether("1"), { from: user1 })
+                    await this.controller.connect(this.user1).unregister(this.deployedYearnFuture.address,ethers.utils.parseEther("1"))
                 })
 
                 it("can unregister the whole registered balance", async function() {
-                    await this.controller.unregister(this.deployedYearnFuture.address,0, { from: user1 })
+                    await this.controller.connect(this.user1).unregister(this.deployedYearnFuture.address,0)
                 })
 
                 it("can get its registered funds", async function() {
-                    expect(await this.deployedYearnFuture.getRegisteredAmount(user1)).to.be.bignumber.gte(ether("1"))
+                    expect(await this.deployedYearnFuture.getRegisteredAmount(this.user1.address)).to.gte(ethers.utils.parseEther("1"))
                 })
 
                 it("can start the period", async function () {
-                    await this.controller.setPeriodStartingDelay(DAY_TIME*7,{ from: owner })
-                    await this.controller.startFuturesByPeriodDuration(DAY_TIME*7,{ from: owner })
+                    await this.controller.connect(this.owner).setPeriodStartingDelay(DAY_TIME*7)
+                    await this.controller.connect(this.owner).startFuturesByPeriodDuration(DAY_TIME*7)
                 })
 
                 describe("with next period started", function () {
 
                     beforeEach(async function () {
-                        await this.controller.setPeriodStartingDelay(DAY_TIME*7,{ from: owner })
-                        await this.controller.startFuturesByPeriodDuration(DAY_TIME*7,{ from: owner })
+                        await this.controller.connect(this.owner).setPeriodStartingDelay(DAY_TIME*7)
+                        await this.controller.connect(this.owner).startFuturesByPeriodDuration(DAY_TIME*7)
+                        this.futureIBT = await this.APWineIBT.attach(await this.deployedYearnFuture.getAPWIBTAddress()); 
                     })
 
                     it("fyt was generated with the right name", async function() {
-                        let addressFYT = await this.deployedYearnFuture.getFYTofPeriod(1, { from: user1 })
-                        const fyt1 = await contract.fromArtifact("ERC20", addressFYT)
+                        let addressFYT = await this.deployedYearnFuture.connect(this.user1).getFYTofPeriod(1)
+                        const fyt1 = await this.FutureYieldToken.attach(addressFYT)
                         let symbolFYT = await fyt1.symbol()
                         expect(symbolFYT == "7D-YEARN-YUSD-1")
                     })
 
+                    it("user can get apwibt balance", async function(){
+                        expect(await this.futureIBT.balanceOf(this.user1.address)).to.gte(0)
+                    })
+
+                    it("user getter for claimable apwibt and apwibt claimed are consitent", async function(){
+                        const amount = await this.deployedYearnFuture.getClaimableAPWIBT(this.user1.address);
+                        await this.controller.connect(this.user1).claimFYT(this.deployedYearnFuture.address)
+                        expect(await this.futureIBT.balanceOf(this.user1.address) == amount);
+                    })
+
                     it("user get claimable apwibt", async function() {
-                        expect(await this.deployedYearnFuture.getClaimableAPWIBT(user1)).to.be.bignumber.gte(new BN(0))
+                        expect(await this.deployedYearnFuture.getClaimableAPWIBT(this.user1.address)).to.gte(0)
+                    })
+
+                    it("user cant withdraw with 0 amount", async function() {
+                        expectRevert(this.controller.connect(this.user1).withdrawLockFunds(this.deployedYearnFuture.address, 0),'Invalid amount')
+                    })
+
+                    it("user can withdraw all its locked locked balance after claiming", async function() {
+                        await this.controller.connect(this.user1).claimFYT(this.deployedYearnFuture.address)
+                        const amount = await this.futureIBT.balanceOf(this.user1.address)
+                        await this.controller.connect(this.user1).withdrawLockFunds(this.deployedYearnFuture.address, amount)
                     })
 
                     it("user can claim tokens generated", async function() {
-                        await this.controller.claimFYT(this.deployedYearnFuture.address, { from: user1 })
+                        await this.controller.connect(this.user1).claimFYT(this.deployedYearnFuture.address)
                     })
 
                     it("can start another period", async function() {
                         await time.increase(DAY_TIME*7)
-                        await this.controller.startFuturesByPeriodDuration(DAY_TIME*7,{ from: owner })
+                        await this.controller.connect(this.owner).startFuturesByPeriodDuration(DAY_TIME*7)
                     })
 
                     describe("with future period expired", function () {
 
                         beforeEach(async function () {
-                            await this.controller.claimFYT(this.deployedYearnFuture.address, { from: user1 })
-                            await this.controller.startFuturesByPeriodDuration(DAY_TIME*7,{ from: owner })
-                            this.deployedYearnFutureWallet =  await yTokenFutureWallet.at(await this.deployedYearnFuture.getFutureWalletAddress())
+                            await this.controller.connect(this.user1).claimFYT(this.deployedYearnFuture.address)
+                            await this.controller.connect(this.owner).startFuturesByPeriodDuration(DAY_TIME*7)
+                            this.deployedYearnFutureWallet =  await this.yTokenFutureWallet.attach(await this.deployedYearnFuture.getFutureWalletAddress())
                         })
     
                         it("internal next period id must be 3 ", async function() {
-                            expect(await this.deployedYearnFuture.getNextPeriodIndex()).to.be.bignumber.equal(new BN(3))
+                            expect(await this.deployedYearnFuture.getNextPeriodIndex()).to.equal(3)
                         })
     
                         it("user can claim the new period tokens tokens generated", async function() {
-                            await this.controller.claimFYT(this.deployedYearnFuture.address, { from: user1 })
+                            await this.controller.connect(this.user1).claimFYT(this.deployedYearnFuture.address)
                         })
 
                         it("user can get its redeemable yield for the 1st period", async function() {
-                           expect(await this.deployedYearnFutureWallet.getRedeemableYield(1,user1, { from: user1 })).to.be.bignumber.gte(new BN(0))
+                           expect(await this.deployedYearnFutureWallet.connect(this.user1).getRedeemableYield(1,this.user1.address)).to.gte(0)
                         })
 
                         it("user can redeem its yield for the 1st period", async function() {
-                            await this.deployedYearnFutureWallet.redeemYield(1, { from: user1 })
+                            await this.deployedYearnFutureWallet.connect(this.user1).redeemYield(1)
                         })
 
                         it("can check the redeemable user liqudity in liquidity gauge  ", async function() {
-                            expect(this.yearnFutureLiquidityGauge.getUserRedeemable(user1)).to.be.bignumber.gte(new BN(0))
+                            expect( await this.yearnFutureLiquidityGauge.getUserRedeemable(this.user1.address)).to.gte(0)
                         })
               
                     })
