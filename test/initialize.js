@@ -2,56 +2,81 @@ const { accounts } = require("@openzeppelin/test-environment")
 
 const common = require("./common")
 const { FUTURE_DEPLOYER_ROLE } = common
-const { Controller, GaugeController, LiquidityGauge, Registry, Treasury, APWineMaths, APWineNaming, ProxyFactory, IBTFutureFactory, FutureYieldToken, APWineIBT } = common.contracts
 
 const initializeCore = async function () {
 
-    const [owner] = accounts
+    [this.owner, this.user1, this.user2] = await ethers.getSigners();
 
-    this.maths = await APWineMaths.new()
-    this.naming = await APWineNaming.new()
-    this.proxyFactory = await ProxyFactory.new()
+    this.APWineMaths = await ethers.getContractFactory('APWineMaths');
+    this.APWineNaming = await ethers.getContractFactory('APWineNaming');
+    this.ProxyFactory = await ethers.getContractFactory('ProxyFactory');
+    this.Registry = await ethers.getContractFactory('Registry');
+    this.Controller = await ethers.getContractFactory('Controller');
+    this.Treasury= await ethers.getContractFactory('Treasury');
+    this.GaugeController = await ethers.getContractFactory('GaugeController');
 
-    this.registry = await Registry.new()
-    await this.registry.initialize(owner)
+    this.maths = await this.APWineMaths.deploy()
+    this.naming = await this.APWineNaming.deploy()
+    this.proxyFactory = await this.ProxyFactory.deploy()
 
-    this.controller = await Controller.new()
-    await this.controller.initialize(owner,this.registry.address)
+    this.registry = await this.Registry.deploy()
+    await this.registry.initialize(this.owner.address)
 
-    this.treasury = await Treasury.new()
-    await this.treasury.initialize(owner)
+    this.controller = await this.Controller.deploy()
+    await this.controller.initialize(this.owner.address,this.registry.address)
 
-    await GaugeController.detectNetwork()
-    this.gaugeController =  await GaugeController.new()
-    await this.gaugeController.initialize(owner, this.registry.address)
-    await this.gaugeController.setEpochInflationRate(5000000000000000,{ from: owner } )
-    await this.gaugeController.setEpochLength(60*60*24*365,{ from: owner } )
+    this.treasury = await this.Treasury.deploy()
+    await this.treasury.initialize(this.owner.address)
 
-    await this.registry.setTreasury(this.treasury.address,{ from: owner })
-    await this.registry.setController(this.controller.address,{ from: owner })
-    await this.registry.setProxyFactory(this.proxyFactory.address,{ from: owner })
-    await this.registry.setGaugeController(this.gaugeController.address,{ from: owner })
-    await this.registry.setMathsUtils(this.maths.address,{ from: owner })
-    await this.registry.setNamingUtils(this.naming.address,{ from: owner })
+    this.gaugeController =  await this.GaugeController.deploy()
+    await this.gaugeController.initialize(this.owner.address, this.registry.address)
+    await this.gaugeController.connect(this.owner).setEpochInflationRate(5000000000000000)
+    await this.gaugeController.setEpochLength(60*60*24*365 )
+    await this.gaugeController.setInitialSupply(5000000000000000)
 
+    await this.registry.connect(this.owner).setTreasury(this.treasury.address)
+    await this.registry.connect(this.owner).setController(this.controller.address)
+    await this.registry.connect(this.owner).setProxyFactory(this.proxyFactory.address)
+    await this.registry.connect(this.owner).setGaugeController(this.gaugeController.address)
+    await this.registry.connect(this.owner).setMathsUtils(this.maths.address)
+    await this.registry.connect(this.owner).setNamingUtils(this.naming.address)
 }
 
 const initializeFutures = async function () {
 
-    const [owner] = accounts
+    [this.owner, this.user1, this.user2] = await ethers.getSigners();
+    this.LiquidityGauge = await ethers.getContractFactory('LiquidityGauge');
+    this.APWineIBT = await ethers.getContractFactory('APWineIBT');
+    this.FutureYieldToken = await ethers.getContractFactory('FutureYieldToken');
+    this.IBTFutureFactory = await ethers.getContractFactory('IBTFutureFactory');
 
-    this.liquidityGaugeLogic = await LiquidityGauge.new()
-    this.apwineIBTLogic = await APWineIBT.new()
-    this.fytLogic = await FutureYieldToken.new()
+    this.liquidityGaugeLogic = await this.LiquidityGauge.deploy()
+    this.apwineIBTLogic = await this.APWineIBT.deploy()
+    this.fytLogic = await this.FutureYieldToken.deploy()
 
-    await this.registry.setLiquidityGaugeLogic(this.liquidityGaugeLogic.address, { from: owner });
-    await this.registry.setAPWineIBTLogic(this.apwineIBTLogic.address, { from: owner });
-    await this.registry.setFYTLogic(this.fytLogic.address, { from: owner });
+    await this.registry.connect(this.owner).setLiquidityGaugeLogic(this.liquidityGaugeLogic.address);
+    await this.registry.connect(this.owner).setAPWineIBTLogic(this.apwineIBTLogic.address);
+    await this.registry.connect(this.owner).setFYTLogic(this.fytLogic.address);
 
-    this.ibtFutureFactory = await IBTFutureFactory.new()
-    await this.ibtFutureFactory.initialize(this.controller.address, owner)
-    await this.ibtFutureFactory.grantRole(FUTURE_DEPLOYER_ROLE, owner, { from: owner });
+    this.ibtFutureFactory = await this.IBTFutureFactory.deploy()
+    await this.ibtFutureFactory.initialize(this.controller.address, this.owner.address)
+    await this.ibtFutureFactory.connect(this.owner).grantRole(FUTURE_DEPLOYER_ROLE, this.owner.address);
 
 }
 
-module.exports = { initializeCore, initializeFutures }
+const initializeAaveContracts =  async function(){
+    this.AaveFuture = await ethers.getContractFactory('AaveFuture');
+    this.AaveFutureWallet = await ethers.getContractFactory('AaveFutureWallet');
+    this.FutureVault = await ethers.getContractFactory('FutureVault');
+}
+
+const initializeYearnContracts =  async function(){
+    this.yTokenFuture = await ethers.getContractFactory('yTokenFuture');
+    this.yTokenFutureWallet = await ethers.getContractFactory('yTokenFutureWallet');
+    this.yearnFutureVault = await ethers.getContractFactory('FutureVault');
+}
+
+
+
+
+module.exports = { initializeCore, initializeFutures ,initializeAaveContracts,initializeYearnContracts}
