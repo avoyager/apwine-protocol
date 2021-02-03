@@ -144,8 +144,28 @@ describe("Aave Future", function (){
                         expect(symbolFYT == "7D-AAVE-ADAI-1")
                     })
 
+                    it("user cant unregister at this point", async function() {
+                        expectRevert.unspecified(this.controller.connect(this.user1).unregister(this.deployedAaveFuture.address, ethers.utils.parseEther("1")))
+                    })
+
                     it("user can get apwibt balance", async function(){
                         expect(await this.futureIBT.balanceOf(this.user1.address)).to.gte(0)
+                    })
+
+                    it("user can get its fyt balance without claiming",async function(){
+                        let fyt =  await this.FutureYieldToken.attach(await this.deployedAaveFuture.getFYTofPeriod(1));
+                        expect(await fyt.balanceOf(this.user1.address)).to.gte(0)
+                    })
+
+                    it("user can transfer its apwibt balance without claiming", async function(){
+                        let balance = await this.futureIBT.balanceOf(this.user1.address);
+                        await this.futureIBT.connect(this.user1).transfer(this.user2.address, balance);
+                    })
+
+                    it("user can transfer its fyt without claiming", async function(){
+                        let fyt =  await this.FutureYieldToken.attach(await this.deployedAaveFuture.getFYTofPeriod(1));
+                        let balance = await fyt.balanceOf(this.user1.address);
+                        await fyt.connect(this.user1).transfer(this.user2.address, balance);
                     })
 
                     it("user getter for claimable apwibt and apwibt claimed are consitent", async function(){
