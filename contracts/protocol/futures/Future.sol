@@ -218,7 +218,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
      */
     function withdrawLockFunds(address _user, uint256 _amount) public virtual nonReentrant {
         require(hasRole(CONTROLLER_ROLE, msg.sender), "Caller is not allowed to withdraw locked funds");
-        require((_amount > 0) && (_amount > apwibt.balanceOf(_user)), "Invalid amount");
+        require((_amount > 0) && (_amount <= apwibt.balanceOf(_user)), "Invalid amount");
         if (hasClaimableAPWIBT(_user)) {
             _claimAPWIBT(_user);
         } else if (hasClaimableFYT(_user)) {
@@ -231,8 +231,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
         uint256 fundsToBeUnlocked = _amount.mul(unlockableFunds).div(apwibt.balanceOf(_user));
         uint256 yieldToBeUnlocked = _amount.mul(unrealisedYield).div(apwibt.balanceOf(_user));
 
-        apwibt.burnFrom(_user, _amount);
-        fyts[getNextPeriodIndex() - 1].burnFrom(_user, _amount);
+
 
         uint256 yieldToBeRedeemed = yieldToBeUnlocked.mul(controller.getUnlockYieldFactor(PERIOD_DURATION));
 
@@ -244,6 +243,8 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
             unrealisedYield.sub(yieldToBeRedeemed)
         );
         liquidityGauge.removeUserLiquidity(_user, _amount);
+        apwibt.burnFrom(_user, _amount);
+        fyts[getNextPeriodIndex() - 1].burnFrom(_user, _amount);
         emit FundsWithdrawn(_user, _amount);
     }
 
