@@ -30,7 +30,7 @@ interface IController {
 
     /**
      * @notice Set a new factor for the portion of the yield that is claimable when withdrawing funds during an ongoing period
-     * @param _periodDuration the duration of the periods 
+     * @param _periodDuration the duration of the periods
      * @param _claimableYieldFactor the portion of the yield that is claimable
      */
     function setUnlockClaimableFactor(uint256 _periodDuration, uint256 _claimableYieldFactor) external;

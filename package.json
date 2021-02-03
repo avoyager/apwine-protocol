@@ -4,11 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "compile": "npx truffle compile --all",
-    "optimize": "npx truffle compile --optimizer on --optimizer-runs 2000",
-    "test": "mocha --exit --recursive test",
-    "coverage": "npx truffle run coverage",
-    "deploy": "npx oz deploy",
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test",
+    "coverage": "npx hardhat coverage",
     "prettier": "prettier --write 'contracts/**/*.sol'"
   },
   "keywords": [],
@@ -18,9 +16,7 @@
     "@openzeppelin/cli": "^2.8.2",
     "@openzeppelin/contracts-upgradeable": "^3.3.0",
     "@openzeppelin/test-helpers": "^0.5.7",
-    "@openzeppelin/truffle-upgrades": "^1.2.3",
     "@uniswap/v2-periphery": "^1.1.0-beta.0",
-    "chai": "^4.2.0",
     "dotenv": "^8.2.0",
     "ganache-cli": "^6.12.0",
     "mocha": "^8.2.0",
@@ -29,12 +25,25 @@
     "truffle-hdwallet-provider": "^1.0.17"
   },
   "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.0.1",
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@openzeppelin/hardhat-upgrades": "^1.6.0",
     "@openzeppelin/test-environment": "0.1.5",
     "@truffle/hdwallet-provider": "^1.1.0",
+    "chai": "^4.2.0",
     "coveralls": "^3.1.0",
-    "eth-gas-reporter": "^0.2.20",
+    "ethereum-waffle": "^3.2.2",
+    "ethers": "^5.0.26",
+    "hardhat": "^2.0.8",
+    "hardhat-gas-reporter": "^1.0.4",
+    "husky": "^4.3.8",
     "prettier": "^2.2.1",
     "prettier-plugin-solidity": "^1.0.0-beta.2",
     "solidity-coverage": "^0.7.14"
+  },
+  "husky": {
+    "hooks": {
+        "pre-commit": "npm run prettier"
+    }
   }
 }

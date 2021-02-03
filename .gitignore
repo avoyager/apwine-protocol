@@ -94,3 +94,7 @@ coverage.json
 coverageEnv
 .coverage_contracts
 
+#Hardhat files
+cache
+artifacts
+
