@@ -26,7 +26,6 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable, ReentrancyGu
     IAPWineIBT private apwibt;
 
     uint256 private epochStart;
-    uint256 private supplyStart;
 
     uint256[] internal newInflatedVolume;
     uint256[] internal totalDepositedSupply;
@@ -59,6 +58,7 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable, ReentrancyGu
         newInflatedVolume.push(0);
         updatesTimestamp.push(epochStart);
         totalDepositedSupply.push(0);
+        periodsSwitchesIndexes.push(0);
     }
 
     /**
@@ -116,7 +116,7 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable, ReentrancyGu
     function getLastInflatedAmount() public view returns (uint256) {
         return
             (
-                (gaugeController.getLastEpochInflationRate().mul(supplyStart))
+                (gaugeController.getLastEpochInflationRate().mul(gaugeController.getInitialSupply()))
                     .mul(block.timestamp.sub(updatesTimestamp[updatesTimestamp.length - 1]))
                     .mul(gaugeController.getGaugeWeight(address(this)))
             )
@@ -151,6 +151,7 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable, ReentrancyGu
             i < totalDepositedSupply.length;
             i++
         ) {
+            
             redeemable = redeemable.add((newInflatedVolume[i].mul(newLiquidity)).div(totalDepositedSupply[i]));
         }
         return redeemable;
@@ -160,7 +161,7 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable, ReentrancyGu
      * @notice Register new user liquidity
      * @param _user the user to register the liquidity of
      */
-    function registerUserLiquidity(address _user) public nonReentrant {
+    function registerUserLiquidity(address _user) public {
         require(hasRole(FUTURE_ROLE, msg.sender), "Caller is not the corresponding future");
         if (liquidityRegistrationsPeriodIndex[_user] == future.getNextPeriodIndex()) return; // return if registration already done
         updateUserLiquidity(_user);
@@ -171,7 +172,7 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable, ReentrancyGu
      * @notice Delete a user liquidity registration
      * @param _user the user to delete the liquidity registration of
      */
-    function deleteUserLiquidityRegistration(address _user) public nonReentrant {
+    function deleteUserLiquidityRegistration(address _user) public {
         require(hasRole(FUTURE_ROLE, msg.sender), "Caller is not the corresponding future");
         assert(liquidityRegistrationsPeriodIndex[_user] == future.getNextPeriodIndex());
         delete liquidityRegistrationsPeriodIndex[_user];
@@ -182,7 +183,7 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable, ReentrancyGu
      * @param _user the user to remove the liquidity from
      * @param _amount the amount of liquidity to remove
      */
-    function removeUserLiquidity(address _user, uint256 _amount) public nonReentrant {
+    function removeUserLiquidity(address _user, uint256 _amount) public {
         require(hasRole(FUTURE_ROLE, msg.sender), "Caller is not the corresponding future");
         updateUserLiquidity(_user);
         assert(lastLiquidityAmountRecorded[_user] >= _amount);
@@ -229,7 +230,7 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable, ReentrancyGu
     function _updateUserLiquidity(address _user) internal {
         if (hasActiveLiquidityRegistraiton(_user)) {
             redeemLiquidityRegistration(_user);
-        } else {
+         } else {
             uint256 newReedamble = _getUserNewRedeemable(_user);
             if (newReedamble == 0) return;
             userRedeemTimestampIndex[_user] = updatesTimestamp.length - 1;

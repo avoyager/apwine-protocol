@@ -48,6 +48,12 @@ interface IGaugeController {
     function getLastEpochInflationRate() external view returns (uint256);
 
     /**
+     * @notice Getter for the initial Supply parameter
+     * @return the initial supply parameter
+     */
+    function getInitialSupply() external view returns (uint256);
+
+    /**
      * @notice Getter for weight of one gauge
      * @param _liquidityGauge the address of the liquidity gauge to get the weight of
      * @return the weight of the gauge
@@ -98,6 +104,12 @@ interface IGaugeController {
      * @param _gaugeWeight the new weight of the liquidity gauge
      */
     function setGaugeWeight(address _liquidityGauge, uint256 _gaugeWeight) external;
+
+    /**
+     * @notice Setter for the initial Supply parameter
+     * @param _initialSupply the initial Supply parameter
+     */
+    function setInitialSupply(uint256 _initialSupply) external;
 
     /**
      * @notice Setter for the length of the epochs

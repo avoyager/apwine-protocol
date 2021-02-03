@@ -46,6 +46,7 @@ contract GaugeController is Initializable, AccessControlUpgradeable, ReentrancyG
     event EpochInflationRateSet(uint256 _inflationRate);
     event GaugeWeightSet(address _liquidityGauge, uint256 _gaugeWeight);
     event EpochLengthSet(uint256 _epochLength);
+    event InitialSupplySet(uint256 _initialSupply);
     event APWAddressSet(address _APW);
     event RegistryAddressSet(address _registry);
     event APWWithdrawalsPaused();
@@ -128,6 +129,14 @@ contract GaugeController is Initializable, AccessControlUpgradeable, ReentrancyG
     }
 
     /* Getters */
+
+    /**
+     * @notice Getter for the initial Supply parameter
+     * @return the initial supply parameter
+     */
+    function getInitialSupply() external view returns (uint256) {
+        return initialSupply;
+    }
 
     /**
      * @notice Getter for the inflation rate of the current epoch
@@ -223,6 +232,17 @@ contract GaugeController is Initializable, AccessControlUpgradeable, ReentrancyG
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         epochLength = _epochLength;
         emit EpochLengthSet(_epochLength);
+    }
+
+
+    /**
+     * @notice Setter for the initial Supply parameter
+     * @param _initialSupply the initial Supply parameter
+     */
+    function setInitialSupply(uint256 _initialSupply) public {
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
+        initialSupply = _initialSupply;
+        emit InitialSupplySet(_initialSupply);
     }
 
     /**
