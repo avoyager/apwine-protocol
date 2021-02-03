@@ -4,11 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "compile": "npx truffle compile --all",
-    "optimize": "npx truffle compile --optimizer on --optimizer-runs 2000",
-    "test": "mocha --exit --recursive test",
-    "coverage": "npx truffle run coverage",
-    "deploy": "npx oz deploy",
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test",
+    "coverage": "npx hardhat coverage",
     "prettier": "prettier --write 'contracts/**/*.sol'"
   },
   "keywords": [],
