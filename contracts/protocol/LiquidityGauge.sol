@@ -51,7 +51,8 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable, ReentrancyGu
     function initialize(address _gaugeController, address _future) public initializer {
         gaugeController = IGaugeController(_gaugeController);
         future = IFuture(_future);
-        apwibt = IAPWineIBT(future.getIBTAddress());
+        apwibt = IAPWineIBT(future.getAPWIBTAddress());
+        _setupRole(TRANSFER_ROLE, address(apwibt));
         _setupRole(GAUGE_CONTROLLER_ROLE, _gaugeController);
         _setupRole(FUTURE_ROLE, _future);
         epochStart = block.timestamp;
