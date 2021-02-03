@@ -222,7 +222,7 @@ contract Controller is Initializable, AccessControlUpgradeable {
 
     /**
      * @notice Getter for the beginning timestamp of the next period for the futures with a defined period duration
-     * @param _periodDuration the duration of the periods 
+     * @param _periodDuration the duration of the periods
      * @return the timestamp of the beginning of the next period
      */
     function getNextPeriodStart(uint256 _periodDuration) public view returns (uint256) {
@@ -231,7 +231,7 @@ contract Controller is Initializable, AccessControlUpgradeable {
 
     /**
      * @notice Getter for the factor of claimable yield when unlocking
-     * @param _periodDuration the duration of the periods 
+     * @param _periodDuration the duration of the periods
      * @return the factor of the claimable yield of the last period
      */
     function getUnlockYieldFactor(uint256 _periodDuration) public view returns (uint256) {

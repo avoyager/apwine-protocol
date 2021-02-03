@@ -151,7 +151,6 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable, ReentrancyGu
             i < totalDepositedSupply.length;
             i++
         ) {
-            
             redeemable = redeemable.add((newInflatedVolume[i].mul(newLiquidity)).div(totalDepositedSupply[i]));
         }
         return redeemable;
@@ -230,7 +229,7 @@ contract LiquidityGauge is Initializable, AccessControlUpgradeable, ReentrancyGu
     function _updateUserLiquidity(address _user) internal {
         if (hasActiveLiquidityRegistraiton(_user)) {
             redeemLiquidityRegistration(_user);
-         } else {
+        } else {
             uint256 newReedamble = _getUserNewRedeemable(_user);
             if (newReedamble == 0) return;
             userRedeemTimestampIndex[_user] = updatesTimestamp.length - 1;

@@ -231,8 +231,6 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
         uint256 fundsToBeUnlocked = _amount.mul(unlockableFunds).div(apwibt.balanceOf(_user));
         uint256 yieldToBeUnlocked = _amount.mul(unrealisedYield).div(apwibt.balanceOf(_user));
 
-
-
         uint256 yieldToBeRedeemed = yieldToBeUnlocked.mul(controller.getUnlockYieldFactor(PERIOD_DURATION));
 
         ibt.transferFrom(address(futureVault), _user, fundsToBeUnlocked.add(yieldToBeRedeemed));
@@ -412,7 +410,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
     }
 
     /* Admin function */
-    
+
     /**
      * @notice Pause registrations and the creation of new periods
      */

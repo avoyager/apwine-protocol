@@ -234,7 +234,6 @@ contract GaugeController is Initializable, AccessControlUpgradeable, ReentrancyG
         emit EpochLengthSet(_epochLength);
     }
 
-
     /**
      * @notice Setter for the initial Supply parameter
      * @param _initialSupply the initial Supply parameter
