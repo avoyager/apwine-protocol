@@ -50,7 +50,6 @@ contract APWineIBT is MinterPauserClaimableERC20 {
             if (future.hasClaimableFYT(to)) {
                 future.claimFYT(to);
             }
-            ILiquidityGauge(future.getLiquidityGaugeAddress()).transferUserLiquidty(from, to, amount); // update the liquidity providing state of the users
         }
     }
 

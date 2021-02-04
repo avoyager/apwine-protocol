@@ -46,8 +46,6 @@ describe("Yearn Future", function (){
         beforeEach(async function () {
             await this.ibtFutureFactory.connect(this.owner).deployFutureWithIBT("YEARN",YUSD_ADDRESS,7)
             this.deployedYearnFuture =  await this.yTokenFuture.attach(await this.registry.getFutureAt(0))
-            this.yearnFutureLiquidityGauge =  await this.LiquidityGauge.attach(await this.gaugeController.getLiquidityGaugeOfFuture(this.deployedYearnFuture.address))
-            await this.gaugeController.connect(this.owner).setGaugeWeight(this.yearnFutureLiquidityGauge.address,2000000000000000)
         })
 
         it("YEARN YUSD Future added in registry", async function () {
@@ -200,10 +198,6 @@ describe("Yearn Future", function (){
 
                         it("user can redeem its yield for the 1st period", async function() {
                             await this.deployedYearnFutureWallet.connect(this.user1).redeemYield(1)
-                        })
-
-                        it("can check the redeemable user liqudity in liquidity gauge  ", async function() {
-                            expect( await this.yearnFutureLiquidityGauge.getUserRedeemable(this.user1.address)).to.gte(0)
                         })
               
                     })

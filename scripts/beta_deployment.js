@@ -20,8 +20,6 @@ async function main() {
       Registry = await ethers.getContractFactory('Registry');
       Controller = await ethers.getContractFactory('Controller');
       Treasury= await ethers.getContractFactory('Treasury');
-      GaugeController = await ethers.getContractFactory('GaugeController');
-      LiquidityGauge = await ethers.getContractFactory('LiquidityGauge');
       APWineIBT = await ethers.getContractFactory('APWineIBT');
       FutureYieldToken = await ethers.getContractFactory('FutureYieldToken');
       IBTFutureFactory = await ethers.getContractFactory('IBTFutureFactory');
@@ -50,9 +48,6 @@ async function main() {
       const fytLogic = await FutureYieldToken.deploy();
       await fytLogic.deployed();
       console.log("FutureYieldToken logic deployed to:", fytLogic.address);
-      const liquidityGaugeLogic = await LiquidityGauge.deploy();
-      await liquidityGaugeLogic.deployed();
-      console.log("LiquidityGauge logic deployed to:", liquidityGaugeLogic.address);
       const proxyFactory = await ProxyFactory.deploy();
       await proxyFactory.deployed();
       console.log("ProxyFactory deployed to:", proxyFactory.address);
@@ -64,9 +59,6 @@ async function main() {
       const controller = await upgrades.deployProxy(Controller, [deployer.address, registry.address], {unsafeAllowCustomTypes:true});
       await controller.deployed();
       console.log("Controller deployed to:", controller.address);
-      const gaugeController = await upgrades.deployProxy(GaugeController, [deployer.address, registry.address], {unsafeAllowCustomTypes:true});
-      await gaugeController.deployed();
-      console.log("GaugeController deployed to:", gaugeController.address);
       const treasury = await upgrades.deployProxy(Treasury, [deployer.address], {unsafeAllowCustomTypes:true});
       await treasury.deployed();
       console.log("Treasury deployed to:", treasury.address);
@@ -77,18 +69,12 @@ async function main() {
       let tx = await registry.setTreasury(treasury.address);
       await tx.wait()
 
-       tx = await registry.setGaugeController(gaugeController.address);
-      await tx.wait()
-
        tx = await registry.setController(controller.address);
       await tx.wait()
 
       //await registry.setAPW(apw.address);
   
        tx = await registry.setProxyFactory(proxyFactory.address);
-      await tx.wait()
-
-       tx = await registry.setLiquidityGaugeLogic(liquidityGaugeLogic.address);
       await tx.wait()
 
        tx = await registry.setAPWineIBTLogic(apwineIBTLogic.address);
@@ -101,16 +87,6 @@ async function main() {
       await tx.wait()
 
        tx = await registry.setNamingUtils(apwineNaming.address)
-      await tx.wait()
-  
-      console.log("Setting gauge controller parameters...");
-       tx = await gaugeController.setEpochInflationRate(INITIAL_INFLATION_RATE)
-      await tx.wait()
-
-       tx = await gaugeController.setEpochLength(EPOCH_LENGTH)
-      await tx.wait()
-
-       tx = await gaugeController.setInitialSupply(INIT_SUPPLY)
       await tx.wait()
 
 

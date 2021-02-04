@@ -86,9 +86,6 @@ abstract contract StreamFuture is Future {
         scaledTotals[nextIndex] = scaledTotals[nextIndex].sub(scaledToUnregister);
 
         ibt.transfer(_user, toRefund);
-        if (toRefund == currentRegistered) {
-            liquidityGauge.deleteUserLiquidityRegistration(_user);
-        }
     }
 
     /**
@@ -111,7 +108,6 @@ abstract contract StreamFuture is Future {
             apwibt.mint(address(this), registrationsTotals[nextPeriodID]); // Mint new apwIBTs
             ibt.transfer(address(futureVault), registrationsTotals[nextPeriodID]); // Send IBT to future for the new period
         }
-        liquidityGauge.registerNewFutureLiquidity(registrationsTotals[nextPeriodID]);
 
         registrationsTotals.push();
         scaledTotals.push();

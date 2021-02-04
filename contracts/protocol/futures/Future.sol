@@ -114,6 +114,7 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
         fyts.push();
 
         IRegistry registry = IRegistry(controller.getRegistryAddress());
+
         string memory ibtSymbol = controller.getFutureIBTSymbol(ibt.symbol(), _platformName, _periodDuration);
         bytes memory payload =
             abi.encodeWithSignature("initialize(string,string,address)", ibtSymbol, ibtSymbol, address(this));
@@ -157,7 +158,6 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
 
     function _register(address _user, uint256 _initialScaledBalance) internal virtual {
         registrations[_user] = Registration({startIndex: getNextPeriodIndex(), scaledBalance: _initialScaledBalance});
-        liquidityGauge.registerUserLiquidity(_user);
     }
 
     /**
@@ -240,7 +240,6 @@ abstract contract Future is Initializable, AccessControlUpgradeable, ReentrancyG
             IRegistry(controller.getRegistryAddress()).getTreasuryAddress(),
             unrealisedYield.sub(yieldToBeRedeemed)
         );
-        liquidityGauge.removeUserLiquidity(_user, _amount);
         apwibt.burnFrom(_user, _amount);
         fyts[getNextPeriodIndex() - 1].burnFrom(_user, _amount);
         emit FundsWithdrawn(_user, _amount);

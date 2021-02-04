@@ -1,5 +1,7 @@
 const { accounts } = require("@openzeppelin/test-environment")
 
+const { ethers, upgrades } = require("hardhat");
+
 const common = require("./common")
 const { FUTURE_DEPLOYER_ROLE } = common
 
@@ -13,53 +15,39 @@ const initializeCore = async function () {
     this.Registry = await ethers.getContractFactory('Registry');
     this.Controller = await ethers.getContractFactory('Controller');
     this.Treasury= await ethers.getContractFactory('Treasury');
-    this.GaugeController = await ethers.getContractFactory('GaugeController');
 
     this.maths = await this.APWineMaths.deploy()
     this.naming = await this.APWineNaming.deploy()
     this.proxyFactory = await this.ProxyFactory.deploy()
 
-    this.registry = await this.Registry.deploy()
-    await this.registry.initialize(this.owner.address)
+    this.registry =  await upgrades.deployProxy(this.Registry, [this.owner.address], {unsafeAllowCustomTypes:true});
 
-    this.controller = await this.Controller.deploy()
-    await this.controller.initialize(this.owner.address,this.registry.address)
+    this.controller = await upgrades.deployProxy(this.Controller, [this.owner.address,this.registry.address], {unsafeAllowCustomTypes:true});
 
-    this.treasury = await this.Treasury.deploy()
-    await this.treasury.initialize(this.owner.address)
-
-    this.gaugeController =  await this.GaugeController.deploy()
-    await this.gaugeController.initialize(this.owner.address, this.registry.address)
-    await this.gaugeController.connect(this.owner).setEpochInflationRate(5000000000000000)
-    await this.gaugeController.setEpochLength(60*60*24*365 )
-    await this.gaugeController.setInitialSupply(5000000000000000)
+    this.treasury = await upgrades.deployProxy(this.Treasury, [this.owner.address], {unsafeAllowCustomTypes:true});
 
     await this.registry.connect(this.owner).setTreasury(this.treasury.address)
     await this.registry.connect(this.owner).setController(this.controller.address)
     await this.registry.connect(this.owner).setProxyFactory(this.proxyFactory.address)
-    await this.registry.connect(this.owner).setGaugeController(this.gaugeController.address)
     await this.registry.connect(this.owner).setMathsUtils(this.maths.address)
     await this.registry.connect(this.owner).setNamingUtils(this.naming.address)
+
+
 }
 
 const initializeFutures = async function () {
 
-    [this.owner, this.user1, this.user2] = await ethers.getSigners();
-    this.LiquidityGauge = await ethers.getContractFactory('LiquidityGauge');
     this.APWineIBT = await ethers.getContractFactory('APWineIBT');
     this.FutureYieldToken = await ethers.getContractFactory('FutureYieldToken');
     this.IBTFutureFactory = await ethers.getContractFactory('IBTFutureFactory');
 
-    this.liquidityGaugeLogic = await this.LiquidityGauge.deploy()
     this.apwineIBTLogic = await this.APWineIBT.deploy()
     this.fytLogic = await this.FutureYieldToken.deploy()
 
-    await this.registry.connect(this.owner).setLiquidityGaugeLogic(this.liquidityGaugeLogic.address);
     await this.registry.connect(this.owner).setAPWineIBTLogic(this.apwineIBTLogic.address);
     await this.registry.connect(this.owner).setFYTLogic(this.fytLogic.address);
 
-    this.ibtFutureFactory = await this.IBTFutureFactory.deploy()
-    await this.ibtFutureFactory.initialize(this.controller.address, this.owner.address)
+    this.ibtFutureFactory = await upgrades.deployProxy(this.IBTFutureFactory, [this.controller.address, this.owner.address], {unsafeAllowCustomTypes:true});
     await this.ibtFutureFactory.connect(this.owner).grantRole(FUTURE_DEPLOYER_ROLE, this.owner.address);
 
 }

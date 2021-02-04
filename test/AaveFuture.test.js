@@ -45,8 +45,6 @@ describe("Aave Future", function (){
         beforeEach(async function () {
             await this.ibtFutureFactory.connect(this.owner).deployFutureWithIBT("AAVE",ADAI_ADDRESS,7);
             this.deployedAaveFuture =  await this.AaveFuture.attach(await this.registry.getFutureAt(0))
-            this.aaveFutureLiquidityGauge =  await this.LiquidityGauge.attach(await this.gaugeController.getLiquidityGaugeOfFuture(this.deployedAaveFuture.address))
-            await this.gaugeController.connect(this.owner).setGaugeWeight( this.aaveFutureLiquidityGauge.address ,2000000000000000)
         })
 
         it("AAVE ADAI Future added in registry", async function () {
@@ -221,9 +219,6 @@ describe("Aave Future", function (){
                             await this.deployedAaveFutureWallet.connect(this.user1).redeemYield(1)
                         })
 
-                        it("can check the redeemable user liqudity in liquidity gauge  ", async function() {
-                            expect(await this.aaveFutureLiquidityGauge.getUserRedeemable(this.user1.address)).to.gte(0)
-                        })
               
                     })
           
