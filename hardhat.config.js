@@ -36,8 +36,15 @@ module.exports = {
       accounts: {
         mnemonic: process.env.MNEMONIC
       }
+    },
+    mainnet: {
+      url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
+      accounts: {
+        mnemonic: process.env.MNEMONIC
+      },
     }
   },
+  gasPrice: 150000000000,
   solidity: {
     version: "0.7.6",
     settings: {
