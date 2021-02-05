@@ -35,7 +35,7 @@ module.exports = {
       url: `https://eth-kovan.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
       accounts: {
         mnemonic: process.env.MNEMONIC
-      }
+      },
     },
     mainnet: {
       url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
@@ -44,7 +44,6 @@ module.exports = {
       },
     }
   },
-  gasPrice: 150000000000,
   solidity: {
     version: "0.7.6",
     settings: {
