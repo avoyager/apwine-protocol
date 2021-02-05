@@ -2,6 +2,7 @@ require("@nomiclabs/hardhat-waffle");
 require('@openzeppelin/hardhat-upgrades');
 require("hardhat-gas-reporter");
 require('solidity-coverage');
+require("@nomiclabs/hardhat-etherscan");
 require('dotenv').config();
 
 const infuraProjectId = process.env.INFURA_PROJECT_ID;
@@ -52,6 +53,9 @@ module.exports = {
         runs: 1000
       }
     }
+  },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_API_KEY
   },
   gasReporter: {
     currency: 'USD',

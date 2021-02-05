@@ -101,7 +101,7 @@ async function main() {
   console.log("Setting controller parameters")
   tx = await controller.setPeriodStartingDelay(STARTING_DELAY)
   await tx.wait()
-  tx = await controller.setNextPeriodSwitchTimestamp(7 * DAY, BETA_STARTING_DATE)
+  tx = await controller.setNextPeriodSwitchTimestamp(30 * DAY, BETA_STARTING_DATE)
   await tx.wait()
 
   console.log("Transfering controller role to final address");
