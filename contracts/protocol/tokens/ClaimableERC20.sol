@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: MIT
-
 pragma solidity 0.7.6;
 
 import "@openzeppelin/contracts-upgradeable/GSN/ContextUpgradeable.sol";
@@ -10,7 +8,6 @@ import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 
 /**
  * @title ERC20 preset for tokens used in APWine protocol
- * @author Gaspard Peduzzi
  * @notice ERC20 mintable pausable
  * @dev allows overwriting of balanceOf function for liquid balance
  */
